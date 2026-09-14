@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .grid-botones {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-width: 250px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="text" id="num1">
+    <input type="text" id="num2">
+    <div class="grid-botones">
+        <button onclick="suma(document.getElementById('num1').value,document.getElementById('num2').value)">Suma</button>
+        <button onclick="resta(document.getElementById('num1').value,document.getElementById('num2').value)">Resta</button>
+        <button onclick="multiplicacion(document.getElementById('num1').value,document.getElementById('num2').value)">Multiplicación</button>
+        <button onclick="division(document.getElementById('num1').value,document.getElementById('num2').value)">División</button>
+    </div>
+    <div id="resultado"></div>
+    <script src="calculadora.js"></script>
+</body>
+
+</html>
