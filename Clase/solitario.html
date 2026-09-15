@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solitario Klondike Clásico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --felt-bg: radial-gradient(circle at 50% 30%, #157347 0%, #0d4a2d 60%, #072a19 100%);
+            --card-width: 82px;
+            --card-height: 120px;
+            --card-radius: 8px;
+            --tableau-offset: 26px;
+            --suit-red: #dc2626;
+            --suit-black: #1e293b;
+            --card-bg: #ffffff;
+            --slot-border: rgba(255, 255, 255, 0.22);
+            --slot-bg: rgba(0, 0, 0, 0.18);
+            --gold-accent: #f59e0b;
+        }
+
+        @media (min-width: 768px) {
+            :root {
+                --card-width: 96px;
+                --card-height: 140px;
+                --tableau-offset: 30px;
+            }
+        }
+
+        @media (min-width: 1100px) {
+            :root {
+                --card-width: 108px;
+                --card-height: 156px;
+                --tableau-offset: 34px;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--felt-bg);
+            min-height: 100vh;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        /* Barra Superior / Header */
+        header {
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            z-index: 100;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #f8fafc;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-title .suits-logo {
+            color: var(--gold-accent);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-weight: 700;
+            min-width: 32px;
+        }
+
+        .controls-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.12) 100%);
+            border-color: rgba(255, 255, 255, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #34d399;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Área de Juego */
+        main {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .game-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            width: 100%;
+        }
+
+        /* Fila Superior: Stock, Waste y Fundaciones */
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 16px;
+        }
+
+        .stock-waste-group,
+        .foundations-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        /* Slots / Huecos de Cartas */
+        .card-slot {
+            width: var(--card-width);
+            height: var(--card-height);
+            border-radius: var(--card-radius);
+            border: 2px dashed var(--slot-border);
+            background: var(--slot-bg);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card-slot.drag-over {
+            border-color: var(--gold-accent);
+            box-shadow: inset 0 0 16px rgba(245, 158, 11, 0.4), 0 0 12px rgba(245, 158, 11, 0.6);
+        }
+
+        .slot-watermark {
+            font-size: 2.2rem;
+            opacity: 0.22;
+            color: #ffffff;
+            pointer-events: none;
+        }
+
+        .slot-watermark.red {
+            color: #f87171;
+            opacity: 0.3;
+        }
+
+        /* Mazo de robo */
+        #stock {
+            cursor: pointer;
+        }
+
+        #stock.empty {
+            cursor: pointer;
+        }
+
+        .stock-reload-icon {
+            font-size: 2.2rem;
+            color: rgba(255, 255, 255, 0.45);
+            pointer-events: none;
+            transition: transform 0.3s;
+        }
+
+        #stock:hover .stock-reload-icon {
+            color: rgba(255, 255, 255, 0.8);
+            transform: rotate(45deg);
+        }
+
+        /* Fila Inferior: 7 Columnas del Tablero */
+        .tableau-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 16px;
+            min-height: 480px;
+        }
+
+        .tableau-column {
+            flex: 1;
+            max-width: var(--card-width);
+            min-height: calc(var(--card-height) + 120px);
+            position: relative;
+        }
+
+        .tableau-column .card-slot {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        /* Cartas */
+        .card {
+            width: var(--card-width);
+            height: var(--card-height);
+            border-radius: var(--card-radius);
+            position: absolute;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            cursor: pointer;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px 8px;
+            box-sizing: border-box;
+            background: var(--card-bg);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
+        }
+
+        .card.red {
+            color: var(--suit-red);
+        }
+
+        .card.black {
+            color: var(--suit-black);
+        }
+
+        /* Reverso de la carta */
+        .card.face-down {
+            cursor: default;
+            background: #1e3a8a;
+            border: 3px solid #ffffff;
+            background-image: 
+                radial-gradient(#3b82f6 20%, transparent 20%),
+                radial-gradient(#2563eb 20%, transparent 20%);
+            background-size: 14px 14px;
+            background-position: 0 0, 7px 7px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.6);
+        }
+
+        .card.face-down * {
+            display: none !important;
+        }
+
+        /* Anverso de la carta */
+        .card-corner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .card-corner .corner-suit {
+            font-size: 0.95rem;
+            margin-top: 2px;
+        }
+
+        .card-corner.bottom {
+            transform: rotate(180deg);
+            align-self: flex-end;
+        }
+
+        .card-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .card-center .center-suit {
+            font-size: 2.2rem;
+            line-height: 1;
+        }
+
+        .card-center .royal-letter {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        /* Estado seleccionado */
+        .card.selected {
+            box-shadow: 0 0 0 3px var(--gold-accent), 0 10px 24px rgba(0, 0, 0, 0.6) !important;
+            transform: translateY(-6px);
+            z-index: 1000 !important;
+        }
+
+        .card.is-dragging {
+            opacity: 0.4;
+        }
+
+        /* Animación de volteo */
+        @keyframes flipIn {
+            0% {
+                transform: scaleX(0);
+            }
+            100% {
+                transform: scaleX(1);
+            }
+        }
+
+        .card.flipping {
+            animation: flipIn 0.25s ease-out;
+        }
+
+        /* Modal de Victoria */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 2px solid var(--gold-accent);
+            border-radius: 16px;
+            padding: 36px 44px;
+            text-align: center;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-trophy {
+            font-size: 4rem;
+            margin-bottom: 12px;
+            display: inline-block;
+            animation: bounce 1.2s infinite alternate ease-in-out;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--gold-accent);
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: #e2e8f0;
+            font-size: 1.05rem;
+            margin-bottom: 24px;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 26px;
+        }
+
+        .modal-stat-title {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        .modal-stat-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+        }
+
+        /* Banner de Auto-completar */
+        #autocomplete-banner {
+            display: none;
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            color: #0f172a;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            cursor: pointer;
+            animation: pulse 1.5s infinite;
+            margin-bottom: 10px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* Notificación Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Barra Superior -->
+    <header>
+        <div class="header-title">
+            <span class="suits-logo">♠ ♥ ♣ ♦</span>
+            <h1>Solitario</h1>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">Tiempo:</span>
+                <span id="stat-time" class="stat-value">00:00</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Movs:</span>
+                <span id="stat-moves" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Puntos:</span>
+                <span id="stat-score" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <div class="controls-bar">
+            <button id="btn-undo" class="btn" title="Deshacer último movimiento">
+                <span>↩</span> Deshacer
+            </button>
+            <button id="btn-restart" class="btn" title="Reiniciar partida actual">
+                <span>↺</span> Reiniciar
+            </button>
+            <button id="btn-new-game" class="btn btn-primary" title="Iniciar nueva partida">
+                <span>★</span> Nueva Partida
+            </button>
+        </div>
+    </header>
+
+    <!-- Tablero de Juego Principal -->
+    <main>
+        <div id="autocomplete-banner" title="Haz clic para enviar automáticamente las cartas restantes a las fundaciones">
+            ⚡ ¡Todas las cartas están descubiertas! Clic aquí para <b>Auto-completar</b>
+        </div>
+
+        <div class="game-grid">
+            <!-- Fila Superior: Mazo / Descarte y 4 Fundaciones -->
+            <section class="top-row" aria-label="Mazo y Fundaciones">
+                <div class="stock-waste-group">
+                    <!-- Mazo de robo -->
+                    <div id="stock" class="card-slot" title="Mazo de cartas (Clic para robar)">
+                        <span class="stock-reload-icon">↻</span>
+                    </div>
+                    <!-- Pila de descarte -->
+                    <div id="waste" class="card-slot" title="Pila de descarte"></div>
+                </div>
+
+                <!-- 4 Fundaciones -->
+                <div class="foundations-group">
+                    <div id="foundation-0" class="card-slot foundation-slot" data-foundation-index="0" data-suit="hearts" title="Fundación de Corazones">
+                        <span class="slot-watermark red">♥</span>
+                    </div>
+                    <div id="foundation-1" class="card-slot foundation-slot" data-foundation-index="1" data-suit="diamonds" title="Fundación de Diamantes">
+                        <span class="slot-watermark red">♦</span>
+                    </div>
+                    <div id="foundation-2" class="card-slot foundation-slot" data-foundation-index="2" data-suit="clubs" title="Fundación de Tréboles">
+                        <span class="slot-watermark">♣</span>
+                    </div>
+                    <div id="foundation-3" class="card-slot foundation-slot" data-foundation-index="3" data-suit="spades" title="Fundación de Picas">
+                        <span class="slot-watermark">♠</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fila Inferior: 7 Columnas del Tablero -->
+            <section class="tableau-row" aria-label="Columnas de juego">
+                <div id="tableau-0" class="tableau-column" data-col-index="0">
+                    <div class="card-slot tableau-slot"></div>
+                </div>
+                <div id="tableau-1" class="tableau-column" data-col-index="1">
+                    <div class="card-slot tableau-slot"></div>
+                </div>
+                <div id="tableau-2" class="tableau-column" data-col-index="2">
+                    <div class="card-slot tableau-slot"></div>
+                </div>
+                <div id="tableau-3" class="tableau-column" data-col-index="3">
+                    <div class="card-slot tableau-slot"></div>
+                </div>
+                <div id="tableau-4" class="tableau-column" data-col-index="4">
+                    <div class="card-slot tableau-slot"></div>
+                </div>
+                <div id="tableau-5" class="tableau-column" data-col-index="5">
+                    <div class="card-slot tableau-slot"></div>
+                </div>
+                <div id="tableau-6" class="tableau-column" data-col-index="6">
+                    <div class="card-slot tableau-slot"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de Victoria -->
+    <div id="win-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-trophy">🏆</div>
+            <h2 class="modal-title">¡Victoria!</h2>
+            <p class="modal-text">Has completado el Solitario con éxito.</p>
+            <div class="modal-stats">
+                <div>
+                    <div class="modal-stat-title">Tiempo</div>
+                    <div id="win-time" class="modal-stat-val">00:00</div>
+                </div>
+                <div>
+                    <div class="modal-stat-title">Movimientos</div>
+                    <div id="win-moves" class="modal-stat-val">0</div>
+                </div>
+                <div>
+                    <div class="modal-stat-title">Puntuación</div>
+                    <div id="win-score" class="modal-stat-val">0</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-win-new-game" class="btn btn-primary">Nueva Partida</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje flotante / Toast -->
+    <div id="toast"></div>
+
+    <script src="solitario.js"></script>
+</body>
+
+</html>

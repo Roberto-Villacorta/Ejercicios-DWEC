@@ -6,7 +6,9 @@
     <title>Document</title>
     <script>
         function suma(){
-            document.getElementById("miDiv").innerHTML = parseInt(document.getElementById("num1").value) + parseInt(document.getElementById("num2").value);
+            resultado = parseInt(document.getElementById("num1").value) + parseInt(document.getElementById("num2").value);
+            document.getElementById("resultado").innerHTML = "el resultado de sumar " 
+            + document.getElementById("num1").value + " y " + document.getElementById("num2").value + " es:" + resultado;
         }
     </script>
 </head>
