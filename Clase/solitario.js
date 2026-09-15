@@ -1,384 +1,384 @@
 /**
- * Solitario Klondike Clásico
+ * Solitario Clásico (Klondike)
  * Desarrollo Web en Entorno Cliente (DWEC)
+ * Todo el código, variables y textos en castellano
  */
 
 (function () {
     'use strict';
 
-    // --- Definición de Constantes y Palos ---
-    const SUITS = [
-        { id: 'hearts', symbol: '♥', color: 'red', name: 'Corazones' },
-        { id: 'diamonds', symbol: '♦', color: 'red', name: 'Diamantes' },
-        { id: 'clubs', symbol: '♣', color: 'black', name: 'Tréboles' },
-        { id: 'spades', symbol: '♠', color: 'black', name: 'Picas' }
+    // --- Definición de Constantes y Palos en Castellano ---
+    const PALOS = [
+        { id: 'corazones', simbolo: '♥', color: 'rojo', nombre: 'Corazones' },
+        { id: 'diamantes', simbolo: '♦', color: 'rojo', nombre: 'Diamantes' },
+        { id: 'treboles', simbolo: '♣', color: 'negro', nombre: 'Tréboles' },
+        { id: 'picas', simbolo: '♠', color: 'negro', nombre: 'Picas' }
     ];
 
-    const RANKS = [
-        { rank: 1, label: 'A', name: 'As' },
-        { rank: 2, label: '2', name: '2' },
-        { rank: 3, label: '3', name: '3' },
-        { rank: 4, label: '4', name: '4' },
-        { rank: 5, label: '5', name: '5' },
-        { rank: 6, label: '6', name: '6' },
-        { rank: 7, label: '7', name: '7' },
-        { rank: 8, label: '8', name: '8' },
-        { rank: 9, label: '9', name: '9' },
-        { rank: 10, label: '10', name: '10' },
-        { rank: 11, label: 'J', name: 'Jota' },
-        { rank: 12, label: 'Q', name: 'Reina' },
-        { rank: 13, label: 'K', name: 'Rey' }
+    const VALORES = [
+        { valor: 1, etiqueta: 'A', nombre: 'As' },
+        { valor: 2, etiqueta: '2', nombre: '2' },
+        { valor: 3, etiqueta: '3', nombre: '3' },
+        { valor: 4, etiqueta: '4', nombre: '4' },
+        { valor: 5, etiqueta: '5', nombre: '5' },
+        { valor: 6, etiqueta: '6', nombre: '6' },
+        { valor: 7, etiqueta: '7', nombre: '7' },
+        { valor: 8, etiqueta: '8', nombre: '8' },
+        { valor: 9, etiqueta: '9', nombre: '9' },
+        { valor: 10, etiqueta: '10', nombre: '10' },
+        { valor: 11, etiqueta: 'J', nombre: 'Sota' },
+        { valor: 12, etiqueta: 'Q', nombre: 'Reina' },
+        { valor: 13, etiqueta: 'K', nombre: 'Rey' }
     ];
 
-    // --- Estado del Juego ---
-    let state = {
-        stock: [],
-        waste: [],
-        foundations: [[], [], [], []], // 0: hearts, 1: diamonds, 2: clubs, 3: spades
-        tableau: [[], [], [], [], [], [], []], // 7 columnas
-        moves: 0,
-        score: 0,
-        timeElapsed: 0,
-        timerActive: false,
-        gameWon: false
+    // --- Estado Principal del Juego ---
+    let estado = {
+        mazo: [],
+        descarte: [],
+        fundaciones: [[], [], [], []], // 0: corazones, 1: diamantes, 2: tréboles, 3: picas
+        tablero: [[], [], [], [], [], [], []], // 7 columnas
+        movimientos: 0,
+        puntuacion: 0,
+        tiempoTranscurrido: 0,
+        temporizadorActivo: false,
+        partidaGanada: false
     };
 
-    let historyStack = [];
-    let initialDeckSnapshot = null;
-    let timerInterval = null;
-    let selectedItem = null; // { source: 'waste'|'tableau'|'foundation', colIndex, cardIndex }
-    let draggedData = null; // Para Drag & Drop
-    let isAutoCompleting = false;
+    let pilaHistorial = [];
+    let instantaneaBarajaInicial = null;
+    let identificadorTemporizador = null;
+    let elementoSeleccionado = null; // { origen: 'descarte'|'tablero'|'fundacion', indiceColumna, indiceCarta }
+    let datosArrastre = null; // Información de la carta/secuencia en arrastre
+    let estaAutocompletando = false;
 
-    // Elementos del DOM
+    // --- Elementos del DOM ---
     const dom = {
-        stock: document.getElementById('stock'),
-        waste: document.getElementById('waste'),
-        foundations: [
-            document.getElementById('foundation-0'),
-            document.getElementById('foundation-1'),
-            document.getElementById('foundation-2'),
-            document.getElementById('foundation-3')
+        mazo: document.getElementById('mazo'),
+        descarte: document.getElementById('descarte'),
+        fundaciones: [
+            document.getElementById('fundacion-0'),
+            document.getElementById('fundacion-1'),
+            document.getElementById('fundacion-2'),
+            document.getElementById('fundacion-3')
         ],
-        tableaus: [
-            document.getElementById('tableau-0'),
-            document.getElementById('tableau-1'),
-            document.getElementById('tableau-2'),
-            document.getElementById('tableau-3'),
-            document.getElementById('tableau-4'),
-            document.getElementById('tableau-5'),
-            document.getElementById('tableau-6')
+        tableros: [
+            document.getElementById('tablero-0'),
+            document.getElementById('tablero-1'),
+            document.getElementById('tablero-2'),
+            document.getElementById('tablero-3'),
+            document.getElementById('tablero-4'),
+            document.getElementById('tablero-5'),
+            document.getElementById('tablero-6')
         ],
-        statTime: document.getElementById('stat-time'),
-        statMoves: document.getElementById('stat-moves'),
-        statScore: document.getElementById('stat-score'),
-        btnUndo: document.getElementById('btn-undo'),
-        btnRestart: document.getElementById('btn-restart'),
-        btnNewGame: document.getElementById('btn-new-game'),
-        btnWinNewGame: document.getElementById('btn-win-new-game'),
-        winModal: document.getElementById('win-modal'),
-        winTime: document.getElementById('win-time'),
-        winMoves: document.getElementById('win-moves'),
-        winScore: document.getElementById('win-score'),
-        autocompleteBanner: document.getElementById('autocomplete-banner'),
-        toast: document.getElementById('toast')
+        estTiempo: document.getElementById('est-tiempo'),
+        estMovimientos: document.getElementById('est-movimientos'),
+        estPuntuacion: document.getElementById('est-puntuacion'),
+        btnDeshacer: document.getElementById('btn-deshacer'),
+        btnReiniciar: document.getElementById('btn-reiniciar'),
+        btnNuevaPartida: document.getElementById('btn-nueva-partida'),
+        btnVictoriaNuevaPartida: document.getElementById('btn-victoria-nueva-partida'),
+        modalVictoria: document.getElementById('modal-victoria'),
+        victoriaTiempo: document.getElementById('victoria-tiempo'),
+        victoriaMovimientos: document.getElementById('victoria-movimientos'),
+        victoriaPuntuacion: document.getElementById('victoria-puntuacion'),
+        bannerAutocompletar: document.getElementById('banner-autocompletar'),
+        notificacion: document.getElementById('notificacion')
     };
 
-    // --- Creación y Barajado de Cartas ---
-    function createDeck() {
-        const deck = [];
-        let idCounter = 1;
+    // --- Generación y Barajado de Cartas ---
+    function crearBaraja() {
+        const baraja = [];
+        let contadorId = 1;
 
-        for (const suit of SUITS) {
-            for (const rankInfo of RANKS) {
-                deck.push({
-                    id: `card-${idCounter++}`,
-                    suit: suit.id,
-                    suitSymbol: suit.symbol,
-                    color: suit.color,
-                    rank: rankInfo.rank,
-                    rankLabel: rankInfo.label,
-                    faceUp: false
+        for (const palo of PALOS) {
+            for (const val of VALORES) {
+                baraja.push({
+                    id: `carta-${contadorId++}`,
+                    palo: palo.id,
+                    simboloPalo: palo.simbolo,
+                    color: palo.color,
+                    valor: val.valor,
+                    etiquetaValor: val.etiqueta,
+                    nombreCarta: `${val.nombre} de ${palo.nombre}`,
+                    bocaArriba: false
                 });
             }
         }
-        return deck;
+        return baraja;
     }
 
-    // Barajado Fisher-Yates
-    function shuffleDeck(deck) {
-        const shuffled = [...deck];
-        for (let i = shuffled.length - 1; i > 0; i--) {
+    // Algoritmo de barajado Fisher-Yates
+    function barajarBaraja(baraja) {
+        const barajada = [...baraja];
+        for (let i = barajada.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            [barajada[i], barajada[j]] = [barajada[j], barajada[i]];
         }
-        return shuffled;
+        return barajada;
     }
 
     // --- Inicialización del Juego ---
-    function initGame(deckToUse = null) {
-        stopTimer();
-        state.moves = 0;
-        state.score = 0;
-        state.timeElapsed = 0;
-        state.timerActive = false;
-        state.gameWon = false;
-        historyStack = [];
-        selectedItem = null;
-        isAutoCompleting = false;
+    function iniciarPartida(barajaParaUsar = null) {
+        detenerTemporizador();
+        estado.movimientos = 0;
+        estado.puntuacion = 0;
+        estado.tiempoTranscurrido = 0;
+        estado.temporizadorActivo = false;
+        estado.partidaGanada = false;
+        pilaHistorial = [];
+        elementoSeleccionado = null;
+        estaAutocompletando = false;
 
-        dom.winModal.classList.remove('active');
-        dom.autocompleteBanner.style.display = 'none';
-        updateStats();
+        dom.modalVictoria.classList.remove('activo');
+        dom.bannerAutocompletar.style.display = 'none';
+        actualizarEstadisticas();
 
-        // Si se pasa deckToUse (Reiniciar), usar copia; sino barajar nuevo
-        const deck = deckToUse ? JSON.parse(JSON.stringify(deckToUse)) : shuffleDeck(createDeck());
-        if (!deckToUse) {
-            initialDeckSnapshot = JSON.parse(JSON.stringify(deck));
+        // Si se reinicia se utiliza la misma baraja; si no, se baraja una nueva
+        const baraja = barajaParaUsar ? JSON.parse(JSON.stringify(barajaParaUsar)) : barajarBaraja(crearBaraja());
+        if (!barajaParaUsar) {
+            instantaneaBarajaInicial = JSON.parse(JSON.stringify(baraja));
         }
 
-        // Reparto del Solitario Klondike
-        state.foundations = [[], [], [], []];
-        state.tableau = [[], [], [], [], [], [], []];
-        state.waste = [];
+        // Limpiar fundaciones, tablero y descarte
+        estado.fundaciones = [[], [], [], []];
+        estado.tablero = [[], [], [], [], [], [], []];
+        estado.descarte = [];
 
-        let cardIdx = 0;
+        // Reparto a las 7 columnas del tablero (1 carta en col 0, 2 en col 1, ..., 7 en col 6)
+        let indiceCarta = 0;
         for (let col = 0; col < 7; col++) {
-            for (let row = 0; row <= col; row++) {
-                const card = deck[cardIdx++];
-                // Solo la última carta de cada columna se descubre
-                card.faceUp = (row === col);
-                state.tableau[col].push(card);
+            for (let fila = 0; fila <= col; fila++) {
+                const carta = baraja[indiceCarta++];
+                // Solo la última carta de la columna se descubre
+                carta.bocaArriba = (fila === col);
+                estado.tablero[col].push(carta);
             }
         }
 
-        // Las cartas restantes van al mazo de robo (cubiertas)
-        state.stock = deck.slice(cardIdx).map(card => {
-            card.faceUp = false;
-            return card;
+        // Las cartas restantes pasan al mazo de robo (boca abajo)
+        estado.mazo = baraja.slice(indiceCarta).map(carta => {
+            carta.bocaArriba = false;
+            return carta;
         });
 
-        render();
-        updateUndoButton();
+        renderizar();
+        actualizarBotonDeshacer();
     }
 
-    // --- Control del Cronómetro ---
-    function startTimerIfNeeded() {
-        if (!state.timerActive && !state.gameWon) {
-            state.timerActive = true;
-            timerInterval = setInterval(() => {
-                state.timeElapsed++;
-                updateStats();
+    // --- Control del Temporizador ---
+    function iniciarTemporizadorSiEsNecesario() {
+        if (!estado.temporizadorActivo && !estado.partidaGanada) {
+            estado.temporizadorActivo = true;
+            identificadorTemporizador = setInterval(() => {
+                estado.tiempoTranscurrido++;
+                actualizarEstadisticas();
             }, 1000);
         }
     }
 
-    function stopTimer() {
-        if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
+    function detenerTemporizador() {
+        if (identificadorTemporizador) {
+            clearInterval(identificadorTemporizador);
+            identificadorTemporizador = null;
         }
-        state.timerActive = false;
+        estado.temporizadorActivo = false;
     }
 
-    function formatTime(seconds) {
-        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const s = (seconds % 60).toString().padStart(2, '0');
-        return `${m}:${s}`;
+    function formatearTiempo(segundos) {
+        const minutos = Math.floor(segundos / 60).toString().padStart(2, '0');
+        const segs = (segundos % 60).toString().padStart(2, '0');
+        return `${minutos}:${segs}`;
     }
 
-    function updateStats() {
-        dom.statTime.textContent = formatTime(state.timeElapsed);
-        dom.statMoves.textContent = state.moves;
-        dom.statScore.textContent = state.score;
+    function actualizarEstadisticas() {
+        dom.estTiempo.textContent = formatearTiempo(estado.tiempoTranscurrido);
+        dom.estMovimientos.textContent = estado.movimientos;
+        dom.estPuntuacion.textContent = estado.puntuacion;
     }
 
-    function showToast(msg) {
-        dom.toast.textContent = msg;
-        dom.toast.classList.add('show');
-        clearTimeout(dom.toast._timer);
-        dom.toast._timer = setTimeout(() => {
-            dom.toast.classList.remove('show');
+    function mostrarNotificacion(mensaje) {
+        dom.notificacion.textContent = mensaje;
+        dom.notificacion.classList.add('visible');
+        clearTimeout(dom.notificacion._temporizador);
+        dom.notificacion._temporizador = setTimeout(() => {
+            dom.notificacion.classList.remove('visible');
         }, 1800);
     }
 
-    // --- Gestión del Historial (Deshacer / Undo) ---
-    function saveStateForUndo() {
-        const snapshot = {
-            stock: JSON.parse(JSON.stringify(state.stock)),
-            waste: JSON.parse(JSON.stringify(state.waste)),
-            foundations: JSON.parse(JSON.stringify(state.foundations)),
-            tableau: JSON.parse(JSON.stringify(state.tableau)),
-            moves: state.moves,
-            score: state.score
+    // --- Gestión de Historial (Deshacer) ---
+    function guardarEstadoParaDeshacer() {
+        const instantanea = {
+            mazo: JSON.parse(JSON.stringify(estado.mazo)),
+            descarte: JSON.parse(JSON.stringify(estado.descarte)),
+            fundaciones: JSON.parse(JSON.stringify(estado.fundaciones)),
+            tablero: JSON.parse(JSON.stringify(estado.tablero)),
+            movimientos: estado.movimientos,
+            puntuacion: estado.puntuacion
         };
-        historyStack.push(snapshot);
-        if (historyStack.length > 50) historyStack.shift();
-        updateUndoButton();
+        pilaHistorial.push(instantanea);
+        if (pilaHistorial.length > 50) pilaHistorial.shift();
+        actualizarBotonDeshacer();
     }
 
-    function updateUndoButton() {
-        dom.btnUndo.disabled = historyStack.length === 0;
+    function actualizarBotonDeshacer() {
+        dom.btnDeshacer.disabled = pilaHistorial.length === 0;
     }
 
-    function undo() {
-        if (historyStack.length === 0) return;
-        const previous = historyStack.pop();
-        state.stock = previous.stock;
-        state.waste = previous.waste;
-        state.foundations = previous.foundations;
-        state.tableau = previous.tableau;
-        state.moves = previous.moves;
-        state.score = previous.score;
-        selectedItem = null;
+    function deshacer() {
+        if (pilaHistorial.length === 0) return;
+        const anterior = pilaHistorial.pop();
+        estado.mazo = anterior.mazo;
+        estado.descarte = anterior.descarte;
+        estado.fundaciones = anterior.fundaciones;
+        estado.tablero = anterior.tablero;
+        estado.movimientos = anterior.movimientos;
+        estado.puntuacion = anterior.puntuacion;
+        elementoSeleccionado = null;
 
-        updateStats();
-        updateUndoButton();
-        render();
-        showToast('↩ Movimiento deshecho');
+        actualizarEstadisticas();
+        actualizarBotonDeshacer();
+        renderizar();
+        mostrarNotificacion('↩ Movimiento deshecho');
     }
 
-    // --- Validaciones de Movimiento ---
-    function canMoveToFoundation(card, foundationIndex) {
-        const foundation = state.foundations[foundationIndex];
-        const expectedSuit = SUITS[foundationIndex].id;
+    // --- Validaciones de Movimientos ---
+    function puedeMoverAFundacion(carta, indiceFundacion) {
+        const fundacion = estado.fundaciones[indiceFundacion];
+        const paloEsperado = PALOS[indiceFundacion].id;
 
-        if (card.suit !== expectedSuit) return false;
+        if (carta.palo !== paloEsperado) return false;
 
-        if (foundation.length === 0) {
-            return card.rank === 1; // As
+        if (fundacion.length === 0) {
+            return carta.valor === 1; // As
         } else {
-            const topCard = foundation[foundation.length - 1];
-            return card.rank === topCard.rank + 1;
+            const cartaSuperior = fundacion[fundacion.length - 1];
+            return carta.valor === cartaSuperior.valor + 1;
         }
     }
 
-    function canMoveToTableau(movingCard, colIndex) {
-        const column = state.tableau[colIndex];
-        if (column.length === 0) {
-            return movingCard.rank === 13; // Solo el Rey en columnas vacías
+    function puedeMoverATablero(cartaAMover, indiceColumna) {
+        const columna = estado.tablero[indiceColumna];
+        if (columna.length === 0) {
+            return cartaAMover.valor === 13; // Solo el Rey en columnas vacías
         }
-        const topCard = column[column.length - 1];
-        if (!topCard.faceUp) return false;
-        // Alternar colores y orden descendente
-        return (movingCard.color !== topCard.color) && (movingCard.rank === topCard.rank - 1);
+        const cartaSuperior = columna[columna.length - 1];
+        if (!cartaSuperior.bocaArriba) return false;
+        // Colores alternos y valor decreciente en 1
+        return (cartaAMover.color !== cartaSuperior.color) && (cartaAMover.valor === cartaSuperior.valor - 1);
     }
 
-    // Comprobar si una carta puede ir automáticamente a alguna fundación
-    function findFoundationForCard(card) {
+    function buscarFundacionParaCarta(carta) {
         for (let i = 0; i < 4; i++) {
-            if (canMoveToFoundation(card, i)) {
+            if (puedeMoverAFundacion(carta, i)) {
                 return i;
             }
         }
         return -1;
     }
 
-    // Voltear la última carta descubierta en una columna si quedó boca abajo
-    function checkAutoFlip(colIndex) {
-        const column = state.tableau[colIndex];
-        if (column.length > 0) {
-            const top = column[column.length - 1];
-            if (!top.faceUp) {
-                top.faceUp = true;
-                state.score += 5; // Puntos por descubrir carta
+    function comprobarVolteoAutomatico(indiceColumna) {
+        const columna = estado.tablero[indiceColumna];
+        if (columna.length > 0) {
+            const superior = columna[columna.length - 1];
+            if (!superior.bocaArriba) {
+                superior.bocaArriba = true;
+                estado.puntuacion += 5; // Puntos por descubrir carta
                 return true;
             }
         }
         return false;
     }
 
-    // --- Acciones del Jugador ---
+    // --- Acciones de Juego ---
 
-    // 1. Clic en el Mazo (Stock)
-    function onStockClick() {
-        startTimerIfNeeded();
-        saveStateForUndo();
-        selectedItem = null;
+    // 1. Clic en el Mazo de cartas
+    function alHacerClicEnMazo() {
+        iniciarTemporizadorSiEsNecesario();
+        guardarEstadoParaDeshacer();
+        elementoSeleccionado = null;
 
-        if (state.stock.length > 0) {
-            // Robar carta del mazo al descarte
-            const card = state.stock.pop();
-            card.faceUp = true;
-            state.waste.push(card);
-            state.moves++;
+        if (estado.mazo.length > 0) {
+            // Robar carta del mazo al montón de descarte
+            const carta = estado.mazo.pop();
+            carta.bocaArriba = true;
+            estado.descarte.push(carta);
+            estado.movimientos++;
         } else {
-            // Reciclar descarte al mazo
-            if (state.waste.length === 0) return;
-            state.stock = state.waste.map(c => {
-                c.faceUp = false;
+            // Reciclar el descarte de vuelta al mazo
+            if (estado.descarte.length === 0) return;
+            estado.mazo = estado.descarte.map(c => {
+                c.bocaArriba = false;
                 return c;
             }).reverse();
-            state.waste = [];
-            state.moves++;
-            state.score = Math.max(0, state.score - 10);
-            showToast('🔄 Mazo reciclado');
+            estado.descarte = [];
+            estado.movimientos++;
+            estado.puntuacion = Math.max(0, estado.puntuacion - 10);
+            mostrarNotificacion('🔄 Mazo reciclado');
         }
 
-        updateStats();
-        render();
-        checkGameState();
+        actualizarEstadisticas();
+        renderizar();
+        comprobarEstadoJuego();
     }
 
-    // 2. Mover cartas de origen a destino
-    function executeMove(source, target) {
-        startTimerIfNeeded();
-        saveStateForUndo();
+    // 2. Ejecutar movimiento entre zonas
+    function ejecutarMovimiento(origen, destino) {
+        iniciarTemporizadorSiEsNecesario();
+        guardarEstadoParaDeshacer();
 
-        let movingCards = [];
+        let cartasAMover = [];
 
-        // Extraer cartas de origen
-        if (source.type === 'waste') {
-            movingCards = [state.waste.pop()];
-        } else if (source.type === 'foundation') {
-            movingCards = [state.foundations[source.fIndex].pop()];
-        } else if (source.type === 'tableau') {
-            const col = state.tableau[source.colIndex];
-            movingCards = col.splice(source.cardIndex);
+        // Extraer cartas de la zona de origen
+        if (origen.tipo === 'descarte') {
+            cartasAMover = [estado.descarte.pop()];
+        } else if (origen.tipo === 'fundacion') {
+            cartasAMover = [estado.fundaciones[origen.indiceFundacion].pop()];
+        } else if (origen.tipo === 'tablero') {
+            const columna = estado.tablero[origen.indiceColumna];
+            cartasAMover = columna.splice(origen.indiceCarta);
         }
 
-        // Añadir cartas a destino
-        if (target.type === 'foundation') {
-            state.foundations[target.fIndex].push(...movingCards);
-            state.score += 10;
-        } else if (target.type === 'tableau') {
-            state.tableau[target.colIndex].push(...movingCards);
-            if (source.type === 'waste') {
-                state.score += 5;
-            } else if (source.type === 'foundation') {
-                state.score = Math.max(0, state.score - 15);
+        // Depositar cartas en la zona de destino
+        if (destino.tipo === 'fundacion') {
+            estado.fundaciones[destino.indiceFundacion].push(...cartasAMover);
+            estado.puntuacion += 10;
+        } else if (destino.tipo === 'tablero') {
+            estado.tablero[destino.indiceColumna].push(...cartasAMover);
+            if (origen.tipo === 'descarte') {
+                estado.puntuacion += 5;
+            } else if (origen.tipo === 'fundacion') {
+                estado.puntuacion = Math.max(0, estado.puntuacion - 15);
             }
         }
 
-        // Si el origen era tableau, voltear la carta anterior si es necesario
-        if (source.type === 'tableau') {
-            checkAutoFlip(source.colIndex);
+        // Si el origen fue el tablero, voltear la carta que haya quedado boca abajo
+        if (origen.tipo === 'tablero') {
+            comprobarVolteoAutomatico(origen.indiceColumna);
         }
 
-        state.moves++;
-        selectedItem = null;
-        updateStats();
-        render();
-        checkGameState();
+        estado.movimientos++;
+        elementoSeleccionado = null;
+        actualizarEstadisticas();
+        renderizar();
+        comprobarEstadoJuego();
     }
 
-    // 3. Auto-mover carta (Doble clic o clic derecho)
-    function tryAutoMoveCard(card, sourceInfo) {
-        const targetFoundation = findFoundationForCard(card);
-        if (targetFoundation !== -1) {
-            executeMove(sourceInfo, { type: 'foundation', fIndex: targetFoundation });
+    // 3. Auto-mover carta con doble clic
+    function intentarMovimientoAutomatico(carta, infoOrigen) {
+        const indiceFundacion = buscarFundacionParaCarta(carta);
+        if (indiceFundacion !== -1) {
+            ejecutarMovimiento(infoOrigen, { tipo: 'fundacion', indiceFundacion });
             return true;
         }
 
-        // Si no va a fundación, ver si va a alguna columna del tablero
+        // Si no cabe en la fundación, verificar si cabe en alguna columna del tablero
         for (let c = 0; c < 7; c++) {
-            if (sourceInfo.type === 'tableau' && sourceInfo.colIndex === c) continue;
-            if (canMoveToTableau(card, c)) {
-                // Solo mover si no es un movimiento trivial rey a columna vacía sin liberar carta
-                if (sourceInfo.type === 'tableau' && card.rank === 13 && state.tableau[sourceInfo.colIndex].length === 0) {
+            if (infoOrigen.tipo === 'tablero' && infoOrigen.indiceColumna === c) continue;
+            if (puedeMoverATablero(carta, c)) {
+                if (infoOrigen.tipo === 'tablero' && carta.valor === 13 && estado.tablero[infoOrigen.indiceColumna].length === 0) {
                     continue;
                 }
-                executeMove(sourceInfo, { type: 'tableau', colIndex: c });
+                ejecutarMovimiento(infoOrigen, { tipo: 'tablero', indiceColumna: c });
                 return true;
             }
         }
@@ -386,389 +386,383 @@
         return false;
     }
 
-    // 4. Manejo de Clic y Selección
-    function handleCardClick(card, sourceInfo) {
-        if (!card.faceUp) return;
+    // 4. Manejo de Selección y Clic Simple
+    function manejarClicEnCarta(carta, infoOrigen) {
+        if (!carta.bocaArriba) return;
 
         // Si no hay nada seleccionado, seleccionar esta carta
-        if (!selectedItem) {
-            selectedItem = { ...sourceInfo, card };
-            render();
+        if (!elementoSeleccionado) {
+            elementoSeleccionado = { ...infoOrigen, carta };
+            renderizar();
             return;
         }
 
-        // Si ya hay algo seleccionado
-        // Caso A: clic en la misma carta -> deseleccionar
-        if (selectedItem.card.id === card.id) {
-            selectedItem = null;
-            render();
+        // Clic en la misma carta: deseleccionar
+        if (elementoSeleccionado.carta.id === carta.id) {
+            elementoSeleccionado = null;
+            renderizar();
             return;
         }
 
-        // Caso B: intentar mover la carta seleccionada sobre esta carta
-        if (sourceInfo.type === 'tableau') {
-            const targetCol = sourceInfo.colIndex;
-            const targetColumn = state.tableau[targetCol];
-            const isTopCard = (targetColumn.length - 1 === sourceInfo.cardIndex);
+        // Intentar colocar la carta seleccionada sobre esta carta
+        if (infoOrigen.tipo === 'tablero') {
+            const columnaDestino = infoOrigen.indiceColumna;
+            const columna = estado.tablero[columnaDestino];
+            const esCartaSuperior = (columna.length - 1 === infoOrigen.indiceCarta);
 
-            if (isTopCard && canMoveToTableau(selectedItem.card, targetCol)) {
-                executeMove(selectedItem, { type: 'tableau', colIndex: targetCol });
+            if (esCartaSuperior && puedeMoverATablero(elementoSeleccionado.carta, columnaDestino)) {
+                ejecutarMovimiento(elementoSeleccionado, { tipo: 'tablero', indiceColumna: columnaDestino });
                 return;
             }
-        } else if (sourceInfo.type === 'foundation') {
-            if (canMoveToFoundation(selectedItem.card, sourceInfo.fIndex)) {
-                executeMove(selectedItem, { type: 'foundation', fIndex: sourceInfo.fIndex });
-                return;
-            }
-        }
-
-        // Caso C: cambiar selección a la nueva carta si es una carta válida
-        selectedItem = { ...sourceInfo, card };
-        render();
-    }
-
-    // Clic en hueco vacío
-    function handleEmptySlotClick(targetInfo) {
-        if (!selectedItem) return;
-
-        if (targetInfo.type === 'tableau') {
-            if (canMoveToTableau(selectedItem.card, targetInfo.colIndex)) {
-                executeMove(selectedItem, { type: 'tableau', colIndex: targetInfo.colIndex });
-                return;
-            }
-        } else if (targetInfo.type === 'foundation') {
-            if (canMoveToFoundation(selectedItem.card, targetInfo.fIndex)) {
-                executeMove(selectedItem, { type: 'foundation', fIndex: targetInfo.fIndex });
+        } else if (infoOrigen.tipo === 'fundacion') {
+            if (puedeMoverAFundacion(elementoSeleccionado.carta, infoOrigen.indiceFundacion)) {
+                ejecutarMovimiento(elementoSeleccionado, { tipo: 'fundacion', indiceFundacion: infoOrigen.indiceFundacion });
                 return;
             }
         }
-        selectedItem = null;
-        render();
+
+        // Si el movimiento no era válido, seleccionar la nueva carta
+        elementoSeleccionado = { ...infoOrigen, carta };
+        renderizar();
     }
 
-    // --- Renderizado Visual ---
-    function createCardElement(card, sourceInfo) {
+    // Clic en una casilla vacía
+    function manejarClicEnCasillaVacia(infoDestino) {
+        if (!elementoSeleccionado) return;
+
+        if (infoDestino.tipo === 'tablero') {
+            if (puedeMoverATablero(elementoSeleccionado.carta, infoDestino.indiceColumna)) {
+                ejecutarMovimiento(elementoSeleccionado, { tipo: 'tablero', indiceColumna: infoDestino.indiceColumna });
+                return;
+            }
+        } else if (infoDestino.tipo === 'fundacion') {
+            if (puedeMoverAFundacion(elementoSeleccionado.carta, infoDestino.indiceFundacion)) {
+                ejecutarMovimiento(elementoSeleccionado, { tipo: 'fundacion', indiceFundacion: infoDestino.indiceFundacion });
+                return;
+            }
+        }
+        elementoSeleccionado = null;
+        renderizar();
+    }
+
+    // --- Renderizado Visual en el DOM ---
+    function crearElementoCarta(carta, infoOrigen) {
         const el = document.createElement('div');
-        el.className = `card ${card.color} ${card.faceUp ? 'face-up' : 'face-down'}`;
-        el.dataset.cardId = card.id;
+        el.className = `carta ${carta.color} ${carta.bocaArriba ? 'boca-arriba' : 'boca-abajo'}`;
+        el.dataset.idCarta = carta.id;
+        el.title = carta.bocaArriba ? carta.nombreCarta : 'Carta cubierta';
 
         // Resaltar si está seleccionada
-        if (selectedItem && selectedItem.card && selectedItem.card.id === card.id) {
-            el.classList.add('selected');
+        if (elementoSeleccionado && elementoSeleccionado.carta && elementoSeleccionado.carta.id === carta.id) {
+            el.classList.add('seleccionada');
         }
 
-        if (card.faceUp) {
+        if (carta.bocaArriba) {
             el.draggable = true;
 
-            // Esquina superior izquierda
-            const topCorner = document.createElement('div');
-            topCorner.className = 'card-corner top';
-            topCorner.innerHTML = `<span>${card.rankLabel}</span><span class="corner-suit">${card.suitSymbol}</span>`;
+            // Esquina superior
+            const esquinaSuperior = document.createElement('div');
+            esquinaSuperior.className = 'esquina-carta superior';
+            esquinaSuperior.innerHTML = `<span>${carta.etiquetaValor}</span><span class="palo-esquina">${carta.simboloPalo}</span>`;
 
             // Centro
-            const center = document.createElement('div');
-            center.className = 'card-center';
-            if (card.rank >= 11 && card.rank <= 13) {
-                center.innerHTML = `<span class="royal-letter">${card.rankLabel}</span><span class="center-suit">${card.suitSymbol}</span>`;
+            const centro = document.createElement('div');
+            centro.className = 'centro-carta';
+            if (carta.valor >= 11 && carta.valor <= 13) {
+                centro.innerHTML = `<span class="letra-figura">${carta.etiquetaValor}</span><span class="palo-centro">${carta.simboloPalo}</span>`;
             } else {
-                center.innerHTML = `<span class="center-suit">${card.suitSymbol}</span>`;
+                centro.innerHTML = `<span class="palo-centro">${carta.simboloPalo}</span>`;
             }
 
-            // Esquina inferior derecha
-            const btmCorner = document.createElement('div');
-            btmCorner.className = 'card-corner bottom';
-            btmCorner.innerHTML = `<span>${card.rankLabel}</span><span class="corner-suit">${card.suitSymbol}</span>`;
+            // Esquina inferior invertida
+            const esquinaInferior = document.createElement('div');
+            esquinaInferior.className = 'esquina-carta inferior';
+            esquinaInferior.innerHTML = `<span>${carta.etiquetaValor}</span><span class="palo-esquina">${carta.simboloPalo}</span>`;
 
-            el.appendChild(topCorner);
-            el.appendChild(center);
-            el.appendChild(btmCorner);
+            el.appendChild(esquinaSuperior);
+            el.appendChild(centro);
+            el.appendChild(esquinaInferior);
 
-            // Eventos de Arrastre (Drag and Drop)
+            // Arrastrar (Drag & Drop)
             el.addEventListener('dragstart', (e) => {
                 e.stopPropagation();
-                draggedData = {
-                    card,
-                    source: sourceInfo
+                datosArrastre = {
+                    carta,
+                    origen: infoOrigen
                 };
-                el.classList.add('is-dragging');
-                e.dataTransfer.setData('text/plain', card.id);
+                el.classList.add('arrastrando');
+                e.dataTransfer.setData('text/plain', carta.id);
                 e.dataTransfer.effectAllowed = 'move';
             });
 
             el.addEventListener('dragend', () => {
-                el.classList.remove('is-dragging');
-                draggedData = null;
-                clearDropHighlights();
+                el.classList.remove('arrastrando');
+                datosArrastre = null;
+                limpiarResaltadosDestino();
             });
 
-            // Clic sencillo
+            // Clic simple
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
-                handleCardClick(card, sourceInfo);
+                manejarClicEnCarta(carta, infoOrigen);
             });
 
             // Doble clic para auto-mover
             el.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
-                tryAutoMoveCard(card, sourceInfo);
+                intentarMovimientoAutomatico(carta, infoOrigen);
             });
         }
 
         return el;
     }
 
-    function clearDropHighlights() {
-        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    function limpiarResaltadosDestino() {
+        document.querySelectorAll('.zona-destino').forEach(el => el.classList.remove('zona-destino'));
     }
 
-    function render() {
-        // 1. Renderizar Mazo (Stock)
-        dom.stock.classList.toggle('empty', state.stock.length === 0);
-        // Limpiar cartas previas en stock dejando el icono
-        const reloadIcon = dom.stock.querySelector('.stock-reload-icon');
-        dom.stock.innerHTML = '';
-        if (state.stock.length === 0) {
-            dom.stock.appendChild(reloadIcon);
+    function renderizar() {
+        // 1. Renderizar Mazo de robo
+        dom.mazo.classList.toggle('vacio', estado.mazo.length === 0);
+        const iconoRecarga = dom.mazo.querySelector('.icono-recargar-mazo');
+        dom.mazo.innerHTML = '';
+        if (estado.mazo.length === 0) {
+            dom.mazo.appendChild(iconoRecarga);
         } else {
-            // Mostrar carta cubierta
-            const stockCard = document.createElement('div');
-            stockCard.className = 'card face-down';
-            stockCard.style.top = '0';
-            stockCard.style.left = '0';
-            dom.stock.appendChild(stockCard);
+            const cartaMazo = document.createElement('div');
+            cartaMazo.className = 'carta boca-abajo';
+            cartaMazo.style.top = '0';
+            cartaMazo.style.left = '0';
+            dom.mazo.appendChild(cartaMazo);
         }
 
-        // 2. Renderizar Pila de Descarte (Waste)
-        dom.waste.innerHTML = '';
-        if (state.waste.length > 0) {
-            // Mostrar las últimas cartas escalonadas levemente
-            const topCard = state.waste[state.waste.length - 1];
-            const cardEl = createCardElement(topCard, { type: 'waste' });
-            dom.waste.appendChild(cardEl);
+        // 2. Renderizar Montón de Descarte
+        dom.descarte.innerHTML = '';
+        if (estado.descarte.length > 0) {
+            const cartaSuperior = estado.descarte[estado.descarte.length - 1];
+            const elCarta = crearElementoCarta(cartaSuperior, { tipo: 'descarte' });
+            dom.descarte.appendChild(elCarta);
         }
 
-        // 3. Renderizar Fundaciones
+        // 3. Renderizar las 4 Fundaciones
         for (let i = 0; i < 4; i++) {
-            const fSlot = dom.foundations[i];
-            // Conservar la marca de agua
-            const watermark = fSlot.querySelector('.slot-watermark');
-            fSlot.innerHTML = '';
-            fSlot.appendChild(watermark);
+            const casillaFundacion = dom.fundaciones[i];
+            const marcaAgua = casillaFundacion.querySelector('.marca-agua-casilla');
+            casillaFundacion.innerHTML = '';
+            casillaFundacion.appendChild(marcaAgua);
 
-            const cards = state.foundations[i];
-            if (cards.length > 0) {
-                const topCard = cards[cards.length - 1];
-                const cardEl = createCardElement(topCard, { type: 'foundation', fIndex: i });
-                fSlot.appendChild(cardEl);
+            const cartas = estado.fundaciones[i];
+            if (cartas.length > 0) {
+                const cartaSuperior = cartas[cartas.length - 1];
+                const elCarta = crearElementoCarta(cartaSuperior, { tipo: 'fundacion', indiceFundacion: i });
+                casillaFundacion.appendChild(elCarta);
             }
         }
 
-        // 4. Renderizar Columnas del Tablero (Tableau)
+        // 4. Renderizar las 7 Columnas del Tablero
+        const desplazamiento = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--desplazamiento-tablero')) || 28;
+
         for (let c = 0; c < 7; c++) {
-            const colSlot = dom.tableaus[c];
-            // Vaciar excepto el contenedor del slot base
-            colSlot.innerHTML = '<div class="card-slot tableau-slot"></div>';
-            const cards = state.tableau[c];
+            const casillaColumna = dom.tableros[c];
+            casillaColumna.innerHTML = '<div class="casilla-carta casilla-tablero"></div>';
+            const cartas = estado.tablero[c];
 
-            const offset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tableau-offset')) || 28;
+            cartas.forEach((carta, idx) => {
+                const elCarta = crearElementoCarta(carta, { tipo: 'tablero', indiceColumna: c, indiceCarta: idx });
+                elCarta.style.top = `${idx * desplazamiento}px`;
+                elCarta.style.zIndex = idx + 1;
 
-            cards.forEach((card, idx) => {
-                const cardEl = createCardElement(card, { type: 'tableau', colIndex: c, cardIndex: idx });
-                cardEl.style.top = `${idx * offset}px`;
-                cardEl.style.zIndex = idx + 1;
-
-                // Si esta carta es parte de una secuencia seleccionada, resaltarla
-                if (selectedItem && selectedItem.type === 'tableau' && selectedItem.colIndex === c && idx >= selectedItem.cardIndex) {
-                    cardEl.classList.add('selected');
+                if (elementoSeleccionado && elementoSeleccionado.tipo === 'tablero' && elementoSeleccionado.indiceColumna === c && idx >= elementoSeleccionado.indiceCarta) {
+                    elCarta.classList.add('seleccionada');
                 }
 
-                colSlot.appendChild(cardEl);
+                casillaColumna.appendChild(elCarta);
             });
         }
     }
 
-    // --- Configurar Zonas de Arrastre y Soltado (Drop Targets) ---
-    function setupDropZones() {
-        // Fundaciones como destinos
-        dom.foundations.forEach((fSlot, fIndex) => {
-            fSlot.addEventListener('dragover', (e) => {
+    // --- Configurar Zonas para Soltar Cartas (Drop Targets) ---
+    function configurarZonasSoltado() {
+        // Fundaciones
+        dom.fundaciones.forEach((casillaF, indiceF) => {
+            casillaF.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                if (draggedData && canMoveToFoundation(draggedData.card, fIndex)) {
-                    fSlot.classList.add('drag-over');
+                if (datosArrastre && puedeMoverAFundacion(datosArrastre.carta, indiceF)) {
+                    casillaF.classList.add('zona-destino');
                 }
             });
 
-            fSlot.addEventListener('dragleave', () => {
-                fSlot.classList.remove('drag-over');
+            casillaF.addEventListener('dragleave', () => {
+                casillaF.classList.remove('zona-destino');
             });
 
-            fSlot.addEventListener('drop', (e) => {
+            casillaF.addEventListener('drop', (e) => {
                 e.preventDefault();
-                clearDropHighlights();
-                if (draggedData && canMoveToFoundation(draggedData.card, fIndex)) {
-                    executeMove(draggedData.source, { type: 'foundation', fIndex });
+                limpiarResaltadosDestino();
+                if (datosArrastre && puedeMoverAFundacion(datosArrastre.carta, indiceF)) {
+                    ejecutarMovimiento(datosArrastre.origen, { tipo: 'fundacion', indiceFundacion: indiceF });
                 }
             });
 
-            fSlot.addEventListener('click', () => {
-                handleEmptySlotClick({ type: 'foundation', fIndex });
+            casillaF.addEventListener('click', () => {
+                manejarClicEnCasillaVacia({ tipo: 'fundacion', indiceFundacion: indiceF });
             });
         });
 
-        // Columnas del tablero como destinos
-        dom.tableaus.forEach((colEl, colIndex) => {
-            colEl.addEventListener('dragover', (e) => {
+        // Columnas del tablero
+        dom.tableros.forEach((columnaEl, indiceCol) => {
+            columnaEl.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                if (draggedData && canMoveToTableau(draggedData.card, colIndex)) {
-                    colEl.classList.add('drag-over');
+                if (datosArrastre && puedeMoverATablero(datosArrastre.carta, indiceCol)) {
+                    columnaEl.classList.add('zona-destino');
                 }
             });
 
-            colEl.addEventListener('dragleave', () => {
-                colEl.classList.remove('drag-over');
+            columnaEl.addEventListener('dragleave', () => {
+                columnaEl.classList.remove('zona-destino');
             });
 
-            colEl.addEventListener('drop', (e) => {
+            columnaEl.addEventListener('drop', (e) => {
                 e.preventDefault();
-                clearDropHighlights();
-                if (draggedData && canMoveToTableau(draggedData.card, colIndex)) {
-                    executeMove(draggedData.source, { type: 'tableau', colIndex });
+                limpiarResaltadosDestino();
+                if (datosArrastre && puedeMoverATablero(datosArrastre.carta, indiceCol)) {
+                    ejecutarMovimiento(datosArrastre.origen, { tipo: 'tablero', indiceColumna: indiceCol });
                 }
             });
 
-            colEl.addEventListener('click', (e) => {
-                // Clic en la columna (si está vacía o sobre espacio vacío inferior)
-                if (e.target === colEl || e.target.classList.contains('tableau-slot')) {
-                    handleEmptySlotClick({ type: 'tableau', colIndex });
+            columnaEl.addEventListener('click', (e) => {
+                if (e.target === columnaEl || e.target.classList.contains('casilla-tablero')) {
+                    manejarClicEnCasillaVacia({ tipo: 'tablero', indiceColumna: indiceCol });
                 }
             });
         });
     }
 
     // --- Comprobación de Estado: Victoria y Auto-completar ---
-    function checkGameState() {
-        // Comprobar Victoria: Las 4 fundaciones tienen 13 cartas (52 en total)
-        const totalFoundationCards = state.foundations.reduce((acc, f) => acc + f.length, 0);
-        if (totalFoundationCards === 52) {
-            triggerWin();
+    function comprobarEstadoJuego() {
+        // Comprobar si las 4 fundaciones están completas (52 cartas en total)
+        const totalCartasFundaciones = estado.fundaciones.reduce((total, f) => total + f.length, 0);
+        if (totalCartasFundaciones === 52) {
+            activarVictoria();
             return;
         }
 
-        // Comprobar si se puede auto-completar:
-        // Todas las cartas restantes en el tablero están descubiertas y no quedan en el mazo ni descarte
-        if (state.stock.length === 0 && state.waste.length === 0) {
-            const allFaceUp = state.tableau.every(col => col.every(card => card.faceUp));
-            if (allFaceUp && !state.gameWon && !isAutoCompleting) {
-                dom.autocompleteBanner.style.display = 'inline-flex';
+        // Comprobar si se puede autocompletar: mazo y descarte vacíos, y todas las cartas del tablero descubiertas
+        if (estado.mazo.length === 0 && estado.descarte.length === 0) {
+            const todasDescubiertas = estado.tablero.every(col => col.every(carta => carta.bocaArriba));
+            if (todasDescubiertas && !estado.partidaGanada && !estaAutocompletando) {
+                dom.bannerAutocompletar.style.display = 'inline-flex';
             } else {
-                dom.autocompleteBanner.style.display = 'none';
+                dom.bannerAutocompletar.style.display = 'none';
             }
         } else {
-            dom.autocompleteBanner.style.display = 'none';
+            dom.bannerAutocompletar.style.display = 'none';
         }
     }
 
-    // Auto-completar automático
-    function autoComplete() {
-        if (isAutoCompleting) return;
-        isAutoCompleting = true;
-        dom.autocompleteBanner.style.display = 'none';
+    // Rutina de Auto-completar
+    function autocompletar() {
+        if (estaAutocompletando) return;
+        estaAutocompletando = true;
+        dom.bannerAutocompletar.style.display = 'none';
 
-        const step = () => {
-            let moved = false;
-            // Buscar la carta más baja posible que pueda ir a una fundación
+        const paso = () => {
+            let seMovio = false;
             for (let c = 0; c < 7; c++) {
-                const col = state.tableau[c];
+                const col = estado.tablero[c];
                 if (col.length > 0) {
-                    const topCard = col[col.length - 1];
-                    const fIdx = findFoundationForCard(topCard);
-                    if (fIdx !== -1) {
-                        executeMove({ type: 'tableau', colIndex: c, cardIndex: col.length - 1 }, { type: 'foundation', fIndex: fIdx });
-                        moved = true;
+                    const cartaSuperior = col[col.length - 1];
+                    const indiceFundacion = buscarFundacionParaCarta(cartaSuperior);
+                    if (indiceFundacion !== -1) {
+                        ejecutarMovimiento(
+                            { tipo: 'tablero', indiceColumna: c, indiceCarta: col.length - 1 },
+                            { tipo: 'fundacion', indiceFundacion }
+                        );
+                        seMovio = true;
                         break;
                     }
                 }
             }
 
-            if (moved && !state.gameWon) {
-                setTimeout(step, 140);
+            if (seMovio && !estado.partidaGanada) {
+                setTimeout(paso, 140);
             } else {
-                isAutoCompleting = false;
+                estaAutocompletando = false;
             }
         };
 
-        step();
+        paso();
     }
 
-    function triggerWin() {
-        state.gameWon = true;
-        stopTimer();
+    function activarVictoria() {
+        estado.partidaGanada = true;
+        detenerTemporizador();
 
-        dom.winTime.textContent = formatTime(state.timeElapsed);
-        dom.winMoves.textContent = state.moves;
-        dom.winScore.textContent = state.score + 500; // Bonus de victoria
+        dom.victoriaTiempo.textContent = formatearTiempo(estado.tiempoTranscurrido);
+        dom.victoriaMovimientos.textContent = estado.movimientos;
+        dom.victoriaPuntuacion.textContent = estado.puntuacion + 500;
 
-        dom.winModal.classList.add('active');
+        dom.modalVictoria.classList.add('activo');
     }
 
     // --- Enlace de Eventos Generales ---
-    function setupEventListeners() {
-        dom.stock.addEventListener('click', onStockClick);
+    function configurarEscuchadoresEventos() {
+        dom.mazo.addEventListener('click', alHacerClicEnMazo);
 
-        dom.btnUndo.addEventListener('click', undo);
+        dom.btnDeshacer.addEventListener('click', deshacer);
 
-        dom.btnRestart.addEventListener('click', () => {
+        dom.btnReiniciar.addEventListener('click', () => {
             if (confirm('¿Deseas reiniciar la misma partida?')) {
-                initGame(initialDeckSnapshot);
-                showToast('Partida reiniciada');
+                iniciarPartida(instantaneaBarajaInicial);
+                mostrarNotificacion('Partida reiniciada');
             }
         });
 
-        dom.btnNewGame.addEventListener('click', () => {
-            initGame();
-            showToast('Nueva partida iniciada');
+        dom.btnNuevaPartida.addEventListener('click', () => {
+            iniciarPartida();
+            mostrarNotificacion('Nueva partida iniciada');
         });
 
-        dom.btnWinNewGame.addEventListener('click', () => {
-            dom.winModal.classList.remove('active');
-            initGame();
+        dom.btnVictoriaNuevaPartida.addEventListener('click', () => {
+            dom.modalVictoria.classList.remove('activo');
+            iniciarPartida();
         });
 
-        dom.autocompleteBanner.addEventListener('click', autoComplete);
+        dom.bannerAutocompletar.addEventListener('click', autocompletar);
 
-        // Deseleccionar al hacer clic fuera del tablero de juego
+        // Deseleccionar al hacer clic fuera de las cartas
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.card') && !e.target.closest('.card-slot') && !e.target.closest('.tableau-column')) {
-                if (selectedItem) {
-                    selectedItem = null;
-                    render();
+            if (!e.target.closest('.carta') && !e.target.closest('.casilla-carta') && !e.target.closest('.columna-tablero')) {
+                if (elementoSeleccionado) {
+                    elementoSeleccionado = null;
+                    renderizar();
                 }
             }
         });
 
-        // Atajos de teclado: Ctrl+Z para Deshacer, N para Nuevo Juego
+        // Atajos de teclado: Ctrl+Z para Deshacer, N para Nueva partida
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
                 e.preventDefault();
-                undo();
+                deshacer();
             } else if (e.key.toLowerCase() === 'n' && !e.ctrlKey) {
-                initGame();
+                iniciarPartida();
             }
         });
     }
 
-    // --- Arranque ---
-    setupDropZones();
-    setupEventListeners();
-    initGame();
+    // --- Inicio del Juego ---
+    configurarZonasSoltado();
+    configurarEscuchadoresEventos();
+    iniciarPartida();
 
-    // Exportar para depuración en consola si se desea
+    // Exportar para acceso o depuración
     window.Solitario = {
-        state,
-        initGame,
-        undo,
-        autoComplete,
-        triggerWin
+        estado,
+        iniciarPartida,
+        deshacer,
+        autocompletar,
+        activarVictoria
     };
 
 })();

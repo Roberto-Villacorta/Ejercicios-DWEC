@@ -1,30 +1,30 @@
 :root {
-    --felt-bg: radial-gradient(circle at 50% 30%, #157347 0%, #0d4a2d 60%, #072a19 100%);
-    --card-width: 82px;
-    --card-height: 120px;
-    --card-radius: 8px;
-    --tableau-offset: 26px;
-    --suit-red: #dc2626;
-    --suit-black: #1e293b;
-    --card-bg: #ffffff;
-    --slot-border: rgba(255, 255, 255, 0.22);
-    --slot-bg: rgba(0, 0, 0, 0.18);
-    --gold-accent: #f59e0b;
+    --fondo-tapete: radial-gradient(circle at 50% 30%, #157347 0%, #0d4a2d 60%, #072a19 100%);
+    --ancho-carta: 82px;
+    --alto-carta: 120px;
+    --radio-carta: 8px;
+    --desplazamiento-tablero: 26px;
+    --palo-rojo: #dc2626;
+    --palo-negro: #1e293b;
+    --fondo-carta: #ffffff;
+    --borde-casilla: rgba(255, 255, 255, 0.22);
+    --fondo-casilla: rgba(0, 0, 0, 0.18);
+    --dorado-acento: #f59e0b;
 }
 
 @media (min-width: 768px) {
     :root {
-        --card-width: 96px;
-        --card-height: 140px;
-        --tableau-offset: 30px;
+        --ancho-carta: 96px;
+        --alto-carta: 140px;
+        --desplazamiento-tablero: 30px;
     }
 }
 
 @media (min-width: 1100px) {
     :root {
-        --card-width: 108px;
-        --card-height: 156px;
-        --tableau-offset: 34px;
+        --ancho-carta: 108px;
+        --alto-carta: 156px;
+        --desplazamiento-tablero: 34px;
     }
 }
 
@@ -38,7 +38,7 @@
 
 body {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--felt-bg);
+    background: var(--fondo-tapete);
     min-height: 100vh;
     color: #ffffff;
     display: flex;
@@ -47,7 +47,7 @@ body {
     position: relative;
 }
 
-/* Barra Superior / Header */
+/* Barra Superior / Cabecera */
 header {
     background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(10px);
@@ -62,13 +62,13 @@ header {
     z-index: 100;
 }
 
-.header-title {
+.titulo-cabecera {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.header-title h1 {
+.titulo-cabecera h1 {
     font-family: 'Playfair Display', serif;
     font-size: 1.5rem;
     font-weight: 700;
@@ -77,13 +77,13 @@ header {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.header-title .suits-logo {
-    color: var(--gold-accent);
+.titulo-cabecera .logo-palos {
+    color: var(--dorado-acento);
     font-size: 1.2rem;
     letter-spacing: 2px;
 }
 
-.stats-bar {
+.barra-estadisticas {
     display: flex;
     gap: 20px;
     align-items: center;
@@ -93,7 +93,7 @@ header {
     border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.stat-item {
+.item-estadistica {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -101,26 +101,26 @@ header {
     font-weight: 500;
 }
 
-.stat-label {
+.etiqueta-estadistica {
     color: #94a3b8;
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.stat-value {
+.valor-estadistica {
     color: #ffffff;
     font-weight: 700;
     min-width: 32px;
 }
 
-.controls-bar {
+.barra-controles {
     display: flex;
     gap: 10px;
     align-items: center;
 }
 
-.btn {
+.boton {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.25);
@@ -136,32 +136,32 @@ header {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.btn:hover {
+.boton:hover {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.12) 100%);
     border-color: rgba(255, 255, 255, 0.45);
     transform: translateY(-1px);
 }
 
-.btn:active {
+.boton:active {
     transform: translateY(1px);
 }
 
-.btn-primary {
+.boton-primario {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border-color: #34d399;
 }
 
-.btn-primary:hover {
+.boton-primario:hover {
     background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
 }
 
-.btn:disabled {
+.boton:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     pointer-events: none;
 }
 
-/* Área de Juego */
+/* Área de Juego Principal */
 main {
     flex: 1;
     padding: 24px;
@@ -173,34 +173,34 @@ main {
     width: 100%;
 }
 
-.game-grid {
+.cuadricula-juego {
     display: flex;
     flex-direction: column;
     gap: 28px;
     width: 100%;
 }
 
-/* Fila Superior: Stock, Waste y Fundaciones */
-.top-row {
+/* Fila Superior: Mazo, Descarte y Fundaciones */
+.fila-superior {
     display: flex;
     justify-content: space-between;
     width: 100%;
     gap: 16px;
 }
 
-.stock-waste-group,
-.foundations-group {
+.grupo-mazo-descarte,
+.grupo-fundaciones {
     display: flex;
     gap: 16px;
 }
 
-/* Slots / Huecos de Cartas */
-.card-slot {
-    width: var(--card-width);
-    height: var(--card-height);
-    border-radius: var(--card-radius);
-    border: 2px dashed var(--slot-border);
-    background: var(--slot-bg);
+/* Casillas / Huecos de Cartas */
+.casilla-carta {
+    width: var(--ancho-carta);
+    height: var(--alto-carta);
+    border-radius: var(--radio-carta);
+    border: 2px dashed var(--borde-casilla);
+    background: var(--fondo-casilla);
     position: relative;
     display: flex;
     align-items: center;
@@ -209,46 +209,46 @@ main {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.card-slot.drag-over {
-    border-color: var(--gold-accent);
+.casilla-carta.zona-destino {
+    border-color: var(--dorado-acento);
     box-shadow: inset 0 0 16px rgba(245, 158, 11, 0.4), 0 0 12px rgba(245, 158, 11, 0.6);
 }
 
-.slot-watermark {
+.marca-agua-casilla {
     font-size: 2.2rem;
     opacity: 0.22;
     color: #ffffff;
     pointer-events: none;
 }
 
-.slot-watermark.red {
+.marca-agua-casilla.rojo {
     color: #f87171;
     opacity: 0.3;
 }
 
 /* Mazo de robo */
-#stock {
+#mazo {
     cursor: pointer;
 }
 
-#stock.empty {
+#mazo.vacio {
     cursor: pointer;
 }
 
-.stock-reload-icon {
+.icono-recargar-mazo {
     font-size: 2.2rem;
     color: rgba(255, 255, 255, 0.45);
     pointer-events: none;
     transition: transform 0.3s;
 }
 
-#stock:hover .stock-reload-icon {
+#mazo:hover .icono-recargar-mazo {
     color: rgba(255, 255, 255, 0.8);
     transform: rotate(45deg);
 }
 
 /* Fila Inferior: 7 Columnas del Tablero */
-.tableau-row {
+.fila-tablero {
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -256,14 +256,14 @@ main {
     min-height: 480px;
 }
 
-.tableau-column {
+.columna-tablero {
     flex: 1;
-    max-width: var(--card-width);
-    min-height: calc(var(--card-height) + 120px);
+    max-width: var(--ancho-carta);
+    min-height: calc(var(--alto-carta) + 120px);
     position: relative;
 }
 
-.tableau-column .card-slot {
+.columna-tablero .casilla-carta {
     position: absolute;
     top: 0;
     left: 0;
@@ -271,10 +271,10 @@ main {
 }
 
 /* Cartas */
-.card {
-    width: var(--card-width);
-    height: var(--card-height);
-    border-radius: var(--card-radius);
+.carta {
+    width: var(--ancho-carta);
+    height: var(--alto-carta);
+    border-radius: var(--radio-carta);
     position: absolute;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.2);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -285,23 +285,23 @@ main {
     justify-content: space-between;
     padding: 6px 8px;
     box-sizing: border-box;
-    background: var(--card-bg);
+    background: var(--fondo-carta);
 }
 
-.card:hover {
+.carta:hover {
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
 }
 
-.card.red {
-    color: var(--suit-red);
+.carta.rojo {
+    color: var(--palo-rojo);
 }
 
-.card.black {
-    color: var(--suit-black);
+.carta.negro {
+    color: var(--palo-negro);
 }
 
 /* Reverso de la carta */
-.card.face-down {
+.carta.boca-abajo {
     cursor: default;
     background: #1e3a8a;
     border: 3px solid #ffffff;
@@ -313,12 +313,12 @@ main {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.6);
 }
 
-.card.face-down * {
+.carta.boca-abajo * {
     display: none !important;
 }
 
 /* Anverso de la carta */
-.card-corner {
+.esquina-carta {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -327,17 +327,17 @@ main {
     font-size: 1.05rem;
 }
 
-.card-corner .corner-suit {
+.esquina-carta .palo-esquina {
     font-size: 0.95rem;
     margin-top: 2px;
 }
 
-.card-corner.bottom {
+.esquina-carta.inferior {
     transform: rotate(180deg);
     align-self: flex-end;
 }
 
-.card-center {
+.centro-carta {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -349,12 +349,12 @@ main {
     pointer-events: none;
 }
 
-.card-center .center-suit {
+.centro-carta .palo-centro {
     font-size: 2.2rem;
     line-height: 1;
 }
 
-.card-center .royal-letter {
+.centro-carta .letra-figura {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
     font-weight: 700;
@@ -362,18 +362,18 @@ main {
 }
 
 /* Estado seleccionado */
-.card.selected {
-    box-shadow: 0 0 0 3px var(--gold-accent), 0 10px 24px rgba(0, 0, 0, 0.6) !important;
+.carta.seleccionada {
+    box-shadow: 0 0 0 3px var(--dorado-acento), 0 10px 24px rgba(0, 0, 0, 0.6) !important;
     transform: translateY(-6px);
     z-index: 1000 !important;
 }
 
-.card.is-dragging {
+.carta.arrastrando {
     opacity: 0.4;
 }
 
 /* Animación de volteo */
-@keyframes flipIn {
+@keyframes aparecerVolteo {
     0% {
         transform: scaleX(0);
     }
@@ -382,12 +382,12 @@ main {
     }
 }
 
-.card.flipping {
-    animation: flipIn 0.25s ease-out;
+.carta.volteando {
+    animation: aparecerVolteo 0.25s ease-out;
 }
 
 /* Modal de Victoria */
-.modal-overlay {
+.capa-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -403,14 +403,14 @@ main {
     transition: opacity 0.3s ease;
 }
 
-.modal-overlay.active {
+.capa-modal.activo {
     display: flex;
     opacity: 1;
 }
 
-.modal-content {
+.contenido-modal {
     background: linear-gradient(145deg, #1e293b, #0f172a);
-    border: 2px solid var(--gold-accent);
+    border: 2px solid var(--dorado-acento);
     border-radius: 16px;
     padding: 36px 44px;
     text-align: center;
@@ -421,36 +421,36 @@ main {
     transition: transform 0.3s ease;
 }
 
-.modal-overlay.active .modal-content {
+.capa-modal.activo .contenido-modal {
     transform: scale(1);
 }
 
-.modal-trophy {
+.trofeo-modal {
     font-size: 4rem;
     margin-bottom: 12px;
     display: inline-block;
-    animation: bounce 1.2s infinite alternate ease-in-out;
+    animation: rebote 1.2s infinite alternate ease-in-out;
 }
 
-@keyframes bounce {
+@keyframes rebote {
     from { transform: translateY(0); }
     to { transform: translateY(-10px); }
 }
 
-.modal-title {
+.titulo-modal {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
-    color: var(--gold-accent);
+    color: var(--dorado-acento);
     margin-bottom: 10px;
 }
 
-.modal-text {
+.texto-modal {
     color: #e2e8f0;
     font-size: 1.05rem;
     margin-bottom: 24px;
 }
 
-.modal-stats {
+.estadisticas-modal {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
@@ -460,27 +460,27 @@ main {
     margin-bottom: 26px;
 }
 
-.modal-stat-title {
+.titulo-estadistica-modal {
     font-size: 0.75rem;
     color: #94a3b8;
     text-transform: uppercase;
 }
 
-.modal-stat-val {
+.valor-estadistica-modal {
     font-size: 1.2rem;
     font-weight: 700;
     color: #ffffff;
     margin-top: 4px;
 }
 
-.modal-actions {
+.acciones-modal {
     display: flex;
     gap: 14px;
     justify-content: center;
 }
 
 /* Banner de Auto-completar */
-#autocomplete-banner {
+#banner-autocompletar {
     display: none;
     background: linear-gradient(90deg, #f59e0b, #d97706);
     color: #0f172a;
@@ -489,19 +489,19 @@ main {
     border-radius: 30px;
     box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
     cursor: pointer;
-    animation: pulse 1.5s infinite;
+    animation: palpito 1.5s infinite;
     margin-bottom: 10px;
     align-items: center;
     gap: 8px;
 }
 
-@keyframes pulse {
+@keyframes palpito {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.03); }
 }
 
-/* Notificación Toast */
-#toast {
+/* Mensaje flotante / Notificación Toast */
+#notificacion {
     position: fixed;
     bottom: 24px;
     left: 50%;
@@ -518,6 +518,6 @@ main {
     pointer-events: none;
 }
 
-#toast.show {
+#notificacion.visible {
     transform: translateX(-50%) translateY(0);
 }
