@@ -32,9 +32,18 @@
                 <span class="etiqueta-estadistica">Puntos:</span>
                 <span id="est-puntuacion" class="valor-estadistica">0</span>
             </div>
+            <div id="badge-solucionable" class="badge-solucionable" title="Esta partida está matemáticamente verificada como 100% solucionable">
+                <span class="icono-check">✓</span> Solucionable
+            </div>
         </div>
 
         <div class="barra-controles">
+            <button id="btn-dificultad" class="boton boton-dificultad" title="Cambiar dificultad de la partida">
+                <span id="icono-dificultad">🟢</span> <span id="texto-dificultad">Fácil</span>
+            </button>
+            <button id="btn-pista" class="boton" title="Obtener una sugerencia de movimiento válido">
+                <span>💡</span> Pista
+            </button>
             <button id="btn-deshacer" class="boton" title="Deshacer último movimiento">
                 <span>↩</span> Deshacer
             </button>
@@ -130,7 +139,76 @@
                 </div>
             </div>
             <div class="acciones-modal">
+                <button id="btn-victoria-cambiar-dificultad" class="boton">Cambiar Dificultad</button>
                 <button id="btn-victoria-nueva-partida" class="boton boton-primario">Nueva Partida</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Anterior / Selector de Dificultad -->
+    <div id="pantalla-dificultad" class="capa-pantalla-inicio activa">
+        <div class="contenido-pantalla-inicio">
+            <div class="cabecera-pantalla-inicio">
+                <div class="palos-decorativos">♠ ♥ ♣ ♦</div>
+                <h2 class="titulo-pantalla-inicio">Solitario Clásico</h2>
+                <p class="subtitulo-pantalla-inicio">Elige tu nivel de dificultad para comenzar la partida</p>
+                <div class="garantia-solucionable">
+                    <span class="icono-escudo">🛡️</span> Partidas 100% matemáticamente solucionables
+                </div>
+            </div>
+
+            <div class="rejilla-dificultades">
+                <!-- Opción Fácil -->
+                <div class="tarjeta-dificultad seleccionada" data-dificultad="facil">
+                    <div class="cabecera-tarjeta">
+                        <span class="insignia-dificultad verde">Principiante</span>
+                        <div class="icono-nivel-dificultad">🟢</div>
+                    </div>
+                    <h3 class="nombre-dificultad">Fácil</h3>
+                    <p class="desc-dificultad">Robo de 1 carta. Reparto muy favorable con cartas clave accesibles y avance directo a fundaciones.</p>
+                    <ul class="lista-detalles-dificultad">
+                        <li><span>✓</span> 1 carta por robo</li>
+                        <li><span>✓</span> Ases y doses rápidos</li>
+                        <li><span>✓</span> Pistas ilimitadas</li>
+                    </ul>
+                </div>
+
+                <!-- Opción Medio -->
+                <div class="tarjeta-dificultad" data-dificultad="medio">
+                    <div class="cabecera-tarjeta">
+                        <span class="insignia-dificultad azul">Estándar</span>
+                        <div class="icono-nivel-dificultad">🔵</div>
+                    </div>
+                    <h3 class="nombre-dificultad">Medio</h3>
+                    <p class="desc-dificultad">Robo de 1 carta. El reto equilibrado clásico de Klondike, garantizado 100% resoluble sin bloqueos imposibles.</p>
+                    <ul class="lista-detalles-dificultad">
+                        <li><span>✓</span> 1 carta por robo</li>
+                        <li><span>✓</span> Distribución equilibrada</li>
+                        <li><span>✓</span> Requiere estrategia normal</li>
+                    </ul>
+                </div>
+
+                <!-- Opción Difícil -->
+                <div class="tarjeta-dificultad" data-dificultad="dificil">
+                    <div class="cabecera-tarjeta">
+                        <span class="insignia-dificultad rojo">Experto</span>
+                        <div class="icono-nivel-dificultad">🔴</div>
+                    </div>
+                    <h3 class="nombre-dificultad">Difícil</h3>
+                    <p class="desc-dificultad">Robo de 3 cartas. Desafío para maestros con gestión de descartes por tríos, 100% solucionable demostrado.</p>
+                    <ul class="lista-detalles-dificultad">
+                        <li><span>✓</span> 3 cartas por robo</li>
+                        <li><span>✓</span> Tríos en descarte</li>
+                        <li><span>✓</span> Máxima puntuación</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pie-pantalla-inicio">
+                <button id="btn-cerrar-pantalla-dificultad" class="boton" style="display: none;">Cancelar</button>
+                <button id="btn-comenzar-juego" class="boton boton-primario boton-grande">
+                    <span>▶</span> Jugar Partida
+                </button>
             </div>
         </div>
     </div>

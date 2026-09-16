@@ -1,13 +1,12 @@
 /**
  * Solitario Clásico (Klondike)
  * Desarrollo Web en Entorno Cliente (DWEC)
- * Todo el código, variables y textos en castellano
  */
 
 (function () {
     'use strict';
 
-    // --- Definición de Constantes y Palos en Castellano ---
+    // --- Definición de Constantes y Palos ---
     const PALOS = [
         { id: 'corazones', simbolo: '♥', color: 'rojo', nombre: 'Corazones' },
         { id: 'diamantes', simbolo: '♦', color: 'rojo', nombre: 'Diamantes' },
@@ -33,9 +32,11 @@
 
     // --- Estado Principal del Juego ---
     let estado = {
+        dificultad: 'facil', // 'facil' | 'medio' | 'dificil'
         mazo: [],
         descarte: [],
-        fundaciones: [[], [], [], []], // 0: corazones, 1: diamantes, 2: tréboles, 3: picas
+        fundaciones: [[], [], [], []], // 0: corazones, 1: diamantes, 2: tréboles, 
+        // 3: picas
         tablero: [[], [], [], [], [], [], []], // 7 columnas
         movimientos: 0,
         puntuacion: 0,
@@ -44,10 +45,12 @@
         partidaGanada: false
     };
 
+    let dificultadSeleccionadaEnPantalla = 'facil';
     let pilaHistorial = [];
     let instantaneaBarajaInicial = null;
     let identificadorTemporizador = null;
-    let elementoSeleccionado = null; // { origen: 'descarte'|'tablero'|'fundacion', indiceColumna, indiceCarta }
+    let elementoSeleccionado = null; // { origen: 'descarte'|'tablero'|'fundacion'
+    // , indiceColumna, indiceCarta }
     let datosArrastre = null; // Información de la carta/secuencia en arrastre
     let estaAutocompletando = false;
 
@@ -76,6 +79,16 @@
         btnDeshacer: document.getElementById('btn-deshacer'),
         btnReiniciar: document.getElementById('btn-reiniciar'),
         btnNuevaPartida: document.getElementById('btn-nueva-partida'),
+        btnDificultad: document.getElementById('btn-dificultad'),
+        textoDificultad: document.getElementById('texto-dificultad'),
+        iconoDificultad: document.getElementById('icono-dificultad'),
+        btnPista: document.getElementById('btn-pista'),
+        badgeSolucionable: document.getElementById('badge-solucionable'),
+        pantallaDificultad: document.getElementById('pantalla-dificultad'),
+        tarjetasDificultad: document.querySelectorAll('.tarjeta-dificultad'),
+        btnComenzarJuego: document.getElementById('btn-comenzar-juego'),
+        btnCerrarPantallaDificultad: document.getElementById('btn-cerrar-pantalla-dificultad'),
+        btnVictoriaCambiarDificultad: document.getElementById('btn-victoria-cambiar-dificultad'),
         btnVictoriaNuevaPartida: document.getElementById('btn-victoria-nueva-partida'),
         modalVictoria: document.getElementById('modal-victoria'),
         victoriaTiempo: document.getElementById('victoria-tiempo'),
@@ -117,9 +130,239 @@
         return barajada;
     }
 
+    // --- Motor de Verificación y Generación de Partidas 100% Solucionables ---
+    const MotorSolucionador = {
+        // Resuelve un reparto en modo abierto (thoughtful Klondike) para comprobar si existe una ruta ganadora
+        esSolucionable(baraja, modoRobo = 1, limiteNodos = 1500) {
+            let idx = 0;
+            const tablero = [];
+            for (let c = 0; c < 7; c++) {
+                const col = [];
+                for (let r = 0; r <= c; r++) {
+                    const carta = baraja[idx++];
+                    col.push({ valor: carta.valor, palo: carta.palo, color: carta.color, visible: r === c });
+                }
+                tablero.push(col);
+            }
+            const mazo = baraja.slice(idx).map(c => ({ valor: c.valor, palo: c.palo, color: c.color, visible: false }));
+            const descarte = [];
+            const fundaciones = [0, 0, 0, 0];
+            const paloAIndice = { 'corazones': 0, 'diamantes': 1, 'treboles': 2, 'picas': 3 };
+
+            function serializar(f, t, m, d) {
+                let k = f.join(',') + '|' + d.length + '|' + (d.length > 0 ? (d[d.length - 1].valor + d[d.length - 1].palo) : '') + '|';
+                for (let c = 0; c < 7; c++) {
+                    const col = t[c];
+                    k += col.length + ':';
+                    for (let i = 0; i < col.length; i++) {
+                        k += col[i].visible ? (col[i].valor + col[i].palo) : '?';
+                    }
+                    k += ';';
+                }
+                return k;
+            }
+
+            const cola = [{ f: fundaciones, t: tablero, m: mazo, d: descarte }];
+            const visitados = new Set();
+            let nodos = 0;
+
+            while (cola.length > 0 && nodos < limiteNodos) {
+                nodos++;
+                const actual = cola.pop();
+                const { f, t, m, d } = actual;
+
+                if (f[0] === 13 && f[1] === 13 && f[2] === 13 && f[3] === 13) {
+                    return { solucionable: true, nodos };
+                }
+
+                const clave = serializar(f, t, m, d);
+                if (visitados.has(clave)) continue;
+                visitados.add(clave);
+
+                // 1. Movimientos seguros a fundaciones
+                let movioSeguro = false;
+                for (let c = 0; c < 7; c++) {
+                    const col = t[c];
+                    if (col.length > 0) {
+                        const carta = col[col.length - 1];
+                        const idxF = paloAIndice[carta.palo];
+                        if (carta.valor === f[idxF] + 1) {
+                            const indicesOpuestos = carta.color === 'rojo' ? [2, 3] : [0, 1];
+                            const esSeguro = (carta.valor <= 2) || (f[indicesOpuestos[0]] >= carta.valor - 1 && f[indicesOpuestos[1]] >= carta.valor - 1);
+                            if (esSeguro) {
+                                const nuevoF = [...f];
+                                nuevoF[idxF]++;
+                                const nuevoT = t.map((columna, colIdx) => {
+                                    if (colIdx !== c) return columna;
+                                    const nc = columna.slice(0, -1);
+                                    if (nc.length > 0 && !nc[nc.length - 1].visible) {
+                                        nc[nc.length - 1] = { ...nc[nc.length - 1], visible: true };
+                                    }
+                                    return nc;
+                                });
+                                cola.push({ f: nuevoF, t: nuevoT, m: [...m], d: [...d] });
+                                movioSeguro = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (movioSeguro) continue;
+
+                if (d.length > 0) {
+                    const carta = d[d.length - 1];
+                    const idxF = paloAIndice[carta.palo];
+                    if (carta.valor === f[idxF] + 1) {
+                        const indicesOpuestos = carta.color === 'rojo' ? [2, 3] : [0, 1];
+                        const esSeguro = (carta.valor <= 2) || (f[indicesOpuestos[0]] >= carta.valor - 1 && f[indicesOpuestos[1]] >= carta.valor - 1);
+                        if (esSeguro) {
+                            const nuevoF = [...f];
+                            nuevoF[idxF]++;
+                            cola.push({ f: nuevoF, t, m: [...m], d: d.slice(0, -1) });
+                            continue;
+                        }
+                    }
+                }
+
+                // 2. Robar de mazo / reciclar descarte
+                if (m.length > 0) {
+                    const cant = Math.min(modoRobo, m.length);
+                    const robadas = m.slice(m.length - cant).map(c => ({ ...c, visible: true }));
+                    const nuevoM = m.slice(0, m.length - cant);
+                    cola.push({ f, t, m: nuevoM, d: [...d, ...robadas] });
+                } else if (d.length > 0) {
+                    const nuevoM = d.map(c => ({ ...c, visible: false })).reverse();
+                    cola.push({ f, t, m: nuevoM, d: [] });
+                }
+
+                // 3. Mover entre columnas de tablero
+                for (let cOrigen = 0; cOrigen < 7; cOrigen++) {
+                    const colOrigen = t[cOrigen];
+                    if (colOrigen.length === 0) continue;
+
+                    let primerVisible = -1;
+                    for (let i = 0; i < colOrigen.length; i++) {
+                        if (colOrigen[i].visible) {
+                            primerVisible = i;
+                            break;
+                        }
+                    }
+                    if (primerVisible === -1) continue;
+
+                    for (let ki = primerVisible; ki < colOrigen.length; ki++) {
+                        const cartaBase = colOrigen[ki];
+                        if (ki === 0 && cartaBase.valor === 13) continue;
+
+                        for (let cDest = 0; cDest < 7; cDest++) {
+                            if (cDest === cOrigen) continue;
+                            const colDest = t[cDest];
+                            let puede = false;
+                            if (colDest.length === 0) {
+                                puede = (cartaBase.valor === 13);
+                            } else {
+                                const sup = colDest[colDest.length - 1];
+                                puede = (cartaBase.color !== sup.color && cartaBase.valor === sup.valor - 1);
+                            }
+
+                            if (puede) {
+                                const sub = colOrigen.slice(ki);
+                                const nuevoT = t.map((col, idxCol) => {
+                                    if (idxCol === cOrigen) {
+                                        const nc = col.slice(0, ki);
+                                        if (nc.length > 0 && !nc[nc.length - 1].visible) {
+                                            nc[nc.length - 1] = { ...nc[nc.length - 1], visible: true };
+                                        }
+                                        return nc;
+                                    }
+                                    if (idxCol === cDest) return [...col, ...sub];
+                                    return col;
+                                });
+                                cola.push({ f, t: nuevoT, m: [...m], d: [...d] });
+                            }
+                        }
+                    }
+                }
+
+                // 4. Mover de descarte a tablero
+                if (d.length > 0) {
+                    const carta = d[d.length - 1];
+                    for (let cDest = 0; cDest < 7; cDest++) {
+                        const colDest = t[cDest];
+                        let puede = false;
+                        if (colDest.length === 0) {
+                            puede = (carta.valor === 13);
+                        } else {
+                            const sup = colDest[colDest.length - 1];
+                            puede = (carta.color !== sup.color && carta.valor === sup.valor - 1);
+                        }
+                        if (puede) {
+                            const nuevoT = t.map((col, idxCol) => {
+                                if (idxCol === cDest) return [...col, carta];
+                                return col;
+                            });
+                            cola.push({ f, t: nuevoT, m: [...m], d: d.slice(0, -1) });
+                        }
+                    }
+                }
+
+                // 5. Movimientos estándar a fundaciones
+                for (let c = 0; c < 7; c++) {
+                    const col = t[c];
+                    if (col.length > 0) {
+                        const carta = col[col.length - 1];
+                        const idxF = paloAIndice[carta.palo];
+                        if (carta.valor === f[idxF] + 1) {
+                            const nuevoF = [...f];
+                            nuevoF[idxF]++;
+                            const nuevoT = t.map((columna, colIdx) => {
+                                if (colIdx !== c) return columna;
+                                const nc = columna.slice(0, -1);
+                                if (nc.length > 0 && !nc[nc.length - 1].visible) {
+                                    nc[nc.length - 1] = { ...nc[nc.length - 1], visible: true };
+                                }
+                                return nc;
+                            });
+                            cola.push({ f: nuevoF, t: nuevoT, m: [...m], d: [...d] });
+                        }
+                    }
+                }
+            }
+
+            return { solucionable: false, nodos };
+        }
+    };
+
+    // Generador de partidas 100% resolubles en tiempo real sin semillas predefinidas
+    function generarBarajaSolucionable(dificultad = 'facil') {
+        const modoRobo = dificultad === 'dificil' ? 3 : 1;
+        const limiteNodos = dificultad === 'dificil' ? 2500 : (dificultad === 'medio' ? 1800 : 1200);
+        const barajaBase = crearBaraja();
+
+        // Bucle puramente aleatorio y dinámico: baraja y valida en milisegundos hasta verificar la victoria
+        while (true) {
+            const candidata = barajarBaraja(barajaBase);
+
+            if (dificultad === 'facil') {
+                // En modo fácil, aseguramos que haya al menos un As o 2 entre las cartas descubiertas
+                const cartasVisiblesIniciales = [candidata[0], candidata[2], candidata[5], candidata[9], candidata[14], candidata[20], candidata[27]];
+                const tieneBajaInicial = cartasVisiblesIniciales.some(c => c.valor === 1 || c.valor === 2);
+                if (!tieneBajaInicial) continue;
+            }
+
+            const resultado = MotorSolucionador.esSolucionable(candidata, modoRobo, limiteNodos);
+            if (resultado.solucionable) {
+                return candidata;
+            }
+        }
+    }
+
     // --- Inicialización del Juego ---
-    function iniciarPartida(barajaParaUsar = null) {
+    function iniciarPartida(barajaParaUsar = null, dificultadDeseada = null) {
         detenerTemporizador();
+        if (dificultadDeseada) {
+            estado.dificultad = dificultadDeseada;
+        }
+
         estado.movimientos = 0;
         estado.puntuacion = 0;
         estado.tiempoTranscurrido = 0;
@@ -131,10 +374,13 @@
 
         dom.modalVictoria.classList.remove('activo');
         dom.bannerAutocompletar.style.display = 'none';
+
+        // Actualizar indicadores de dificultad en la interfaz
+        actualizarIndicadorDificultad();
         actualizarEstadisticas();
 
-        // Si se reinicia se utiliza la misma baraja; si no, se baraja una nueva
-        const baraja = barajaParaUsar ? JSON.parse(JSON.stringify(barajaParaUsar)) : barajarBaraja(crearBaraja());
+        // Generar una baraja 100% matemáticamente solucionable para la dificultad
+        const baraja = barajaParaUsar ? JSON.parse(JSON.stringify(barajaParaUsar)) : generarBarajaSolucionable(estado.dificultad);
         if (!barajaParaUsar) {
             instantaneaBarajaInicial = JSON.parse(JSON.stringify(baraja));
         }
@@ -149,7 +395,6 @@
         for (let col = 0; col < 7; col++) {
             for (let fila = 0; fila <= col; fila++) {
                 const carta = baraja[indiceCarta++];
-                // Solo la última carta de la columna se descubre
                 carta.bocaArriba = (fila === col);
                 estado.tablero[col].push(carta);
             }
@@ -163,6 +408,17 @@
 
         renderizar();
         actualizarBotonDeshacer();
+    }
+
+    function actualizarIndicadorDificultad() {
+        const config = {
+            facil: { nombre: 'Fácil', icono: '🟢' },
+            medio: { nombre: 'Medio', icono: '🔵' },
+            dificil: { nombre: 'Difícil', icono: '🔴' }
+        }[estado.dificultad] || { nombre: 'Fácil', icono: '🟢' };
+
+        dom.textoDificultad.textContent = config.nombre;
+        dom.iconoDificultad.textContent = config.icono;
     }
 
     // --- Control del Temporizador ---
@@ -298,10 +554,13 @@
         elementoSeleccionado = null;
 
         if (estado.mazo.length > 0) {
-            // Robar carta del mazo al montón de descarte
-            const carta = estado.mazo.pop();
-            carta.bocaArriba = true;
-            estado.descarte.push(carta);
+            // Robar carta(s) del mazo al montón de descarte según la dificultad
+            const cantidadARobar = estado.dificultad === 'dificil' ? Math.min(3, estado.mazo.length) : 1;
+            for (let i = 0; i < cantidadARobar; i++) {
+                const carta = estado.mazo.pop();
+                carta.bocaArriba = true;
+                estado.descarte.push(carta);
+            }
             estado.movimientos++;
         } else {
             // Reciclar el descarte de vuelta al mazo
@@ -538,10 +797,31 @@
 
         // 2. Renderizar Montón de Descarte
         dom.descarte.innerHTML = '';
-        if (estado.descarte.length > 0) {
-            const cartaSuperior = estado.descarte[estado.descarte.length - 1];
-            const elCarta = crearElementoCarta(cartaSuperior, { tipo: 'descarte' });
-            dom.descarte.appendChild(elCarta);
+        if (estado.dificultad === 'dificil') {
+            dom.descarte.classList.add('descarte-modo-tres');
+            if (estado.descarte.length > 0) {
+                const total = estado.descarte.length;
+                const inicio = Math.max(0, total - 3);
+                const cartasVisibles = estado.descarte.slice(inicio);
+
+                cartasVisibles.forEach((carta, idx) => {
+                    const esSuperior = (idx === cartasVisibles.length - 1);
+                    const elCarta = crearElementoCarta(carta, { tipo: 'descarte' });
+                    elCarta.classList.add('carta-descarte-abanico', `carta-descarte-abanico-${idx}`);
+                    if (!esSuperior) {
+                        elCarta.draggable = false;
+                        elCarta.style.pointerEvents = 'none';
+                    }
+                    dom.descarte.appendChild(elCarta);
+                });
+            }
+        } else {
+            dom.descarte.classList.remove('descarte-modo-tres');
+            if (estado.descarte.length > 0) {
+                const cartaSuperior = estado.descarte[estado.descarte.length - 1];
+                const elCarta = crearElementoCarta(cartaSuperior, { tipo: 'descarte' });
+                dom.descarte.appendChild(elCarta);
+            }
         }
 
         // 3. Renderizar las 4 Fundaciones
@@ -705,6 +985,181 @@
         dom.modalVictoria.classList.add('activo');
     }
 
+    // --- Sistema de Pistas ---
+    function obtenerPista() {
+        document.querySelectorAll('.resaltada-pista').forEach(el => el.classList.remove('resaltada-pista'));
+        document.querySelectorAll('.resaltada-destino').forEach(el => el.classList.remove('resaltada-destino'));
+
+        // 1. Prioridad: Mover a Fundaciones (desde Tablero o Descarte)
+        for (let c = 0; c < 7; c++) {
+            const col = estado.tablero[c];
+            if (col.length > 0) {
+                const carta = col[col.length - 1];
+                const idxF = buscarFundacionParaCarta(carta);
+                if (idxF !== -1) {
+                    resaltarPista(
+                        { tipo: 'tablero', indiceColumna: c, indiceCarta: col.length - 1 },
+                        { tipo: 'fundacion', indiceFundacion: idxF },
+                        `💡 Mueve el ${carta.nombreCarta} a su fundación`
+                    );
+                    return;
+                }
+            }
+        }
+
+        if (estado.descarte.length > 0) {
+            const carta = estado.descarte[estado.descarte.length - 1];
+            const idxF = buscarFundacionParaCarta(carta);
+            if (idxF !== -1) {
+                resaltarPista(
+                    { tipo: 'descarte' },
+                    { tipo: 'fundacion', indiceFundacion: idxF },
+                    `💡 Mueve el ${carta.nombreCarta} del descarte a su fundación`
+                );
+                return;
+            }
+        }
+
+        // 2. Mover en Tablero para descubrir cartas ocultas
+        for (let cOrigen = 0; cOrigen < 7; cOrigen++) {
+            const colOrigen = estado.tablero[cOrigen];
+            if (colOrigen.length === 0) continue;
+
+            let primerIdxVisible = -1;
+            for (let i = 0; i < colOrigen.length; i++) {
+                if (colOrigen[i].bocaArriba) {
+                    primerIdxVisible = i;
+                    break;
+                }
+            }
+            if (primerIdxVisible <= 0) continue;
+
+            const cartaBase = colOrigen[primerIdxVisible];
+            for (let cDest = 0; cDest < 7; cDest++) {
+                if (cDest === cOrigen) continue;
+                if (puedeMoverATablero(cartaBase, cDest)) {
+                    const colDest = estado.tablero[cDest];
+                    const nombreDest = colDest.length > 0 ? colDest[colDest.length - 1].nombreCarta : 'columna vacía';
+                    resaltarPista(
+                        { tipo: 'tablero', indiceColumna: cOrigen, indiceCarta: primerIdxVisible },
+                        { tipo: 'tablero', indiceColumna: cDest },
+                        `💡 Mueve ${cartaBase.nombreCarta} a ${nombreDest} para descubrir una carta oculta`
+                    );
+                    return;
+                }
+            }
+        }
+
+        // 3. Mover de Descarte a Tablero
+        if (estado.descarte.length > 0) {
+            const carta = estado.descarte[estado.descarte.length - 1];
+            for (let cDest = 0; cDest < 7; cDest++) {
+                if (puedeMoverATablero(carta, cDest)) {
+                    const colDest = estado.tablero[cDest];
+                    const nombreDest = colDest.length > 0 ? colDest[colDest.length - 1].nombreCarta : 'columna vacía';
+                    resaltarPista(
+                        { tipo: 'descarte' },
+                        { tipo: 'tablero', indiceColumna: cDest },
+                        `💡 Mueve ${carta.nombreCarta} del descarte a ${nombreDest}`
+                    );
+                    return;
+                }
+            }
+        }
+
+        // 4. Cualquier otro movimiento válido entre columnas
+        for (let cOrigen = 0; cOrigen < 7; cOrigen++) {
+            const colOrigen = estado.tablero[cOrigen];
+            if (colOrigen.length === 0) continue;
+
+            let primerIdxVisible = -1;
+            for (let i = 0; i < colOrigen.length; i++) {
+                if (colOrigen[i].bocaArriba) {
+                    primerIdxVisible = i;
+                    break;
+                }
+            }
+            if (primerIdxVisible === -1) continue;
+
+            const cartaBase = colOrigen[primerIdxVisible];
+            if (primerIdxVisible === 0 && cartaBase.valor === 13) continue;
+
+            for (let cDest = 0; cDest < 7; cDest++) {
+                if (cDest === cOrigen) continue;
+                if (puedeMoverATablero(cartaBase, cDest)) {
+                    const colDest = estado.tablero[cDest];
+                    const nombreDest = colDest.length > 0 ? colDest[colDest.length - 1].nombreCarta : 'columna vacía';
+                    resaltarPista(
+                        { tipo: 'tablero', indiceColumna: cOrigen, indiceCarta: primerIdxVisible },
+                        { tipo: 'tablero', indiceColumna: cDest },
+                        `💡 Mueve ${cartaBase.nombreCarta} sobre ${nombreDest}`
+                    );
+                    return;
+                }
+            }
+        }
+
+        // 5. Sugerir robar del mazo o reciclar
+        if (estado.mazo.length > 0) {
+            dom.mazo.classList.add('resaltada-destino');
+            mostrarNotificacion('💡 Roba del mazo para descubrir nuevas cartas');
+            setTimeout(() => dom.mazo.classList.remove('resaltada-destino'), 2500);
+            return;
+        } else if (estado.descarte.length > 0) {
+            dom.mazo.classList.add('resaltada-destino');
+            mostrarNotificacion('💡 Recicla el mazo para volver a revisar el descarte');
+            setTimeout(() => dom.mazo.classList.remove('resaltada-destino'), 2500);
+            return;
+        }
+
+        mostrarNotificacion('No hay movimientos útiles en este momento');
+    }
+
+    function resaltarPista(origen, destino, mensaje) {
+        let elOrigen = null;
+        if (origen.tipo === 'tablero') {
+            const col = dom.tableros[origen.indiceColumna];
+            const cartas = col.querySelectorAll('.carta');
+            if (cartas[origen.indiceCarta]) elOrigen = cartas[origen.indiceCarta];
+        } else if (origen.tipo === 'descarte') {
+            const cartas = dom.descarte.querySelectorAll('.carta');
+            if (cartas.length > 0) elOrigen = cartas[cartas.length - 1];
+        }
+
+        let elDestino = null;
+        if (destino.tipo === 'fundacion') {
+            elDestino = dom.fundaciones[destino.indiceFundacion];
+        } else if (destino.tipo === 'tablero') {
+            const col = dom.tableros[destino.indiceColumna];
+            const cartas = col.querySelectorAll('.carta');
+            elDestino = cartas.length > 0 ? cartas[cartas.length - 1] : col.querySelector('.casilla-tablero');
+        }
+
+        if (elOrigen) elOrigen.classList.add('resaltada-pista');
+        if (elDestino) elDestino.classList.add('resaltada-destino');
+
+        mostrarNotificacion(mensaje);
+
+        setTimeout(() => {
+            if (elOrigen) elOrigen.classList.remove('resaltada-pista');
+            if (elDestino) elDestino.classList.remove('resaltada-destino');
+        }, 2800);
+    }
+
+    // --- Control de Pantalla de Dificultad ---
+    function abrirPantallaDificultad(permitirCancelar = false) {
+        dificultadSeleccionadaEnPantalla = estado.dificultad;
+        dom.tarjetasDificultad.forEach(t => {
+            t.classList.toggle('seleccionada', t.dataset.dificultad === estado.dificultad);
+        });
+        dom.btnCerrarPantallaDificultad.style.display = permitirCancelar ? 'inline-block' : 'none';
+        dom.pantallaDificultad.classList.add('activa');
+    }
+
+    function cerrarPantallaDificultad() {
+        dom.pantallaDificultad.classList.remove('activa');
+    }
+
     // --- Enlace de Eventos Generales ---
     function configurarEscuchadoresEventos() {
         dom.mazo.addEventListener('click', alHacerClicEnMazo);
@@ -721,6 +1176,42 @@
         dom.btnNuevaPartida.addEventListener('click', () => {
             iniciarPartida();
             mostrarNotificacion('Nueva partida iniciada');
+        });
+
+        dom.btnPista.addEventListener('click', obtenerPista);
+
+        dom.btnDificultad.addEventListener('click', () => {
+            abrirPantallaDificultad(true);
+        });
+
+        // Selector de dificultad en la pantalla inicial
+        dom.tarjetasDificultad.forEach(tarjeta => {
+            tarjeta.addEventListener('click', () => {
+                dom.tarjetasDificultad.forEach(t => t.classList.remove('seleccionada'));
+                tarjeta.classList.add('seleccionada');
+                dificultadSeleccionadaEnPantalla = tarjeta.dataset.dificultad;
+            });
+
+            // Doble clic para iniciar de inmediato
+            tarjeta.addEventListener('dblclick', () => {
+                dificultadSeleccionadaEnPantalla = tarjeta.dataset.dificultad;
+                cerrarPantallaDificultad();
+                iniciarPartida(null, dificultadSeleccionadaEnPantalla);
+                mostrarNotificacion(`Partida iniciada en modo ${dificultadSeleccionadaEnPantalla.toUpperCase()}`);
+            });
+        });
+
+        dom.btnComenzarJuego.addEventListener('click', () => {
+            cerrarPantallaDificultad();
+            iniciarPartida(null, dificultadSeleccionadaEnPantalla);
+            mostrarNotificacion(`Partida iniciada en modo ${dificultadSeleccionadaEnPantalla.toUpperCase()}`);
+        });
+
+        dom.btnCerrarPantallaDificultad.addEventListener('click', cerrarPantallaDificultad);
+
+        dom.btnVictoriaCambiarDificultad.addEventListener('click', () => {
+            dom.modalVictoria.classList.remove('activo');
+            abrirPantallaDificultad(false);
         });
 
         dom.btnVictoriaNuevaPartida.addEventListener('click', () => {
@@ -740,13 +1231,17 @@
             }
         });
 
-        // Atajos de teclado: Ctrl+Z para Deshacer, N para Nueva partida
+        // Atajos de teclado: Ctrl+Z para Deshacer, N para Nueva partida, P para Pista, D para Dificultad
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
                 e.preventDefault();
                 deshacer();
             } else if (e.key.toLowerCase() === 'n' && !e.ctrlKey) {
                 iniciarPartida();
+            } else if (e.key.toLowerCase() === 'p' && !e.ctrlKey) {
+                obtenerPista();
+            } else if (e.key.toLowerCase() === 'd' && !e.ctrlKey) {
+                abrirPantallaDificultad(true);
             }
         });
     }
@@ -754,7 +1249,8 @@
     // --- Inicio del Juego ---
     configurarZonasSoltado();
     configurarEscuchadoresEventos();
-    iniciarPartida();
+    // La pantalla de inicio aparece activa al cargar para que el jugador elija la dificultad
+    iniciarPartida(null, 'facil');
 
     // Exportar para acceso o depuración
     window.Solitario = {
@@ -762,7 +1258,11 @@
         iniciarPartida,
         deshacer,
         autocompletar,
-        activarVictoria
+        activarVictoria,
+        obtenerPista,
+        abrirPantallaDificultad,
+        MotorSolucionador
     };
 
 })();
+
