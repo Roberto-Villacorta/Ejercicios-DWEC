@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relación de edades</title>
+    <script>
+        function quienMayor() {
+            let edadLuis = parseInt(document.getElementById("edadLuis").value);
+            let edadJuan = parseInt(document.getElementById("edadJuan").value);
+            document.getElementById("infoEdades").hidden = false;
+            document.getElementById("edadLuisResultado").innerHTML = edadLuis;
+            document.getElementById("edadJuanResultado").innerHTML = edadJuan;
+
+            if (edadLuis > edadJuan) {
+                document.getElementById("resultado").innerHTML = "Luis es mayor que Juan";
+            } else if (edadJuan > edadLuis) {
+                document.getElementById("resultado").innerHTML = "Luis es menor que Juan";
+            } else {
+                document.getElementById("resultado").innerHTML = "Luis y Juan tienen la misma edad";
+            }
+        }
+    </script>
+</head>
+
+<body>
+    Luis: <input type="text" id="edadLuis">
+    Juan: <input type="text" id="edadJuan"><br>
+    <button onclick="quienMayor()">Aceptar</button>
+
+    <div id="infoEdades" hidden>
+        <p>Luis tiene <span id="edadLuisResultado"></span> años</p>
+        <p>Juan tiene <span id="edadJuanResultado"></span> años</p>
+    </div>
+    <div id="resultado"></div>
+</body>
+
+</html>
