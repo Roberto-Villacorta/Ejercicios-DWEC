@@ -7,7 +7,7 @@
     <title>Solitario Clásico</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="solitario.css">
 </head>
 
@@ -15,51 +15,77 @@
     <!-- Barra Superior -->
     <header>
         <div class="titulo-cabecera">
-            <span class="logo-palos">♠ ♥ ♣ ♦</span>
+            <span class="logo-palos" aria-hidden="true">&spades; &hearts; &clubs; &diams;</span>
             <h1>Solitario</h1>
         </div>
 
         <div class="barra-estadisticas">
             <div class="item-estadistica">
-                <span class="etiqueta-estadistica">Tiempo:</span>
+                <span class="etiqueta-estadistica">Tiempo</span>
                 <span id="est-tiempo" class="valor-estadistica">00:00</span>
             </div>
+            <div class="separador-estadistica"></div>
             <div class="item-estadistica">
-                <span class="etiqueta-estadistica">Movs:</span>
+                <span class="etiqueta-estadistica">Movimientos</span>
                 <span id="est-movimientos" class="valor-estadistica">0</span>
             </div>
+            <div class="separador-estadistica"></div>
             <div class="item-estadistica">
-                <span class="etiqueta-estadistica">Puntos:</span>
+                <span class="etiqueta-estadistica">Puntos</span>
                 <span id="est-puntuacion" class="valor-estadistica">0</span>
             </div>
-            <div id="badge-solucionable" class="badge-solucionable" title="Esta partida está matemáticamente verificada como 100% solucionable">
-                <span class="icono-check">✓</span> Solucionable
+            <div id="badge-solucionable" class="badge-solucionable" title="Esta mano está matemáticamente verificada para garantizar que tiene solución">
+                <svg class="icono-svg icono-badge" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Garantizada</span>
             </div>
         </div>
 
         <div class="barra-controles">
-            <button id="btn-dificultad" class="boton boton-dificultad" title="Cambiar dificultad de la partida">
-                <span id="icono-dificultad">🟢</span> <span id="texto-dificultad">Fácil</span>
+            <button id="btn-dificultad" class="boton boton-dificultad" title="Cambiar nivel de dificultad">
+                <span id="icono-dificultad" class="indicador-dificultad-dot facil"></span>
+                <span id="texto-dificultad">Fácil</span>
             </button>
-            <button id="btn-pista" class="boton" title="Obtener una sugerencia de movimiento válido">
-                <span>💡</span> Pista
+            <button id="btn-pista" class="boton" title="Sugerir el siguiente movimiento prudente">
+                <svg class="icono-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18h6"></path>
+                    <path d="M10 22h4"></path>
+                    <path d="M12 2a7 7 0 0 0-7 7c0 3.03 1.83 5.64 4.45 6.72.35.15.55.51.55.88V17a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-.4c0-.37.2-.73.55-.88C17.17 14.64 19 12.03 19 9a7 7 0 0 0-7-7z"></path>
+                </svg>
+                <span>Pista</span>
             </button>
-            <button id="btn-deshacer" class="boton" title="Deshacer último movimiento">
-                <span>↩</span> Deshacer
+            <button id="btn-deshacer" class="boton" title="Deshacer el último movimiento">
+                <svg class="icono-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                <span>Deshacer</span>
             </button>
-            <button id="btn-reiniciar" class="boton" title="Reiniciar partida actual">
-                <span>↺</span> Reiniciar
+            <button id="btn-reiniciar" class="boton" title="Volver a jugar la misma mano desde el inicio">
+                <svg class="icono-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6"></path>
+                    <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"></path>
+                </svg>
+                <span>Reiniciar</span>
             </button>
-            <button id="btn-nueva-partida" class="boton boton-primario" title="Iniciar nueva partida">
-                <span>★</span> Nueva Partida
+            <button id="btn-nueva-partida" class="boton boton-primario" title="Repartir una nueva partida">
+                <svg class="icono-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Nueva Partida</span>
             </button>
         </div>
     </header>
 
     <!-- Tablero de Juego Principal -->
     <main>
-        <div id="banner-autocompletar" title="Haz clic para enviar automáticamente las cartas restantes a las fundaciones">
-            ⚡ ¡Todas las cartas están descubiertas! Clic aquí para <b>Auto-completar</b>
+        <div id="banner-autocompletar" title="Enviar automáticamente todas las cartas descubiertas a sus fundaciones">
+            <svg class="icono-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+            </svg>
+            <span>Todas las cartas están en juego. Clic aquí para <strong>autocompletar</strong></span>
         </div>
 
         <div class="cuadricula-juego">
@@ -67,26 +93,29 @@
             <section class="fila-superior" aria-label="Mazo y Fundaciones">
                 <div class="grupo-mazo-descarte">
                     <!-- Mazo de robo -->
-                    <div id="mazo" class="casilla-carta" title="Mazo de cartas (Clic para robar)">
-                        <span class="icono-recargar-mazo">↻</span>
+                    <div id="mazo" class="casilla-carta casilla-mazo" title="Mazo de cartas (Clic para robar)">
+                        <svg class="icono-recargar-mazo" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.5 2v6h-6"></path>
+                            <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"></path>
+                        </svg>
                     </div>
                     <!-- Pila de descarte -->
-                    <div id="descarte" class="casilla-carta" title="Pila de descarte"></div>
+                    <div id="descarte" class="casilla-carta casilla-descarte" title="Pila de descarte"></div>
                 </div>
 
                 <!-- 4 Fundaciones -->
                 <div class="grupo-fundaciones">
-                    <div id="fundacion-0" class="casilla-carta casilla-fundacion" data-indice-fundacion="0" data-palo="corazones" title="Fundación de Corazones">
-                        <span class="marca-agua-casilla rojo">♥</span>
+                    <div id="fundacion-0" class="casilla-carta casilla-fundacion" data-indice-fundacion="0" data-palo="corazones" title="Base de Corazones">
+                        <span class="marca-agua-casilla rojo">&hearts;</span>
                     </div>
-                    <div id="fundacion-1" class="casilla-carta casilla-fundacion" data-indice-fundacion="1" data-palo="diamantes" title="Fundación de Diamantes">
-                        <span class="marca-agua-casilla rojo">♦</span>
+                    <div id="fundacion-1" class="casilla-carta casilla-fundacion" data-indice-fundacion="1" data-palo="diamantes" title="Base de Diamantes">
+                        <span class="marca-agua-casilla rojo">&diams;</span>
                     </div>
-                    <div id="fundacion-2" class="casilla-carta casilla-fundacion" data-indice-fundacion="2" data-palo="treboles" title="Fundación de Tréboles">
-                        <span class="marca-agua-casilla">♣</span>
+                    <div id="fundacion-2" class="casilla-carta casilla-fundacion" data-indice-fundacion="2" data-palo="treboles" title="Base de Tréboles">
+                        <span class="marca-agua-casilla">&clubs;</span>
                     </div>
-                    <div id="fundacion-3" class="casilla-carta casilla-fundacion" data-indice-fundacion="3" data-palo="picas" title="Fundación de Picas">
-                        <span class="marca-agua-casilla">♠</span>
+                    <div id="fundacion-3" class="casilla-carta casilla-fundacion" data-indice-fundacion="3" data-palo="picas" title="Base de Picas">
+                        <span class="marca-agua-casilla">&spades;</span>
                     </div>
                 </div>
             </section>
@@ -121,39 +150,48 @@
     <!-- Modal de Victoria -->
     <div id="modal-victoria" class="capa-modal">
         <div class="contenido-modal">
-            <div class="trofeo-modal">🏆</div>
-            <h2 class="titulo-modal">¡Victoria!</h2>
-            <p class="texto-modal">Has completado el Solitario con éxito.</p>
+            <div class="emblema-victoria">
+                <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="6"></circle>
+                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                </svg>
+            </div>
+            <h2 class="titulo-modal">¡Enhorabuena!</h2>
+            <p class="texto-modal">Has completado la partida con éxito.</p>
             <div class="estadisticas-modal">
-                <div>
+                <div class="tarjeta-dato-modal">
                     <div class="titulo-estadistica-modal">Tiempo</div>
                     <div id="victoria-tiempo" class="valor-estadistica-modal">00:00</div>
                 </div>
-                <div>
+                <div class="tarjeta-dato-modal">
                     <div class="titulo-estadistica-modal">Movimientos</div>
                     <div id="victoria-movimientos" class="valor-estadistica-modal">0</div>
                 </div>
-                <div>
+                <div class="tarjeta-dato-modal">
                     <div class="titulo-estadistica-modal">Puntuación</div>
                     <div id="victoria-puntuacion" class="valor-estadistica-modal">0</div>
                 </div>
             </div>
             <div class="acciones-modal">
-                <button id="btn-victoria-cambiar-dificultad" class="boton">Cambiar Dificultad</button>
-                <button id="btn-victoria-nueva-partida" class="boton boton-primario">Nueva Partida</button>
+                <button id="btn-victoria-cambiar-dificultad" class="boton">Cambiar Nivel</button>
+                <button id="btn-victoria-nueva-partida" class="boton boton-primario">Jugar Otra Partida</button>
             </div>
         </div>
     </div>
 
-    <!-- Pantalla Anterior / Selector de Dificultad -->
+    <!-- Pantalla de Selección de Dificultad -->
     <div id="pantalla-dificultad" class="capa-pantalla-inicio activa">
         <div class="contenido-pantalla-inicio">
             <div class="cabecera-pantalla-inicio">
-                <div class="palos-decorativos">♠ ♥ ♣ ♦</div>
+                <div class="palos-decorativos" aria-hidden="true">&spades; &hearts; &clubs; &diams;</div>
                 <h2 class="titulo-pantalla-inicio">Solitario Clásico</h2>
-                <p class="subtitulo-pantalla-inicio">Elige tu nivel de dificultad para comenzar la partida</p>
+                <p class="subtitulo-pantalla-inicio">Selecciona el modo de juego para comenzar tu partida</p>
                 <div class="garantia-solucionable">
-                    <span class="icono-escudo">🛡️</span> Partidas 100% matemáticamente solucionables
+                    <svg class="icono-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                    <span>Partidas con resolución matemáticamente garantizada</span>
                 </div>
             </div>
 
@@ -161,15 +199,19 @@
                 <!-- Opción Fácil -->
                 <div class="tarjeta-dificultad seleccionada" data-dificultad="facil">
                     <div class="cabecera-tarjeta">
-                        <span class="insignia-dificultad verde">Principiante</span>
-                        <div class="icono-nivel-dificultad">🟢</div>
+                        <span class="insignia-dificultad verde">Fácil</span>
+                        <div class="pips-dificultad" title="Nivel 1 de 3">
+                            <span class="pip activo verde"></span>
+                            <span class="pip"></span>
+                            <span class="pip"></span>
+                        </div>
                     </div>
-                    <h3 class="nombre-dificultad">Fácil</h3>
-                    <p class="desc-dificultad">Robo de 1 carta. Reparto muy favorable con cartas clave accesibles y avance directo a fundaciones.</p>
+                    <h3 class="nombre-dificultad">Relajado</h3>
+                    <p class="desc-dificultad">Robo de 1 carta. Reparto amable con cartas clave accesibles y juego fluido hacia las bases.</p>
                     <ul class="lista-detalles-dificultad">
-                        <li><span>✓</span> 1 carta por robo</li>
-                        <li><span>✓</span> Ases y doses rápidos</li>
-                        <li><span>✓</span> Pistas ilimitadas</li>
+                        <li><span class="marca-check">✓</span> 1 carta por robo</li>
+                        <li><span class="marca-check">✓</span> Ases y doses iniciales accesibles</li>
+                        <li><span class="marca-check">✓</span> Pistas ilimitadas</li>
                     </ul>
                 </div>
 
@@ -177,14 +219,18 @@
                 <div class="tarjeta-dificultad" data-dificultad="medio">
                     <div class="cabecera-tarjeta">
                         <span class="insignia-dificultad azul">Estándar</span>
-                        <div class="icono-nivel-dificultad">🔵</div>
+                        <div class="pips-dificultad" title="Nivel 2 de 3">
+                            <span class="pip activo azul"></span>
+                            <span class="pip activo azul"></span>
+                            <span class="pip"></span>
+                        </div>
                     </div>
-                    <h3 class="nombre-dificultad">Medio</h3>
-                    <p class="desc-dificultad">Robo de 1 carta. El reto equilibrado clásico de Klondike, garantizado 100% resoluble sin bloqueos imposibles.</p>
+                    <h3 class="nombre-dificultad">Equilibrado</h3>
+                    <p class="desc-dificultad">Robo de 1 carta. El reto tradicional de Klondike, con equilibrio natural entre estrategia y azar medido.</p>
                     <ul class="lista-detalles-dificultad">
-                        <li><span>✓</span> 1 carta por robo</li>
-                        <li><span>✓</span> Distribución equilibrada</li>
-                        <li><span>✓</span> Requiere estrategia normal</li>
+                        <li><span class="marca-check">✓</span> 1 carta por robo</li>
+                        <li><span class="marca-check">✓</span> Distribución clásica equilibrada</li>
+                        <li><span class="marca-check">✓</span> Requiere planificación de columnas</li>
                     </ul>
                 </div>
 
@@ -192,14 +238,18 @@
                 <div class="tarjeta-dificultad" data-dificultad="dificil">
                     <div class="cabecera-tarjeta">
                         <span class="insignia-dificultad rojo">Experto</span>
-                        <div class="icono-nivel-dificultad">🔴</div>
+                        <div class="pips-dificultad" title="Nivel 3 de 3">
+                            <span class="pip activo rojo"></span>
+                            <span class="pip activo rojo"></span>
+                            <span class="pip activo rojo"></span>
+                        </div>
                     </div>
-                    <h3 class="nombre-dificultad">Difícil</h3>
-                    <p class="desc-dificultad">Robo de 3 cartas. Desafío para maestros con gestión de descartes por tríos, 100% solucionable demostrado.</p>
+                    <h3 class="nombre-dificultad">Desafío Klondike</h3>
+                    <p class="desc-dificultad">Robo de 3 cartas. Partida de alta concentración con gestión de descarte en tríos, siempre con solución garantizada.</p>
                     <ul class="lista-detalles-dificultad">
-                        <li><span>✓</span> 3 cartas por robo</li>
-                        <li><span>✓</span> Tríos en descarte</li>
-                        <li><span>✓</span> Máxima puntuación</li>
+                        <li><span class="marca-check">✓</span> 3 cartas por robo en abanico</li>
+                        <li><span class="marca-check">✓</span> Planificación rigurosa de turnos</li>
+                        <li><span class="marca-check">✓</span> Máxima bonificación de puntos</li>
                     </ul>
                 </div>
             </div>
@@ -207,13 +257,16 @@
             <div class="pie-pantalla-inicio">
                 <button id="btn-cerrar-pantalla-dificultad" class="boton" style="display: none;">Cancelar</button>
                 <button id="btn-comenzar-juego" class="boton boton-primario boton-grande">
-                    <span>▶</span> Jugar Partida
+                    <svg class="icono-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="6 3 20 12 6 21 6 3"></polygon>
+                    </svg>
+                    <span>Comenzar Partida</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Mensaje flotante / Notificación -->
+    <!-- Mensaje flotante / Notificación Toast -->
     <div id="notificacion"></div>
 
     <script src="solitario.js"></script>

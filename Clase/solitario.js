@@ -412,13 +412,16 @@
 
     function actualizarIndicadorDificultad() {
         const config = {
-            facil: { nombre: 'Fácil', icono: '🟢' },
-            medio: { nombre: 'Medio', icono: '🔵' },
-            dificil: { nombre: 'Difícil', icono: '🔴' }
-        }[estado.dificultad] || { nombre: 'Fácil', icono: '🟢' };
+            facil: { nombre: 'Fácil', clase: 'facil' },
+            medio: { nombre: 'Medio', clase: 'medio' },
+            dificil: { nombre: 'Difícil', clase: 'dificil' }
+        }[estado.dificultad] || { nombre: 'Fácil', clase: 'facil' };
 
         dom.textoDificultad.textContent = config.nombre;
-        dom.iconoDificultad.textContent = config.icono;
+        if (dom.iconoDificultad) {
+            dom.iconoDificultad.className = `indicador-dificultad-dot ${config.clase}`;
+            dom.iconoDificultad.textContent = '';
+        }
     }
 
     // --- Control del Temporizador ---
@@ -494,7 +497,7 @@
         actualizarEstadisticas();
         actualizarBotonDeshacer();
         renderizar();
-        mostrarNotificacion('↩ Movimiento deshecho');
+        mostrarNotificacion('Movimiento deshecho');
     }
 
     // --- Validaciones de Movimientos ---
@@ -572,7 +575,7 @@
             estado.descarte = [];
             estado.movimientos++;
             estado.puntuacion = Math.max(0, estado.puntuacion - 10);
-            mostrarNotificacion('🔄 Mazo reciclado');
+            mostrarNotificacion('Mazo reiniciado');
         }
 
         actualizarEstadisticas();
@@ -783,10 +786,14 @@
     function renderizar() {
         // 1. Renderizar Mazo de robo
         dom.mazo.classList.toggle('vacio', estado.mazo.length === 0);
-        const iconoRecarga = dom.mazo.querySelector('.icono-recargar-mazo');
         dom.mazo.innerHTML = '';
         if (estado.mazo.length === 0) {
-            dom.mazo.appendChild(iconoRecarga);
+            dom.mazo.innerHTML = `
+                <svg class="icono-recargar-mazo" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6"></path>
+                    <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"></path>
+                </svg>
+            `;
         } else {
             const cartaMazo = document.createElement('div');
             cartaMazo.className = 'carta boca-abajo';
@@ -1000,7 +1007,7 @@
                     resaltarPista(
                         { tipo: 'tablero', indiceColumna: c, indiceCarta: col.length - 1 },
                         { tipo: 'fundacion', indiceFundacion: idxF },
-                        `💡 Mueve el ${carta.nombreCarta} a su fundación`
+                        `Mueve el ${carta.nombreCarta} a su base`
                     );
                     return;
                 }
@@ -1014,7 +1021,7 @@
                 resaltarPista(
                     { tipo: 'descarte' },
                     { tipo: 'fundacion', indiceFundacion: idxF },
-                    `💡 Mueve el ${carta.nombreCarta} del descarte a su fundación`
+                    `Mueve el ${carta.nombreCarta} del descarte a su base`
                 );
                 return;
             }
@@ -1043,7 +1050,7 @@
                     resaltarPista(
                         { tipo: 'tablero', indiceColumna: cOrigen, indiceCarta: primerIdxVisible },
                         { tipo: 'tablero', indiceColumna: cDest },
-                        `💡 Mueve ${cartaBase.nombreCarta} a ${nombreDest} para descubrir una carta oculta`
+                        `Mueve ${cartaBase.nombreCarta} a ${nombreDest} para liberar una carta oculta`
                     );
                     return;
                 }
@@ -1060,7 +1067,7 @@
                     resaltarPista(
                         { tipo: 'descarte' },
                         { tipo: 'tablero', indiceColumna: cDest },
-                        `💡 Mueve ${carta.nombreCarta} del descarte a ${nombreDest}`
+                        `Mueve ${carta.nombreCarta} del descarte a ${nombreDest}`
                     );
                     return;
                 }
@@ -1092,7 +1099,7 @@
                     resaltarPista(
                         { tipo: 'tablero', indiceColumna: cOrigen, indiceCarta: primerIdxVisible },
                         { tipo: 'tablero', indiceColumna: cDest },
-                        `💡 Mueve ${cartaBase.nombreCarta} sobre ${nombreDest}`
+                        `Mueve ${cartaBase.nombreCarta} sobre ${nombreDest}`
                     );
                     return;
                 }
@@ -1102,17 +1109,17 @@
         // 5. Sugerir robar del mazo o reciclar
         if (estado.mazo.length > 0) {
             dom.mazo.classList.add('resaltada-destino');
-            mostrarNotificacion('💡 Roba del mazo para descubrir nuevas cartas');
+            mostrarNotificacion('Roba una carta del mazo para encontrar nuevas opciones');
             setTimeout(() => dom.mazo.classList.remove('resaltada-destino'), 2500);
             return;
         } else if (estado.descarte.length > 0) {
             dom.mazo.classList.add('resaltada-destino');
-            mostrarNotificacion('💡 Recicla el mazo para volver a revisar el descarte');
+            mostrarNotificacion('Pasa de nuevo el mazo para revisar las cartas del descarte');
             setTimeout(() => dom.mazo.classList.remove('resaltada-destino'), 2500);
             return;
         }
 
-        mostrarNotificacion('No hay movimientos útiles en este momento');
+        mostrarNotificacion('No hay movimientos sugeridos en este momento');
     }
 
     function resaltarPista(origen, destino, mensaje) {
@@ -1194,17 +1201,19 @@
 
             // Doble clic para iniciar de inmediato
             tarjeta.addEventListener('dblclick', () => {
+                const nombresDificultad = { facil: 'Fácil', medio: 'Medio', dificil: 'Difícil' };
                 dificultadSeleccionadaEnPantalla = tarjeta.dataset.dificultad;
                 cerrarPantallaDificultad();
                 iniciarPartida(null, dificultadSeleccionadaEnPantalla);
-                mostrarNotificacion(`Partida iniciada en modo ${dificultadSeleccionadaEnPantalla.toUpperCase()}`);
+                mostrarNotificacion(`Partida iniciada en nivel ${nombresDificultad[dificultadSeleccionadaEnPantalla] || 'Fácil'}`);
             });
         });
 
         dom.btnComenzarJuego.addEventListener('click', () => {
+            const nombresDificultad = { facil: 'Fácil', medio: 'Medio', dificil: 'Difícil' };
             cerrarPantallaDificultad();
             iniciarPartida(null, dificultadSeleccionadaEnPantalla);
-            mostrarNotificacion(`Partida iniciada en modo ${dificultadSeleccionadaEnPantalla.toUpperCase()}`);
+            mostrarNotificacion(`Partida iniciada en nivel ${nombresDificultad[dificultadSeleccionadaEnPantalla] || 'Fácil'}`);
         });
 
         dom.btnCerrarPantallaDificultad.addEventListener('click', cerrarPantallaDificultad);
