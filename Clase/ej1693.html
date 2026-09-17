@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relación de edades</title>
+    <title>Divisor 1-10</title>
     <script>
        function calcularDivisor(){
         let num = parseInt(document.getElementById("num").value);
@@ -19,7 +19,7 @@
         if(divisorMinimo == -1){
             texto = "El número "+num+" no tiene ningún divisor entre 1 y 10"
         }else{
-            texto = "El menor número primo"
+            texto = "El número " + num + " es divisible entre "+divisorMinimo;
         }
         document.getElementById("resultado").innerHTML = texto;
        }
@@ -27,7 +27,7 @@
 </head>
 
 <body>
-    número: <input type="text" id="num"><br>
+    Evalúa un número: <input type="text" id="num"><br> <br>
     <button onClick="calcularDivisor()">Aceptar</button>
     <div id="resultado"></div>
 </body>
