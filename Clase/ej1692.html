@@ -8,17 +8,19 @@
     <script>
         function esParOImpar(){
             let numero = parseInt(document.getElementById("num").value);
+            let texto;
             if(numero % 2 == 0){
-                document.getElementById("resultado").innerHTML = "El número " + numero + " es par";
+                texto = "El número " + numero + " es par";
             }else{
-                document.getElementById("resultado").innerHTML = "El número " + numero + " es impar";
+                texto = "El número " + numero + " es impar";
             }
+            document.getElementById("resultado").innerHTML = texto
         }
     </script>
 </head>
 
 <body>
-    Número: <input type="text" id="num">
+    Introduzca número: <input type="text" id="num"><br>
     <button onclick="esParOImpar()">Aceptar</button>
     <div id="resultado"></div>
 </body>

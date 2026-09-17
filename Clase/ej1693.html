@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relación de edades</title>
+    <script>
+       function calcularDivisor(){
+        let num = parseInt(document.getElementById("num").value);
+        let divisorMinimo= -1;
+        let texto;
+        for(let i = 2; i <= 10; i++){
+            if(num% i == 0){
+                divisorMinimo = i;
+                break;
+            }
+        }
+        if(divisorMinimo == -1){
+            texto = "El número "+num+" no tiene ningún divisor entre 1 y 10"
+        }else{
+            texto = "El menor número primo"
+        }
+        document.getElementById("resultado").innerHTML = texto;
+       }
+    </script>
+</head>
+
+<body>
+    número: <input type="text" id="num"><br>
+    <button onClick="calcularDivisor()">Aceptar</button>
+    <div id="resultado"></div>
+</body>
+
+</html>
