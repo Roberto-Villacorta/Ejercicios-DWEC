@@ -10,11 +10,12 @@
         let num = parseInt(document.getElementById("num").value);
         let divisorMinimo= -1;
         let texto;
-        for(let i = 2; i <= 10; i++){
+        let i=2;
+        while(i<=10 && divisorMinimo == -1){
             if(num% i == 0){
                 divisorMinimo = i;
-                break;
             }
+            i++;
         }
         if(divisorMinimo == -1){
             texto = "El número "+num+" no tiene ningún divisor entre 1 y 10"
