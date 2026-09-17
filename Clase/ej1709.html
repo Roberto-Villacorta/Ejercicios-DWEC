@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confesionario</title>
+    <script>
+       function seleccionarTaller(){
+        let marca = document.getElementById("num").value.toLowerCase();
+        let taller;
+        switch (marca){
+            case "ford":
+                taller= "Talleres Pepito";
+                break;
+            case "seat":
+                taller= "Talleres Perez";
+                break;
+            case "peugeot":
+                taller= "Talleres Pardiñas";
+                break;
+            case "citroen":
+                taller="Talleres Álvarez";
+                break;
+            default:
+                taller="Taller no registrado";
+                break;
+        }
+        document.getElementById("resultado").innerHTML = "Debes llevar su coche a " + taller;
+       }
+    </script>
+</head>
+
+<body>
+    Introduzca marca: <input type="text" id="num"><br> <br>
+    <button onClick="seleccionarTaller()">mostrar Taller</button> <br><br>
+    <div id="resultado"></div>
+</body>
+
+</html>

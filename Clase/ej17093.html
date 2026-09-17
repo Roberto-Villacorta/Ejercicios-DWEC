@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polideportivo</title>
+    
+</head>
+
+<body>  
+    <div id="resultado"></div>
+    <script>
+        let i = 1;
+        while(i<6){
+            document.getElementById("resultado").innerHTML += "<h"+i+">"+"Cabecera de Nivel "+i+"</h"+i+">";
+            i++;
+        }
+        i++;
+        while(i>1){
+            i--;
+            document.getElementById("resultado").innerHTML += "<h"+i+">"+"Cabecera de Nivel "+i+"</h"+i+">";
+        }  
+    </script>
+</body>
+
+</html>

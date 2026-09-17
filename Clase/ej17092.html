@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polideportivo</title>
+    <script>
+       function seleccionarCategoria(){
+        let edad = parseInt(document.getElementById("num").value);
+        let Categoria;
+        switch (edad) {
+            case 5:
+            case 6:
+            case 7:
+                Categoria = "Pre-Benjamín";
+                break;
+            case 8:
+            case 9:
+                Categoria = "Benjamín";
+                break;
+            case 10:
+            case 11:
+                Categoria = "Alevín";
+                break;
+            case 12:
+            case 13:
+                Categoria = "Infantil";
+                break;
+            case 14:0
+            case 15:
+                Categoria = "Cadete";
+                break;
+            case 16:
+            case 17:
+            case 18:
+                Categoria = "Juvenil";
+                break;
+            default:
+                Categoria = "Fuera de categoría";
+                break;
+        }
+        document.getElementById("resultado").innerHTML = "La categoría del jugador o jugadora es "+Categoria;
+       }
+    </script>
+</head>
+
+<body>
+    Introduzca tú edad: <input type="text" id="num"><br> <br>
+    <button onClick="seleccionarCategoria()">Mostrar Categoría</button> <br><br>
+    <div id="resultado"></div>
+</body>
+
+</html>
