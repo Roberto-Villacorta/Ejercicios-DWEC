@@ -10,28 +10,34 @@
         let texto = document.getElementById("texto").value;
         let n = parseInt(document.getElementById("num").value);
         let resultado = document.getElementById("resultado");
+        let salida = "";
 
         if (isNaN(n) || n < 1 || n > 6) {
-            resultado.innerHTML = "<p style='color:red;'>Debes introducir un número entre 1 y 6.</p>";
-            return;
+            salida = "<p style='color:red;'>Debes introducir un número entre 1 y 6.</p>";
+            document.getElementById("num").value = "";
+            document.getElementById("num").focus();
         }
-
-        let salida = "";
-        for (let i = 1; i <= n; i++) {
-            salida += "<h" + i + ">" + texto + "</h" + i + ">";
+        else{
+        let i = 1;
+       
+        while(i<=n){
+            salida += "<h"+i+">"+texto+"</h"+i+">";
+            i++;
         }
-        for (let i = n - 1; i >= 1; i--) {
-            salida += "<h" + i + ">" + texto + "</h" + i + ">";
-        }
-
-        resultado.innerHTML = salida;
+        i--;
+        while(i>=1){
+            salida += "<h"+i+">"+texto+"</h"+i+">";
+            i--;
+        } 
        }
+        document.getElementById("resultado").innerHTML = salida;
+    }
     </script>
 </head>
 
 <body>
     Introduce un texto: <input type="text" id="texto"><br><br>
-    Introduce n (entre 1 y 6): <input type="number" id="num" min="1" max="6"><br><br>
+    Introduce n (entre 1 y 6): <input type="text" id="num"><br><br>
     <button onClick="generarCabeceras()">Generar</button><br><br>
     <div id="resultado"></div>
 </body>

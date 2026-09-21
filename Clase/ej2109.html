@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primo Validator</title>
+    <script>
+       function esPrimo(){
+        let numero = parseInt(document.getElementById("num").value);
+        let salida="El numero "+ numero + " <font color='blue'>SI</font> es primo";
+        let i=2;
+       while(i<=Math.sqrt(numero)){
+          if(numero%i==0){
+            salida = "El numero "+ numero + " <font color='red'>NO</font> es primo";
+            break
+          }
+          i++
+       }
+            document.getElementById("resultado").innerHTML = salida
+    }
+    </script>
+</head>
+
+<body>
+    Introduzca un número: <input type="text" id="num"><br><br>
+    <button onClick="esPrimo()">Mostrar</button><br><br>
+    <div id="resultado"></div>
+</body>
+
+</html>

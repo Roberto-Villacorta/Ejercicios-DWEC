@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Monte Carlo en JavaScript</title>
+    <link rel="stylesheet" href="MonteCarlo.css">
+</head>
+<body>
+
+    <h1>Simulación de Monte Carlo: Estimación de Pi</h1>
+    
+    <div class="controles">
+        <button id="btnIniciar">Iniciar Simulación</button>
+        <span class="resultados">Pi Estimado: <span id="valPi">0.0000</span></span>
+        <span class="resultados">Total Puntos: <span id="valPuntos">0</span></span>
+    </div>
+
+    <!-- El lienzo donde dibujaremos los puntos -->
+    <canvas id="simulacionCanvas" width="400" height="400"></canvas>
+
+    <script src="MonteCarlo.js"></script>
+</body>
+</html>

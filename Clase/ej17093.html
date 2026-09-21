@@ -8,20 +8,24 @@
     
 </head>
 
-<body>  
+<body onload="Mostrar()">  
     <div id="resultado"></div>
     <script>
+        function Mostrar(){
+        var texto = ""
         let i = 1;
-        while(i<6){
-            document.getElementById("resultado").innerHTML += "<h"+i+">"+"Cabecera de Nivel "+i+"</h"+i+">";
+        while(i<=6){
+            texto += "<h"+i+">"+"Cabecera de Nivel "+i+"</h"+i+">";
             i++;
         }
-        i++;
         while(i>1){
             i--;
-            document.getElementById("resultado").innerHTML += "<h"+i+">"+"Cabecera de Nivel "+i+"</h"+i+">";
+            texto += "<h"+i+">"+"Cabecera de Nivel "+i+"</h"+i+">";
         }  
-    </script>
+
+        document.getElementById("resultado").innerHTML = texto;
+    }
+        </script>
 </body>
 
 </html>
