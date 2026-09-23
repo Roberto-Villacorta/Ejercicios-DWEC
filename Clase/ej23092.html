@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUM</title>
+    <script>
+        function pumGame() {
+            let salida = "";
+            for (let i = 1; i <= 300; i++) {
+
+                if(i%4==0){
+                    salida += "<font color='green' size=+4>" + i + "</font> ";
+                }
+                else if(i%9 == 0)
+                {
+                    salida +="<font color='red' size='-2'>" + i + "</font> ";
+                }
+                else{
+                    salida += i;
+                }
+                if(i%10 == 0){
+                    salida += "<br>";
+                }
+            }
+            document.getElementById("resultado").innerHTML = salida
+    }
+    </script>
+</head>
+
+<body onload="pumGame()">
+   <div id="resultado"></div>
+</body>
+</html>
