@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+       function fecha(){
+        let dia = parseInt(document.getElementById("dia").value)
+        let mes = parseInt(document.getElementById("mes").value)
+        let anio = parseInt(document.getElementById("anio").value)
+        let hora = parseInt(document.getElementById("hora").value)
+        let minuto = parseInt(document.getElementById("minuto").value)
+        let segundo = parseInt(document.getElementById("segundo").value)
+        if (anio >= 0 && anio <= 99) {
+            anio += 1900;
+        }
+        let fecha = new Date(anio, mes - 1, dia, hora, minuto, segundo);
+        let diaSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+        let mesLetras = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", 
+        "Octubre", "Noviembre", "Diciembre"]
+        let textoResultado = "En San Fernando de Henares, "+ diaSemana[fecha.getDay()]+" a " + fecha.getDate() + 
+        " de " + mesLetras[fecha.getMonth()] + " del " + fecha.getFullYear() + " a las ";
+        if(hora<10)textoResultado += "0" + fecha.getHours() + " horas y " ; 
+        if(minuto<10)textoResultado += "0" + fecha.getMinutes() + " minutos y " ; 
+        if(segundo<10)textoResultado += "0" + fecha.getSeconds() + " segundos.";
+        document.getElementById("resultado").innerHTML = textoResultado;
+       }
+    </script>
+</head>
+
+<body onload="">
+   Día: <input type="text" id="dia" placeholder="Día"> <br>
+   Mes: <input type="text" id="mes" placeholder="Mes"> <br>
+   Año: <input type="text" id="anio" placeholder="Año"> <br>
+   Hora: <input type="text" id="hora" placeholder="Hora"> <br>
+   Minuto: <input type="text" id="minuto" placeholder="Minuto"> <br>
+   Segundo: <input type="text" id="segundo" placeholder="Segundo"> <br><br>
+   <button onclick="fecha()">Mostrar fecha</button>
+   <div id="resultado"></div>
+</body>
+</html>

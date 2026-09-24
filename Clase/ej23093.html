@@ -25,22 +25,26 @@
     }
     var temporizador = setInterval(relojDigital, 1000)
     
+    function iniciarParada(valor){
+        document.getElementById("parar").disabled = valor
+        document.getElementById("iniciar").disabled = valor
+    }
     function pararReloj(){
         clearInterval(temporizador)
+       iniciarParada(false)
     }
     
     function iniciarReloj(){
-        if(temporizador == 1){
         temporizador = setInterval(relojDigital, 1000)
-        }
+        iniciarParada(true)
     }
     </script>
 </head>
 
 <body onload="relojDigital()">
    <div id="resultado"></div>
-   <button onclick="pararReloj()">Parar Reloj</button>
-   <button onclick="iniciarReloj()">Iniciar Reloj</button>
+   <button id="parar" onclick="pararReloj()">Parar Reloj</button>
+   <button id="iniciar" onclick="iniciarReloj()">Iniciar Reloj</button>
    
 </body>
 </html>
