@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+       function fecha(){
+        let fechaHoy = new Date();
+        document.getElementById("resultadoA").innerHTML = fechaHoy;
+
+        let fecha85 = new Date(fechaHoy);
+        fecha85.setDate(fecha85.getDate() + 85);
+        document.getElementById("resultadoB").innerHTML = fecha85;
+
+        let fecha185 = new Date(fechaHoy);
+        fecha185.setDate(fecha185.getDate() - 185);
+        document.getElementById("resultadoC").innerHTML = fecha185;
+
+        let fechaD = new Date(fecha85);
+        fechaD.setFullYear(fechaD.getFullYear() + 2);
+        document.getElementById("resultadoD").innerHTML = fechaD;
+
+        let fechaE = new Date(fecha185);
+        fechaE.setDate(fechaE.getDate() - 1);
+        document.getElementById("resultadoE").innerHTML = fechaE;
+       
+        let fechaResto = new Date(fecha85 - fecha185);
+        document.getElementById("resultadoF").innerHTML = fechaResto
+    }
+    </script>
+</head>
+
+<body onload="fecha()">
+   <div id="resultadoA"></div><br>
+   <div id="resultadoB"></div><br>
+   <div id="resultadoC"></div><br>
+   <div id="resultadoD"></div><br>
+   <div id="resultadoE"></div><br>
+   <div id="resultadoF"></div><br>
+</body>
+</html>
