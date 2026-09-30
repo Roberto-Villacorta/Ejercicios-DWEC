@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+        function cargarTabla() {
+        var grados = [];
+        var radianes = [];
+        var seno = [];
+        var coseno = [];
+        var indice = 0;
+        for (let i = 0; i<=360; i+=10){
+            grados[indice] = i;
+            radianes[indice] = i*(Math.PI/180);
+            seno[indice] = Math.sin(radianes[indice]);
+            coseno[indice] = Math.cos(radianes[indice]);
+            indice++;
+        }
+        for (let i = 0; i<grados.length; i++){
+            document.getElementById("tabla").innerHTML += "<tr><td>" + grados[i] + "</td><td>" + radianes[i].toFixed(2) + "</td><td>"
+            + seno[i].toFixed(2) + "</td><td>" + coseno[i].toFixed(2) + "</td></tr>";
+        }
+        }
+    </script>
+</head>
+
+<body onload="cargarTabla()">
+    <table id="tabla" border="1">
+        <tr>
+            <th>Grados</th>
+            <th>Radianes</th>
+            <th>Seno</th>
+            <th>Coseno</th>
+        </tr>
+    </table>
+</body>
+</html>

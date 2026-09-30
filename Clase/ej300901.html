@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+        function generarNumeroAleatorio() {
+           let i = parseInt(document.getElementById("numero3").value);
+           let min = parseInt(document.getElementById("numero2").value);
+           let max = parseInt(document.getElementById("numero").value);
+           if(isNaN(i) || isNaN(min) || isNaN(max)){
+            alert("Debe llenar todas las cajas de texto");
+            return;
+           }
+           if(min>max){
+            alert("El numero minimo debe ser menor que el numero maximo");
+            return;
+           }
+           if(i > max - min){
+            alert("La cantidad de numeros a generar es mayor a la cantidad de numeros posibles");
+            return;
+           }
+           let numeros = [];
+           for (let j = 0; j < i; j++) {
+            var numero = Math.floor(Math.random() * (max - min + 1)) + min;
+            if(numeros.includes(numero)){
+                j--;
+            }else{
+                numeros.push(numero);
+            }
+           }
+           document.getElementById("numeroAleatorio").innerHTML = numeros;
+           numeros.sort((a, b) => a-b);
+           document.getElementById("numeroOrdenado").innerHTML = numeros;
+        }
+    </script>
+</head>
+
+<body >
+   número máximo <input type="text" id="numero"> <br>
+    número minimo<input type="text" id="numero2"> <br>
+    cantidad de numeros a generar<input type="text" id="numero3"> <br>
+   <button onclick="generarNumeroAleatorio()">Generar Numero Aleatorio</button>
+   <div id="numeroAleatorio"></div>
+   <div id="numeroOrdenado"></div>
+</body>
+</html>

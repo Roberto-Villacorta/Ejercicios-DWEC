@@ -14,19 +14,19 @@
         fecha85.setDate(fecha85.getDate() + 85);
         document.getElementById("resultadoB").innerHTML = fecha85;
 
-        let fecha185 = new Date(fechaHoy);
-        fecha185.setDate(fecha185.getDate() - 185);
-        document.getElementById("resultadoC").innerHTML = fecha185;
+        let fecha187 = new Date(fechaHoy);
+        fecha187.setDate(fecha187.getDate() - 187);
+        document.getElementById("resultadoC").innerHTML = fecha187;
 
         let fechaD = new Date(fecha85);
         fechaD.setFullYear(fechaD.getFullYear() + 2);
         document.getElementById("resultadoD").innerHTML = fechaD;
 
-        let fechaE = new Date(fecha185);
-        fechaE.setDate(fechaE.getDate() - 1);
+        let fechaE = new Date(fecha187);
+        fechaE.setDate(fechaE.getDate() + 1);
         document.getElementById("resultadoE").innerHTML = fechaE;
        
-        let fechaResto = new Date(fecha85 - fecha185);
+        let fechaResto = new Date(fecha85 - fecha187);
         document.getElementById("resultadoF").innerHTML = fechaResto
     }
     </script>

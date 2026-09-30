@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+        function generarNumeroAleatorio() {
+            //generar numeros aleatorios entre 6 y 15
+            min = 6;
+            max = 15;
+            var numero = Math.floor(Math.random() * (max - min + 1)) + min;
+            document.getElementById("numero").innerHTML = numero;
+        }
+    </script>
+</head>
+
+<body >
+   <button onclick="generarNumeroAleatorio()">Generar Numero Aleatorio</button>
+   <div id="numero"></div>
+</body>
+</html>
