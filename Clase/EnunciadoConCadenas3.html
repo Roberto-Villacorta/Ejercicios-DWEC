@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validación de Datos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-spacing: 5px;
+        }
+        .msg-error {
+            color: red;
+        }
+        .msg-ok {
+            color: blue;
+        }
+    </style>
+    <script>
+        function limpiar() {
+            document.getElementById("nombre").value = "";
+            document.getElementById("Edad").value = "";
+            document.getElementById("error").innerHTML = "";
+            document.getElementById("error1").innerHTML = "";
+        }
+
+        function validar() {
+            let error = "";
+            let error1 = "";
+            let nombre = document.getElementById("nombre").value;
+            let edadStr = document.getElementById("Edad").value;
+            const letras = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZÁÉÍÓÚÜÇabcdefghijklmnopqrstuvwxyzáéíóúüç ";
+            let posicionesErroresNombre = [];
+
+            for (let i = 0; i < nombre.length; i++) {
+                if (!letras.includes(nombre[i])) {
+                    posicionesErroresNombre.push(i + 1);
+                }
+            }
+            if (nombre.length < 3 || nombre.length > 25) {
+                error = "<span class='msg-error'>El nombre debe tener entre 3 y 25 caracteres</span>";
+            } else if (posicionesErroresNombre.length > 0) {
+                error = "<span class='msg-error'>Hay un error en el carácter o caracteres número " + posicionesErroresNombre.join(", ") + " del texto</span>";
+            } else {
+                error = "<span class='msg-ok'>El nombre es correcto</span>";
+            }
+            const numeros = "0123456789";
+            let posicionesErroresEdad = [];
+
+            for (let i = 0; i < edadStr.length; i++) {
+                if (!numeros.includes(edadStr[i])) {
+                    posicionesErroresEdad.push(i + 1);
+                }
+            }
+
+            if (posicionesErroresEdad.length > 0) {
+                error1 = "<span class='msg-error'>Hay un error en el carácter o caracteres número " + posicionesErroresEdad.join(", ") + " del texto</span>";
+            } else if (edadStr.trim() === "") {
+                error1 = "<span class='msg-error'>La edad no puede estar vacía</span>";
+            } else {
+                let edad = parseInt(edadStr);
+                if (edad < 5 || edad > 110) {
+                    error1 = "<span class='msg-error'>La edad debe estar entre 5 y 110</span>";
+                } else {
+                    error1 = "<span class='msg-ok'>La edad es correcta</span>";
+                }
+            }
+
+            document.getElementById("error").innerHTML = error;
+            document.getElementById("error1").innerHTML = error1;
+        }
+    </script>
+</head>
+<body>
+    <table>
+        <tr>
+            <td><label for="nombre">Nombre:</label></td>
+            <td><input type="text" id="nombre"></td>
+            <td><span id="error"></span></td>
+        </tr>
+        <tr>
+            <td><label for="Edad">Edad:</label></td>
+            <td><input type="text" id="Edad"></td>
+            <td><span id="error1"></span></td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <button onclick="validar()">Validar</button>
+                <button onclick="limpiar()">Limpiar</button>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

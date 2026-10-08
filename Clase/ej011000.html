@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+        function capitalizar(txt){
+            palabras = txt.split(" ")
+            var a = "";
+            for(var i = 0; i<palabras.length;i++){
+              a +=  palabras[i].charAt(0).toUpperCase() + palabras[i].substr(1).toLowerCase() + " ";
+            }
+            return a;
+            }
+        
+        function enviar(){
+            let nombre = document.getElementById("nombre").value.trim();
+            let apellido = document.getElementById("apellido").value.trim();
+            let apellido2 = document.getElementById("apellido2").value.trim(   );
+            if(nombre.length === 0 || apellido.length === 0 || apellido2.length === 0){
+                alert("Todos los campos son obligatorios");
+                return;
+            }
+            let soloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+\$/;
+            if(soloLetras.test(nombre)||soloLetras.test(apellido)||soloLetras.test(apellido2)){
+                alert("Todos los campos deben ser texto");
+                return;
+            }
+
+             document.getElementById("mostrar").innerHTML = capitalizar(nombre) + " "+ capitalizar(apellido)+" "+ capitalizar(apellido2);
+    }
+    </script>
+
+</head>
+
+<body >
+    <input type="text" id="nombre" placeholder="nombre"> <br>
+    <input type="text" id="apellido" placeholder="apellido"> <br>
+    <input type="text" id="apellido2" placeholder="apellido2"> <br>
+    <button onclick="enviar()">Enviar</button>
+    <div id="mostrar"></div>
+</body>
+</html>

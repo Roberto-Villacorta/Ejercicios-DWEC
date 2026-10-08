@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+        function isPalindromo() {
+            let txt = document.getElementById("textoInput").value.toLowerCase().trim();
+            let limpio = txt.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            /*
+            const mapaAcentos = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u'};
+            limpio = txt.replace(/[áéíóúü]/g, caracter => mapaAcentos[caracter]);
+            for (let i = 0; i < txt.length; i++) {
+                if (mapaAcentos[txt[i]]) {
+                    limpio += mapaAcentos[txt[i]];
+                } else {
+                    limpio += txt[i];
+                }
+            }
+            */
+            limpio = limpio.replace(/[\s,\.!?¿¡\[\]\(\){}'"\-_&@#%‰\{\}\|\\/\^\$\*\?\+=\`\~]/g, "");
+            let textoInverso = limpio.split("").reverse().join("");
+            let mostrar = "";
+            if (limpio !== "" && limpio === textoInverso) {
+                mostrar = "La frase : <strong>" + txt + "</strong> sí es palíndromo. y se ve como <strong>"+limpio+"</strong> y su inverso es <strong>"+textoInverso+"</strong>";
+            } else {
+                mostrar = "La frase : <strong>" + txt + "</strong> no es palíndromo. y se ve como <strong>"+limpio+"</strong> y su inverso es <strong>"+textoInverso+"</strong>";
+            }
+            document.getElementById("mostrar").innerHTML = mostrar;
+        }
+    </script>
+</head>
+<body>
+    <input type="text" id="textoInput" placeholder="Escribe algo...">
+    <br>
+    <button onclick="isPalindromo()">Comprobar</button>
+    <br><br>
+    <div id="mostrar" style="font-size: 20px; font-family: monospace;"></div>
+</body>
+</html>

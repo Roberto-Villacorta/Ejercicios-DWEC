@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosa</title>
+    <script>
+        let timer = null; 
+        let txt = ""; 
+        let velocidad = 1000;
+
+        function setVelocidad(){
+            let num = document.getElementById("velocidad").value.trim();
+            var numeros = "0123456789"
+            var haySoloNumeros = true;
+            for (let i = 0; i < num.length; i++) {
+                if (!numeros.includes(num[i])) {
+                    haySoloNumeros = false;
+                    break;
+                }
+            }
+            if(haySoloNumeros){
+            velocidad = parseFloat(document.getElementById("velocidad").value) <=0 ? 1000 : parseFloat(document.getElementById("velocidad").value)*1000;
+            } else {
+                alert("No hay solo numeros");
+            }
+        }
+        function detener() {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+        }
+        function pasoIzq() {
+            if (txt.length > 1) {
+                txt = txt.substr(1) + txt[0];
+                document.getElementById("mostrar").innerHTML = txt;
+            }
+            timer = setTimeout(pasoIzq, velocidad); 
+        }
+
+        function pasoDer() {
+            if (txt.length > 1) {
+                txt = txt[txt.length - 1] + txt.substr(0, txt.length - 1);
+                document.getElementById("mostrar").innerHTML = txt;
+            }
+            timer = setTimeout(pasoDer, velocidad); 
+        }
+
+        function gIZQ() {
+            detener(); 
+            let inputVal = document.getElementById("textoInput").value.trim();
+            if (inputVal) {
+                txt  = inputVal + " ";
+                document.getElementById("mostrar").innerHTML = txt;
+            } else {
+                txt = document.getElementById("mostrar").innerHTML;
+            }
+            if (!txt) return; 
+            pasoIzq();
+        }
+
+        function gDr() {
+            detener(); 
+            let inputVal = document.getElementById("textoInput").value.trim();
+            if (inputVal) {
+                txt = inputVal + " ";
+                document.getElementById("mostrar").innerHTML = txt;
+            } else {
+                txt = document.getElementById("mostrar").innerHTML;
+            }
+            if (!txt) return; 
+            pasoDer();
+        }
+    </script>
+</head>
+<body>
+    <input type="text" id="textoInput" placeholder="Escribe algo...">
+    <br>
+    <input type="text" id="velocidad" placeholder="Tiempo en segundos"><br>
+    <button onclick="gIZQ()">Girar A La Izquierda</button>
+    <button onclick="gDr()">Girar a la derecha</button><br>
+    <button onclick="detener()">Detener</button>
+    <button onclick="setVelocidad()">Tiempo en segundos</button>
+    <br><br>
+    <div id="mostrar" style="font-size: 20px; font-family: monospace;"></div>
+</body>
+</html>
