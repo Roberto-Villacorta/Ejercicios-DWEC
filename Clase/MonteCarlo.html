@@ -12,12 +12,14 @@
     
     <div class="controles">
         <button id="btnIniciar">Iniciar Simulación</button>
-        <span class="resultados">Pi Estimado: <span id="valPi">0.0000</span></span>
+        <button id="btnParar">Parar Simulación</button>
+        <button id="btnReanudar">Reanudar Simulación</button>
+        <span class="resultados">Pi Estimado: <span id="valPi">0.000000000</span></span>
         <span class="resultados">Total Puntos: <span id="valPuntos">0</span></span>
     </div>
 
     <!-- El lienzo donde dibujaremos los puntos -->
-    <canvas id="simulacionCanvas" width="400" height="400"></canvas>
+    <canvas id="simulacionCanvas" width="1000" height="1000"></canvas>
 
     <script src="MonteCarlo.js"></script>
 </body>

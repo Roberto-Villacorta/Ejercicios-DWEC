@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objeto Location</title>
+    <script>
+        function recargar() {
+            location.reload();
+        }
+
+        function redireccionar() {
+            // assign() o location.href redirige guardando la página en el historial
+            location.assign("https://www.google.com");
+        }
+
+        function reemplazar() {
+            // replace() redirige reemplazando la entrada actual en el historial (no se puede volver atrás)
+            location.replace("https://www.google.com");
+        }
+    </script>
+</head>
+<body>
+    <script>
+        document.write("URL completa:<br>" + location.href + "<br>");
+        document.write("Pathname: " + location.pathname + "<br>");
+        document.write("Protocolo: " + location.protocol + "<br>");
+        document.write("Puerto: " + location.port + "<br>");
+        document.write("Servidor: " + location.host + "<br>");
+        document.write("Host Name: " + location.hostname + "<br>");
+    </script>
+
+    <button onclick="recargar()">Recargar</button>
+    <button onclick="redireccionar()">redireccionar</button>
+    <button onclick="reemplazar()">reemplazar</button>
+</body>
+</html>

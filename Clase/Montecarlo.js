@@ -22,7 +22,7 @@
 
         function ejecutarSimulacion() {
             // Generamos un lote de 200 puntos por cada fotograma para que sea rápido y visible
-            const puntosPorFrame = 200;
+            const puntosPorFrame = 10000;
 
             for (let i = 0; i < puntosPorFrame; i++) {
                 // Generar coordenadas aleatorias entre 0 y 1
@@ -51,7 +51,7 @@
             const piEstimado = 4 * (puntosDentro / totalPuntos);
 
             // Actualizar los textos en el HTML
-            valPi.textContent = piEstimado.toFixed(4);
+            valPi.textContent = piEstimado.toFixed(9);
             valPuntos.textContent = totalPuntos.toLocaleString();
 
             // Continuar la animación en el siguiente fotograma
@@ -69,5 +69,13 @@
             ejecutarSimulacion();
         });
 
+        btnParar.addEventListener('click', () => {
+            cancelAnimationFrame(animacionId);
+            animacionId = null;
+        });
+
+        btnReanudar.addEventListener('click', () => {
+            ejecutarSimulacion();
+        });
         // Dibujar el arco guía al cargar la página
         inicializarLienzo();
