@@ -488,6 +488,18 @@ main {
     animation: aparecerVolteo 0.22s ease-out;
 }
 
+/* Animación de carta sin movimiento posible */
+@keyframes cartaSinMovimiento {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+
+.carta.sin-movimiento {
+    animation: cartaSinMovimiento 0.26s ease-in-out !important;
+}
+
+
 /* Resaltado de Pistas */
 .carta.resaltada-pista {
     animation: pulso-pista 1.2s infinite ease-in-out !important;

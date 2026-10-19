@@ -625,67 +625,209 @@
         comprobarEstadoJuego();
     }
 
-    // 3. Auto-mover carta con doble clic
-    function intentarMovimientoAutomatico(carta, infoOrigen) {
-        const indiceFundacion = buscarFundacionParaCarta(carta);
-        if (indiceFundacion !== -1) {
-            ejecutarMovimiento(infoOrigen, { tipo: 'fundacion', indiceFundacion });
-            return true;
+    // 3. Evaluación y Cálculo de la Mejor Posición Posible
+    function evaluarMovimiento(origen, destino, carta) {
+        let puntuacion = 0;
+
+        if (destino.tipo === 'fundacion') {
+            // Movimiento a la Fundación (máxima prioridad)
+            if (carta.valor <= 2) {
+                puntuacion = 15000; // Ases y 2s siempre tienen prioridad indiscutible
+            } else {
+                // Comprobar la regla clásica de seguridad para fundaciones:
+                // Es segura si las fundaciones de los palos del color contrario
+                // tienen al menos valor - 1
+                const indicesOpuestos = carta.color === 'rojo' ? [2, 3] : [0, 1];
+                const f1 = estado.fundaciones[indicesOpuestos[0]].length;
+                const f2 = estado.fundaciones[indicesOpuestos[1]].length;
+                const esSeguro = (f1 >= carta.valor - 1 && f2 >= carta.valor - 1);
+
+                puntuacion = esSeguro ? 12000 : 9000;
+            }
+
+            // Bono extra si al salir del tablero libera una carta que estaba oculta
+            if (origen.tipo === 'tablero' && origen.indiceCarta > 0) {
+                const anterior = estado.tablero[origen.indiceColumna][origen.indiceCarta - 1];
+                if (!anterior.bocaArriba) {
+                    puntuacion += 2500;
+                }
+            } else if (origen.tipo === 'descarte') {
+                puntuacion += 1000;
+            }
+
+            return puntuacion;
         }
 
-        // Si no cabe en la fundación, verificar si cabe en alguna columna del tablero
+        if (destino.tipo === 'tablero') {
+            const colDestino = estado.tablero[destino.indiceColumna];
+            const estaVacia = (colDestino.length === 0);
+
+            if (estaVacia) {
+                // Solo para Rey (valor 13)
+                // Si el Rey ya está en la base de una columna del tablero (índice 0)
+                // sin cartas ocultas debajo, moverlo a otra columna vacía es redundante e inútil
+                if (origen.tipo === 'tablero' && origen.indiceCarta === 0) {
+                    return -1;
+                }
+
+                puntuacion = 2500;
+
+                // Si viene del tablero y revela una carta oculta debajo
+                if (origen.tipo === 'tablero' && origen.indiceCarta > 0) {
+                    const anterior = estado.tablero[origen.indiceColumna][origen.indiceCarta - 1];
+                    if (!anterior.bocaArriba) {
+                        puntuacion += 4000; // Gran prioridad: descubrir carta oculta
+                    }
+                } else if (origen.tipo === 'descarte') {
+                    puntuacion += 2000; // Poner en juego un Rey desde el descarte
+                }
+            } else {
+                // Columna destino con cartas
+                puntuacion = 3500;
+
+                // 1. Bono según el origen:
+                if (origen.tipo === 'tablero' && origen.indiceCarta > 0) {
+                    const anterior = estado.tablero[origen.indiceColumna][origen.indiceCarta - 1];
+                    if (!anterior.bocaArriba) {
+                        puntuacion += 3500; // Máxima prioridad en tablero: liberar carta oculta
+                    } else if (anterior.valor === carta.valor + 1 && anterior.color !== carta.color) {
+                        puntuacion -= 1000; // Desaconsejar romper secuencias ya formadas
+                    }
+                } else if (origen.tipo === 'tablero' && origen.indiceCarta === 0) {
+                    // Vacía una columna completa del tablero para recibir futuros Reyes
+                    puntuacion += 1200;
+                    const hayReyDisponible = estado.descarte.some(c => c.valor === 13) ||
+                        estado.tablero.some(col => col.some((c, idx) => c.bocaArriba && c.valor === 13 && idx > 0));
+                    if (hayReyDisponible) {
+                        puntuacion += 1000;
+                    }
+                } else if (origen.tipo === 'descarte') {
+                    puntuacion += 1800; // Traer cartas del montón de descarte al tablero
+                }
+
+                // 2. Desempate inteligente entre columnas destino:
+                // Preferir colocar sobre columnas que contengan cartas ocultas debajo
+                const cartasOcultasDestino = colDestino.filter(c => !c.bocaArriba).length;
+                puntuacion += cartasOcultasDestino * 100;
+
+                // Consolidar en la columna con mayor número de cartas
+                puntuacion += colDestino.length * 10;
+            }
+
+            return puntuacion;
+        }
+
+        return 0;
+    }
+
+    function obtenerMejorMovimiento(carta, infoOrigen) {
+        // Las cartas en la fundación ya están en su meta
+        if (infoOrigen.tipo === 'fundacion') return null;
+
+        const candidatos = [];
+
+        // 1. Comprobar si puede ir a la Fundación
+        let puedeIrAFundacion = false;
+        if (infoOrigen.tipo === 'descarte') {
+            puedeIrAFundacion = true;
+        } else if (infoOrigen.tipo === 'tablero') {
+            // A la fundación solo puede ir la carta superior de la columna (sin cartas encima)
+            puedeIrAFundacion = (infoOrigen.indiceCarta === estado.tablero[infoOrigen.indiceColumna].length - 1);
+        }
+
+        if (puedeIrAFundacion) {
+            const idxFundacion = buscarFundacionParaCarta(carta);
+            if (idxFundacion !== -1) {
+                const destinoF = { tipo: 'fundacion', indiceFundacion: idxFundacion };
+                const puntosF = evaluarMovimiento(infoOrigen, destinoF, carta);
+                if (puntosF > 0) {
+                    candidatos.push({ destino: destinoF, puntuacion: puntosF });
+                }
+            }
+        }
+
+        // 2. Comprobar columnas del Tablero (0 a 6)
         for (let c = 0; c < 7; c++) {
             if (infoOrigen.tipo === 'tablero' && infoOrigen.indiceColumna === c) continue;
             if (puedeMoverATablero(carta, c)) {
-                if (infoOrigen.tipo === 'tablero' && carta.valor === 13 && estado.tablero[infoOrigen.indiceColumna].length === 0) {
-                    continue;
+                const destinoT = { tipo: 'tablero', indiceColumna: c };
+                const puntosT = evaluarMovimiento(infoOrigen, destinoT, carta);
+                if (puntosT > 0) {
+                    candidatos.push({ destino: destinoT, puntuacion: puntosT });
                 }
-                ejecutarMovimiento(infoOrigen, { tipo: 'tablero', indiceColumna: c });
-                return true;
             }
         }
 
+        if (candidatos.length === 0) return null;
+
+        // Ordenar candidatos por mayor puntuación y devolver el destino óptimo
+        candidatos.sort((a, b) => b.puntuacion - a.puntuacion);
+        return candidatos[0].destino;
+    }
+
+    // 4. Auto-mover carta (usado también por atajos o doble clic)
+    function intentarMovimientoAutomatico(carta, infoOrigen) {
+        const mejorDestino = obtenerMejorMovimiento(carta, infoOrigen);
+        if (mejorDestino) {
+            ejecutarMovimiento(infoOrigen, mejorDestino);
+            return true;
+        }
         return false;
     }
 
-    // 4. Manejo de Selección y Clic Simple
+    // 5. Manejo de Clic en Carta (Al cliquear, se mueve a la mejor posición de las posibles)
     function manejarClicEnCarta(carta, infoOrigen) {
         if (!carta.bocaArriba) return;
 
-        // Si no hay nada seleccionado, seleccionar esta carta
-        if (!elementoSeleccionado) {
-            elementoSeleccionado = { ...infoOrigen, carta };
-            renderizar();
-            return;
-        }
+        // Si ya había una carta seleccionada previamente en el juego:
+        if (elementoSeleccionado) {
+            // Clic en la misma carta: deseleccionar
+            if (elementoSeleccionado.carta.id === carta.id) {
+                elementoSeleccionado = null;
+                renderizar();
+                return;
+            }
 
-        // Clic en la misma carta: deseleccionar
-        if (elementoSeleccionado.carta.id === carta.id) {
+            // Comprobar si la carta clicada es un destino válido para la seleccionada
+            if (infoOrigen.tipo === 'tablero') {
+                const columnaDestino = infoOrigen.indiceColumna;
+                const columna = estado.tablero[columnaDestino];
+                const esCartaSuperior = (columna.length - 1 === infoOrigen.indiceCarta);
+
+                if (esCartaSuperior && puedeMoverATablero(elementoSeleccionado.carta, columnaDestino)) {
+                    ejecutarMovimiento(elementoSeleccionado, { tipo: 'tablero', indiceColumna: columnaDestino });
+                    return;
+                }
+            } else if (infoOrigen.tipo === 'fundacion') {
+                if (puedeMoverAFundacion(elementoSeleccionado.carta, infoOrigen.indiceFundacion)) {
+                    ejecutarMovimiento(elementoSeleccionado, { tipo: 'fundacion', indiceFundacion: infoOrigen.indiceFundacion });
+                    return;
+                }
+            }
+
+            // Si no era un destino para la carta seleccionada, cancelamos la selección previa
             elementoSeleccionado = null;
-            renderizar();
+        }
+
+        // Clic directo en la carta: Viaja a la mejor posición de las posibles
+        const mejorDestino = obtenerMejorMovimiento(carta, infoOrigen);
+        if (mejorDestino) {
+            ejecutarMovimiento(infoOrigen, mejorDestino);
             return;
         }
 
-        // Intentar colocar la carta seleccionada sobre esta carta
-        if (infoOrigen.tipo === 'tablero') {
-            const columnaDestino = infoOrigen.indiceColumna;
-            const columna = estado.tablero[columnaDestino];
-            const esCartaSuperior = (columna.length - 1 === infoOrigen.indiceCarta);
-
-            if (esCartaSuperior && puedeMoverATablero(elementoSeleccionado.carta, columnaDestino)) {
-                ejecutarMovimiento(elementoSeleccionado, { tipo: 'tablero', indiceColumna: columnaDestino });
-                return;
-            }
-        } else if (infoOrigen.tipo === 'fundacion') {
-            if (puedeMoverAFundacion(elementoSeleccionado.carta, infoOrigen.indiceFundacion)) {
-                ejecutarMovimiento(elementoSeleccionado, { tipo: 'fundacion', indiceFundacion: infoOrigen.indiceFundacion });
-                return;
-            }
-        }
-
-        // Si el movimiento no era válido, seleccionar la nueva carta
+        // Si no tiene ningún movimiento posible:
+        // Se selecciona y se ofrece una animación de retroalimentación sutil
         elementoSeleccionado = { ...infoOrigen, carta };
         renderizar();
+
+        const elCarta = document.querySelector(`[data-id-carta="${carta.id}"]`);
+        if (elCarta) {
+            elCarta.classList.add('sin-movimiento');
+            setTimeout(() => {
+                elCarta.classList.remove('sin-movimiento');
+            }, 300);
+        }
     }
 
     // Clic en una casilla vacía
