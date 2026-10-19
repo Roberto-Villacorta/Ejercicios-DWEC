@@ -75,6 +75,8 @@
         });
 
         btnReanudar.addEventListener('click', () => {
+            cancelAnimationFrame(animacionId);
+            animacionId = null;
             ejecutarSimulacion();
         });
         // Dibujar el arco guía al cargar la página

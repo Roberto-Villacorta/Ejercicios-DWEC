@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabeceras Dinámicas</title>
+    <script>
+      function abrir10Ventanas() {
+    let ventanas = [];
+    let i = 0;
+    while (i < 10) {
+        let posicion = `width=300,height=200,left=${50 + i * 40},top=${50 + i * 40}`;
+        let v = window.open("", `Ventana${i}`, posicion);
+        if (v) {
+            ventanas.push(v);
+            v.document.write(`<h1>Ventana ${i + 1}</h1>`);
+            // window.close() cierra la propia ventana donde se hace clic
+            v.document.write(`<button onClick="window.close()">Cerrar</button>`);
+            v.document.close();
+        }
+        i++;
+    }
+
+    setTimeout(() => {
+        ventanas.forEach(v => {
+            if (!v.closed) {
+                v.close();
+            }
+        });
+    }, 10000);
+}
+
+    </script>
+</head>
+
+<body>
+    <div style=" display: flex ; justify-content: center; align-items: center; height: 100vh; ">
+        <h1>Abre 10 ventanas</h1><br><br>
+        <button onClick="abrir10Ventanas()">Generar</button>
+    </div>
+</body>
+
+</html>

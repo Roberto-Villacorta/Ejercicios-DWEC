@@ -38,6 +38,10 @@
 				texto += "&nbsp;&nbsp;&nbsp;&nbsp;Nombre del formulario: " + document.forms[i].name + "<br>";
 				texto += "&nbsp;&nbsp;&nbsp;&nbsp;Método de envío del formulario: " + document.forms[i].method + "<br>";
 				texto += "&nbsp;&nbsp;&nbsp;&nbsp;Fichero donde se enviará el formulario: " + document.forms[i].action + "<br>";
+				for(let j = 0; j < document.forms[i].elements.length; j++){
+					texto += "&nbsp;&nbsp;&nbsp;&nbsp;Nombre del elemento: " + document.forms[i].elements[j].name + "<br>";
+					texto += "&nbsp;&nbsp;&nbsp;&nbsp;Tipo del elemento: " + document.forms[i].elements[j].type + "<br>";
+				}
 			}
 
 			document.getElementById("miDiv").innerHTML = texto;

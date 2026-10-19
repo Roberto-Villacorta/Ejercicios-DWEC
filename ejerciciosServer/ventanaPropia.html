@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mover y Redimensionar Esta Ventana</title>
+
+</head>
+
+<body>
+
+    <div id="panelLanzador" class="aviso">
+        <p><strong>Nota del navegador:</strong> Para que JavaScript pueda mover o redimensionar esta ventana sobre sí misma, debe haberse abierto como ventana independiente (popup).</p>
+        <button id="btnAbrirPopup">Abrir esta página en ventana independiente</button>
+    </div>
+
+    <label for="x">Valor X (px):</label>
+    <input type="number" id="x" value="50">
+
+    <label for="y">Valor Y (px):</label>
+    <input type="number" id="y" value="50">
+
+    <button id="boton1">Mover (window.moveBy)</button>
+    <button id="boton2">Redimensionar (window.resizeBy)</button>
+    <button id="boton3">Mover y Redimensionar</button>
+    <button id="boton4">Mover a posición (window.moveTo)</button>
+
+    <script>
+        if (window.opener) {
+            document.getElementById("panelLanzador").style.display = "none";
+        }
+
+        document.getElementById("btnAbrirPopup").addEventListener("click", function () {
+            window.open(window.location.href, "_blank", "width=500,height=450,left=200,top=150");
+        });
+
+        function getX() {
+            return Number(document.getElementById("x").value) || 0;
+        }
+
+        function getY() {
+            return Number(document.getElementById("y").value) || 0;
+        }
+
+        document.getElementById("boton1").addEventListener("click", function () {
+            window.moveBy(getX(), getY());
+        });
+
+        document.getElementById("boton2").addEventListener("click", function () {
+            window.resizeTo(getX(), getY());
+        });
+        document.getElementById("boton3").addEventListener("click", function () {
+            window.moveBy(getX(), getY());
+            window.resizeTo(getX(), getY());
+        });
+
+        document.getElementById("boton4").addEventListener("click", function () {
+            window.moveTo(getX(), getY());
+        });
+    </script>
+</body>
+
+</html>

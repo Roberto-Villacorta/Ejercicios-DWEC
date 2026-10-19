@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Control de Ventana</title>
+</head>
+<body>
+    <button id="abrir">1. Abrir ventana de prueba</button><br><br>
+
+    valor X: <input type="text" id="x" value="50">
+    valor Y: <input type="text" id="y" value="50"><br><br>
+
+    <button id="boton1">Mover (moveBy)</button>
+    <button id="boton2">Redimensionar (resizeTo)</button>
+    <button id="boton3">Mover y Redimensionar</button>
+    <button id="boton4">Mover hasta (moveTo)</button>
+
+    <script>
+        var miVentana = null;
+
+        var vx = parseInt(document.getElementById("x").value);
+        var vy = parseInt(document.getElementById("y").value);
+
+        // Primero abrimos la ventana auxiliar
+        document.getElementById("abrir").addEventListener("click", function() {
+            miVentana = window.open("", "test", "width=300,height=300,left=100,top=100");
+            if (miVentana) {
+                miVentana.document.write("<h3>Ventana de prueba</h3>");
+            }
+        });
+
+        document.getElementById("boton1").addEventListener("click", function() {
+            if (miVentana && !miVentana.closed) {
+                miVentana.moveBy(vx, vy);
+            }
+        });
+
+        document.getElementById("boton2").addEventListener("click", function() {
+            if (miVentana && !miVentana.closed) {
+                miVentana.resizeTo(vx, vy);
+            }
+        });
+
+        document.getElementById("boton3").addEventListener("click", function() {
+            if (miVentana && !miVentana.closed) {
+                miVentana.moveBy(vx, vy);
+                miVentana.resizeTo(vx, vy);
+            }
+        });
+
+        document.getElementById("boton4").addEventListener("click", function() {
+            if (miVentana && !miVentana.closed) {
+                miVentana.moveTo(vx, vy);
+            }
+        });
+    </script>
+</body>
+</html>
