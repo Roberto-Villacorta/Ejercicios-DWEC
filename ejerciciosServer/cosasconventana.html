@@ -5,53 +5,178 @@
     <title>Control de Ventana</title>
 </head>
 <body>
-    <button id="abrir">1. Abrir ventana de prueba</button><br><br>
 
-    valor X: <input type="text" id="x" value="50">
-    valor Y: <input type="text" id="y" value="50"><br><br>
+    valor X: <input type="number" id="x" value="10">
+    valor Y: <input type="number" id="y" value="10"><br><br>
 
     <button id="boton1">Mover (moveBy)</button>
-    <button id="boton2">Redimensionar (resizeTo)</button>
+    <button id="boton2">Redimensionar (resizeBy)</button>
     <button id="boton3">Mover y Redimensionar</button>
     <button id="boton4">Mover hasta (moveTo)</button>
+    <button id="detener">Detener simulación</button>
 
     <script>
         var miVentana = null;
+        var temporizador = null;
 
-        var vx = parseInt(document.getElementById("x").value);
-        var vy = parseInt(document.getElementById("y").value);
+        // Función para detener cualquier temporizador en marcha
+        function detenerAnimacion() {
+            if (temporizador !== null) {
+                clearInterval(temporizador);
+                temporizador = null;
+            }
+        }
 
-        // Primero abrimos la ventana auxiliar
-        document.getElementById("abrir").addEventListener("click", function() {
-            miVentana = window.open("", "test", "width=300,height=300,left=100,top=100");
-            if (miVentana) {
-                miVentana.document.write("<h3>Ventana de prueba</h3>");
+        // Abre la ventana de pruebas si no existe o se ha cerrado
+        function asegurarVentana() {
+            if (!miVentana || miVentana.closed) {
+                miVentana = window.open("", "test", "width=300,height=300,left=100,top=100");
+                if (miVentana) {
+                    miVentana.document.write("<h3>Ventana de prueba</h3>");
+                    miVentana.document.close();
+                }
+            }
+        }
+
+        function getX() {
+            return parseInt(document.getElementById("x").value) || 0;
+        }
+
+        function getY() {
+            return parseInt(document.getElementById("y").value) || 0;
+        }
+
+        // Botón Detener: detiene la animación y cierra la ventana
+        document.getElementById("detener").addEventListener("click", function() {
+            detenerAnimacion();
+            if (miVentana && !miVentana.closed) {
+                miVentana.close();
             }
         });
 
+        // 1. Simular movimiento escalonado (alternando X e Y cada 300ms formando una escalera)
         document.getElementById("boton1").addEventListener("click", function() {
-            if (miVentana && !miVentana.closed) {
-                miVentana.moveBy(vx, vy);
-            }
+            detenerAnimacion();
+            asegurarVentana();
+
+            var vx = getX();
+            var vy = getY();
+            var pasoX = true; // Alterna un paso en X y otro en Y
+
+            temporizador = setInterval(function() {
+                if (!miVentana || miVentana.closed) {
+                    detenerAnimacion();
+                    return;
+                }
+
+                // Escalón: primero se mueve en X, luego en Y
+                if (pasoX) {
+                    miVentana.moveBy(vx, 0);
+                } else {
+                    miVentana.moveBy(0, vy);
+                }
+                pasoX = !pasoX;
+
+                // Si sale de los límites de la pantalla, se cierra y se detiene
+                if (miVentana.screenX > screen.availWidth || miVentana.screenY > screen.availHeight ||
+                    (miVentana.screenX + miVentana.outerWidth) < 0 || (miVentana.screenY + miVentana.outerHeight) < 0) {
+                    detenerAnimacion();
+                    if (miVentana && !miVentana.closed) miVentana.close();
+                }
+            }, 300);
         });
 
+        // 2. Simular crecimiento o decrecimiento escalonado a intervalos pausados
         document.getElementById("boton2").addEventListener("click", function() {
-            if (miVentana && !miVentana.closed) {
-                miVentana.resizeTo(vx, vy);
-            }
+            detenerAnimacion();
+            asegurarVentana();
+
+            var vx = getX();
+            var vy = getY();
+
+            temporizador = setInterval(function() {
+                if (!miVentana || miVentana.closed) {
+                    detenerAnimacion();
+                    return;
+                }
+
+                miVentana.resizeBy(vx, vy);
+
+                // Evitar que crezca más que la pantalla o se reduzca por debajo de 100px
+                if (miVentana.outerWidth >= screen.availWidth || miVentana.outerHeight >= screen.availHeight ||
+                    miVentana.outerWidth <= 100 || miVentana.outerHeight <= 100) {
+                    detenerAnimacion();
+                }
+            }, 300);
         });
 
+        // 3. Simular movimiento y redimensionamiento escalonado
         document.getElementById("boton3").addEventListener("click", function() {
-            if (miVentana && !miVentana.closed) {
-                miVentana.moveBy(vx, vy);
-                miVentana.resizeTo(vx, vy);
-            }
+            detenerAnimacion();
+            asegurarVentana();
+
+            var vx = getX();
+            var vy = getY();
+            var pasoX = true;
+
+            temporizador = setInterval(function() {
+                if (!miVentana || miVentana.closed) {
+                    detenerAnimacion();
+                    return;
+                }
+
+                if (pasoX) {
+                    miVentana.moveBy(vx, 0);
+                } else {
+                    miVentana.moveBy(0, vy);
+                }
+                pasoX = !pasoX;
+
+                miVentana.resizeBy(vx, vy);
+
+                if (miVentana.screenX > screen.availWidth || miVentana.screenY > screen.availHeight ||
+                    miVentana.outerWidth >= screen.availWidth || miVentana.outerWidth <= 100) {
+                    detenerAnimacion();
+                }
+            }, 300);
         });
 
+        // 4. Simular desplazamiento escalonado hacia la posición (X, Y)
         document.getElementById("boton4").addEventListener("click", function() {
-            if (miVentana && !miVentana.closed) {
-                miVentana.moveTo(vx, vy);
-            }
+            detenerAnimacion();
+            asegurarVentana();
+
+            var destX = getX();
+            var destY = getY();
+
+            temporizador = setInterval(function() {
+                if (!miVentana || miVentana.closed) {
+                    detenerAnimacion();
+                    return;
+                }
+
+                var curX = miVentana.screenX;
+                var curY = miVentana.screenY;
+                var diffX = destX - curX;
+                var diffY = destY - curY;
+
+                // Si ha alcanzado la posición objetivo
+                if (Math.abs(diffX) <= 15 && Math.abs(diffY) <= 15) {
+                    miVentana.moveTo(destX, destY);
+                    detenerAnimacion();
+                    return;
+                }
+
+                // Avance escalonado: primero avanza en el eje horizontal y luego en vertical
+                var salto = 30;
+                if (Math.abs(diffX) > 15) {
+                    var pasoX = Math.sign(diffX) * Math.min(Math.abs(diffX), salto);
+                    miVentana.moveBy(pasoX, 0);
+                } else if (Math.abs(diffY) > 15) {
+                    var pasoY = Math.sign(diffY) * Math.min(Math.abs(diffY), salto);
+                    miVentana.moveBy(0, pasoY);
+                }
+            }, 250);
         });
     </script>
 </body>
