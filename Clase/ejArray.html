@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio Array</title>
+
+</head>
+<body>
+
+    <div class="fila-input">
+        <label for="numero">Número: </label>
+        <input type="text" id="numero" readonly>
+    </div>
+
+    <div class="fila-botones">
+        <button id="btnPrimera" onclick="primera()">Primera</button>
+        <button id="btnAnterior" onclick="anterior()">&lt;&lt; Anterior</button>
+        <button id="btnSiguiente" onclick="siguiente()">&gt;&gt; Siguiente</button>
+        <button id="btnUltima" onclick="ultima()">Última</button>
+    </div>
+
+    <div class="fila-botones">
+        <button id="btnAlta" onclick="alta()">Alta</button>
+        <button id="btnBaja" onclick="baja()">Baja</button>
+        <button id="btnModificacion" onclick="modificacion()">Modificación</button>
+        <button id="btnListado" onclick="listado()">Listado</button>
+        <button id="btnAceptar" onclick="aceptar()" style="display: none;">Aceptar</button>
+        <button id="btnCancelar" onclick="cancelar()" style="display: none;">Cancelar</button>
+    </div>
+
+    <div class="info-array">
+        <div id="infoIndice" class="texto-destacado"></div>
+
+        <div class="titulo-seccion">Ordenado Ascendente</div>
+        <div id="arrayAsc" class="texto-destacado"></div>
+
+        <div class="titulo-seccion">Ordenado Descendente</div>
+        <div id="arrayDesc" class="texto-destacado"></div>
+    </div>
+
+    <div id="mensajeError"></div>
+
+    <script>
+        let arr = [1, 45, 3, 46];
+        let indice = 0;
+        let modo = ""; 
+
+        window.onload = function() {
+            actualizarVista();
+        };
+
+        function esNumerico(valor) {
+            if (!valor) return false;
+            let s = valor.trim();
+            if (s.length === 0) return false;
+
+            let inicio = 0;
+            if (s[0] === '-' && s.length > 1) {
+                inicio = 1;
+            }
+            for (let i = inicio; i < s.length; i++) {
+                if (s[i] < '0' || s[i] > '9') {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function actualizarVista() {
+            let inputNumero = document.getElementById("numero");
+            let infoIndice = document.getElementById("infoIndice");
+            let arrayAsc = document.getElementById("arrayAsc");
+            let arrayDesc = document.getElementById("arrayDesc");
+
+            if (arr.length === 0) {
+                inputNumero.value = "";
+                infoIndice.innerText = "Array vacío";
+                arrayAsc.innerText = "";
+                arrayDesc.innerText = "";
+                indice = 0;
+                return;
+            }
+
+            if (indice < 0) indice = 0;
+            if (indice >= arr.length) indice = arr.length - 1;
+
+            inputNumero.value = arr[indice];
+
+            infoIndice.innerText = `${arr.join(",")} indice: ${indice} posición: ${indice + 1}`;
+
+            let asc = [...arr].sort((a, b) => a - b);
+            let desc = [...arr].sort((a, b) => b - a);
+
+            arrayAsc.innerText = asc.join(",");
+            arrayDesc.innerText = desc.join(",");
+        }
+
+        function cambiarEstadoBotonesAlta(edicion) {
+           document.getElementById("btnPrimera").disabled = edicion;
+            document.getElementById("btnAnterior").disabled = edicion;
+            document.getElementById("btnSiguiente").disabled = edicion;
+            document.getElementById("btnUltima").disabled = edicion;
+            document.getElementById("numero").readOnly = !edicion;
+
+            document.getElementById("btnAlta").disabled = edicion;
+            document.getElementById("btnBaja").disabled = edicion;
+            document.getElementById("btnModificacion").disabled = edicion;
+            document.getElementById("btnAceptar").style.display = edicion ? "inline-block" : "none";
+            document.getElementById("btnCancelar").style.display = edicion ? "inline-block" : "none";
+        }
+
+        function cambiarEstadoBotonesBajaModificacion(edicion) {
+            document.getElementById("numero").readOnly = edicion;
+            document.getElementById("btnAlta").disabled = edicion;
+            document.getElementById("btnBaja").disabled = edicion;
+            document.getElementById("btnModificacion").disabled = edicion;
+            document.getElementById("btnAceptar").style.display = edicion ? "inline-block" : "none";
+            document.getElementById("btnCancelar").style.display = edicion ? "inline-block" : "none";
+        }
+
+        function primera() {
+            if (arr.length > 0) {
+                indice = 0;
+                actualizarVista();
+            }
+        }
+
+        function anterior() {
+            if (arr.length > 0) {
+                indice = (indice - 1 + arr.length) % arr.length;
+                actualizarVista();
+            }
+        }
+
+        function siguiente() {
+            if (arr.length > 0) {
+                indice = (indice + 1) % arr.length;
+                actualizarVista();
+            }
+        }
+
+        function ultima() {
+            if (arr.length > 0) {
+                indice = arr.length - 1;
+                actualizarVista();
+            }
+        }
+
+        function alta() {
+            modo = "alta";
+            document.getElementById("mensajeError").innerText = "";
+            cambiarEstadoBotonesAlta(true);
+            let input = document.getElementById("numero");
+            input.readOnly = false;
+            input.value = "";
+            input.focus();
+        }
+
+        function baja() {
+            if (arr.length === 0) return;
+            modo = "baja";
+            document.getElementById("mensajeError").innerText = "";
+            cambiarEstadoBotonesBajaModificacion(true);
+            document.getElementById("numero").readOnly = true;
+        }
+
+        function modificacion() {
+            if (arr.length === 0) return;
+            modo = "modificacion";
+            document.getElementById("mensajeError").innerText = "";
+            cambiarEstadoBotonesBajaModificacion(true);
+            let input = document.getElementById("numero");
+            input.readOnly = false;
+            input.focus();
+            input.select();
+        }
+
+        function aceptar() {
+            let input = document.getElementById("numero");
+            let valor = input.value.trim();
+
+            switch (modo){
+                case 'alta':
+                    darAlta(valor);
+                break;
+                case 'baja':
+                    darBaja(valor);
+                break;
+                case 'modificacion':  
+                    darModificacion(valor);
+                break;
+            }
+        }
+        function mensajeError(mensaje) {
+            document.getElementById("mensajeError").innerText = mensaje;
+            document.getElementById("mensajeError").style.color = "red";
+        }
+
+        function darAlta(valor){
+            if(!esNumerico(valor)){
+                mensajeError("La cadena de caracteres contiene caracteres no numericos");
+                document.getElementById("numero").focus();
+                return;
+            }else{
+                arr.push(Number(valor));
+                indice = arr.length - 1;
+                finalizarEdicion();
+            }
+        }
+
+        function darBaja(){
+            if (arr.length > 0) {
+                arr.splice(indice, 1);
+                if (indice >= arr.length) {
+                    indice = arr.length - 1;
+                }
+                if (indice < 0) {
+                    indice = 0;
+                }
+            }
+            finalizarEdicion();
+        }
+
+        function darModificacion(valor){
+            if(!esNumerico(valor)){
+                mensajeError("La cadena de caracteres contiene caracteres no numericos");
+                document.getElementById("numero").focus();
+                return;
+            }else{
+                arr[indice]=Number(valor);
+                finalizarEdicion();
+            }
+        }
+
+        function cancelar() {
+            finalizarEdicion();
+        }
+
+        function finalizarEdicion() {
+            modo = "";
+            document.getElementById("mensajeError").innerText = "";
+            cambiarEstadoBotonesAlta(false);
+            document.getElementById("numero").readOnly = modo!="alta";
+            actualizarVista();
+        }
+
+        function listado() {
+            let asc = [...arr].sort((a, b) => a - b);
+            let desc = [...arr].sort((a, b) => b - a);
+
+            let ventana = window.open("", "Listado en Ventana", "width=420,height=420");
+            if (!ventana) {
+                alert("Por favor, permite las ventanas emergentes para ver el listado.");
+                return;
+            }
+
+            let html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Listado en Ventana</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h3 {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            margin: 0 auto 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 4px 14px;
+            text-align: center;
+        }
+        button {
+            padding: 4px 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h3>Listado Array de numeros</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Array</th>
+                <th>Ascendente</th>
+                <th>Descendente</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+            for (let i = 0; i < arr.length; i++) {
+                html += `
+            <tr>
+                <td>${arr[i]}</td>
+                <td>${asc[i]}</td>
+                <td>${desc[i]}</td>
+            </tr>`;
+            }
+
+            html += `
+        </tbody>
+    </table>
+    <button onclick="window.close()">Cerrar ventana</button>
+</body>
+</html>`;
+
+            ventana.document.open();
+            ventana.document.write(html);
+            ventana.document.close();
+        }
+    </script>
+</body>
+</html>
