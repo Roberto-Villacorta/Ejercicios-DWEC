@@ -185,7 +185,12 @@
                     darAlta(valor);
                 break;
                 case 'baja':
-                    darBaja(valor);
+                    var confirma = confirm("¿Está seguro de borrar el elemento " + arr[indice] + "?");
+                    if(confirma){
+                        darBaja(valor);
+                    }else{
+                        cancelar();
+                    }
                 break;
                 case 'modificacion':  
                     darModificacion(valor);

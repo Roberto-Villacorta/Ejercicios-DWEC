@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tetris en JavaScript</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div id="contenedor-tetris">
+    <div id="menu-lateral">
+      <p id="enlace-iniciar"><a href="javascript:comenzarPartida();">Pulsa Espacio para Jugar</a></p>
+      <p><canvas id="lienzo-siguiente"></canvas></p>
+      <p>Puntuación <span id="marcador-puntuacion">00000</span></p>
+      <p>Filas <span id="marcador-filas">0</span></p>
+    </div>
+    <canvas id="lienzo-juego">
+      Lo sentimos, este navegador no soporta el elemento &lt;canvas&gt;.
+    </canvas>
+  </div>
+
+  <script src="estadisticas.js"></script>
+  <script src="tetris.js"></script>
+
+</body>
+</html>
+

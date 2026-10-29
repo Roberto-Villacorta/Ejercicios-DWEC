@@ -1,0 +1,115 @@
+/* style.css - Estilos para el juego Tetris */
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+#contenedor-tetris {
+  margin: 1em auto;
+  padding: 1em;
+  border: 4px solid black;
+  border-radius: 10px;
+  background-color: #F8F8F8;
+}
+
+#estadisticas-fps {
+  display: inline-block;
+  vertical-align: top;
+  position: absolute;
+  bottom: 0em;
+  right: 1em;
+}
+
+#lienzo-juego {
+  display: inline-block;
+  vertical-align: top;
+  background: url("textura.jpg");
+  box-shadow: 10px 10px 10px #999;
+  border: 2px solid #333;
+}
+
+#menu-lateral {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+}
+
+#menu-lateral p {
+  margin: 0.5em 0;
+  text-align: center;
+}
+
+#menu-lateral p a {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+#lienzo-siguiente {
+  display: block;
+  margin: 0 auto;
+  background-color: #E0E0E0;
+}
+
+#marcador-puntuacion {
+  color: red;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+#marcador-filas {
+  color: blue;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+/* Adaptación responsive según la resolución de la pantalla */
+@media screen and (min-width: 0px) and (min-height: 0px) {
+  #contenedor-tetris { font-size: 0.75em; width: 250px; }
+  #menu-lateral      { width: 100px; height: 200px; }
+  #lienzo-siguiente  { width:  50px; height:  50px; }
+  #lienzo-juego      { width: 100px; height: 200px; }
+}
+
+@media screen and (min-width: 400px) and (min-height: 400px) {
+  #contenedor-tetris { font-size: 1.00em; width: 350px; }
+  #menu-lateral      { width: 150px; height: 300px; }
+  #lienzo-siguiente  { width:  75px; height:  75px; }
+  #lienzo-juego      { width: 150px; height: 300px; }
+}
+
+@media screen and (min-width: 500px) and (min-height: 500px) {
+  #contenedor-tetris { font-size: 1.25em; width: 450px; }
+  #menu-lateral      { width: 200px; height: 400px; }
+  #lienzo-siguiente  { width: 100px; height: 100px; }
+  #lienzo-juego      { width: 200px; height: 400px; }
+}
+
+@media screen and (min-width: 600px) and (min-height: 600px) {
+  #contenedor-tetris { font-size: 1.50em; width: 550px; }
+  #menu-lateral      { width: 250px; height: 500px; }
+  #lienzo-siguiente  { width: 125px; height: 125px; }
+  #lienzo-juego      { width: 250px; height: 500px; }
+}
+
+@media screen and (min-width: 700px) and (min-height: 700px) {
+  #contenedor-tetris { font-size: 1.75em; width: 650px; }
+  #menu-lateral      { width: 300px; height: 600px; }
+  #lienzo-siguiente  { width: 150px; height: 150px; }
+  #lienzo-juego      { width: 300px; height: 600px; }
+}
+
+@media screen and (min-width: 800px) and (min-height: 800px) {
+  #contenedor-tetris { font-size: 2.00em; width: 750px; }
+  #menu-lateral      { width: 350px; height: 700px; }
+  #lienzo-siguiente  { width: 175px; height: 175px; }
+  #lienzo-juego      { width: 350px; height: 700px; }
+}
+
+@media screen and (min-width: 900px) and (min-height: 900px) {
+  #contenedor-tetris { font-size: 2.25em; width: 850px; }
+  #menu-lateral      { width: 400px; height: 800px; }
+  #lienzo-siguiente  { width: 200px; height: 200px; }
+  #lienzo-juego      { width: 400px; height: 800px; }
+}
+
