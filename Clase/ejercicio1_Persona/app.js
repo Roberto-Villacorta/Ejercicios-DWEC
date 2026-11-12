@@ -1,6 +1,5 @@
 "use strict";
 
-// ---------- Array de personas por defecto ----------
 const personas = [
     new Persona("Pepe", "Perez", "Su casa", "12/12/1987", "Masculino", "25267"),
     new Persona("Juan", "Gomez", "La casa Verde", "11/10/1990", "Masculino", "25567"),
@@ -8,13 +7,12 @@ const personas = [
     new Persona("Antonio", "Suarez", "Avenida de Irun 34", "9/1/1999", "Masculino", "25567")
 ];
 
-let indice = 0;          // posición actual en el array
-let modo = "navegar";    // navegar | alta | baja | modificacion
+let indice = 0;          
+let modo = "navegar";    
 
 const $ = id => document.getElementById(id);
 const CAMPOS = ["nombre", "apellidos", "direccion", "fechaNacimiento", "genero", "codigoPostal"];
 
-// ---------- Mostrar / leer datos ----------
 function mostrar() {
     const p = personas[indice];
     if (!p) {
@@ -39,7 +37,6 @@ function limpiar() {
     $("posicion").textContent = "Nueva persona";
 }
 
-/** Valida los campos uno a uno; al primer error avisa y da el foco al campo. */
 function validarFormulario() {
     for (const campo of CAMPOS) {
         const valor = $(campo).value;
@@ -58,7 +55,6 @@ function crearDesdeFormulario() {
         $("fechaNacimiento").value, $("genero").value, $("codigoPostal").value);
 }
 
-// ---------- Estado de controles según el modo ----------
 function actualizarBotones() {
     const hay = personas.length > 0;
     const navegando = modo === "navegar";
@@ -92,13 +88,11 @@ function cambiarModo(nuevo) {
     actualizarBotones();
 }
 
-// ---------- Navegador ----------
 function primera()   { indice = 0; mostrar(); }
 function anterior()  { if (indice > 0) { indice--; mostrar(); } }
 function siguiente() { if (indice < personas.length - 1) { indice++; mostrar(); } }
 function ultima()    { indice = personas.length - 1; mostrar(); }
 
-// ---------- Altas, bajas y modificaciones ----------
 function alta() {
     cambiarModo("alta");
     limpiar();
@@ -145,11 +139,9 @@ function cancelar() {
     mostrar();
 }
 
-// ---------- Listados ----------
 function listado()  { Persona.listarPersonas(personas); }
 function listarUna() { personas[indice].listarPersona(); }
 
-// ---------- Eventos ----------
 $("btnPrimera").onclick = primera;
 $("btnAnterior").onclick = anterior;
 $("btnSiguiente").onclick = siguiente;

@@ -1,11 +1,5 @@
 "use strict";
 
-/**
- * Clase Humano.
- * Las validaciones se hacen con JavaScript. Los setters validan y lanzan un
- * Error si el valor no es correcto; el constructor y los métodos usan
- * siempre getters y setters.
- */
 class Humano {
     static LETRAS = "A-Za-zÁÉÍÓÚÜáéíóúüÑñÇç";
 
@@ -18,8 +12,6 @@ class Humano {
         this.peso = peso;
         this.edad = edad;
     }
-
-    // ---------- Validaciones (estáticas, reutilizadas por la interfaz) ----------
     static validarNombre(valor) {
         valor = String(valor);
         if (valor.length === 0 || valor.length > 20) {
@@ -44,8 +36,6 @@ class Humano {
     static comprobar(error) {
         if (error) throw new Error(error);
     }
-
-    // ---------- Getters y Setters ----------
     get nombre() { return this.#nombre; }
     set nombre(v) { Humano.comprobar(Humano.validarNombre(v)); this.#nombre = String(v); }
 
@@ -55,18 +45,13 @@ class Humano {
     get edad() { return this.#edad; }
     set edad(v) { Humano.comprobar(Humano.validarEdad(v)); this.#edad = Number(v); }
 
-    // ---------- Métodos ----------
-    /** Incrementa en uno el peso. */
     comer() {
         this.peso = this.peso + 1;
     }
 
-    /** Decrementa en uno el peso (no baja de 0). */
     correr() {
         if (this.peso > 0) this.peso = this.peso - 1;
     }
-
-    /** Devuelve la categoría según la edad. */
     categoria() {
         const e = this.edad;
         if (e < 10 || e > 79) return "Fuera de categoría";
@@ -82,18 +67,14 @@ class Humano {
         if (e <= 69) return "Senior 60";
         return "Senior 70";
     }
-
-    /** Método estático: listado de todos los humanos del array. */
     static listado(array) {
         Humano.#abrirVentana("Listado", array, "Cerrar");
     }
 
-    /** Método estático: listado del humano que está en ese momento en el navegador. */
     static muestraUnaPersona(humano) {
         Humano.#abrirVentana("Muestra una persona", [humano], "Cerrar");
     }
 
-    // ---------- Auxiliares privados ----------
     static #esc(texto) {
         return String(texto).replace(/[&<>"']/g, c =>
             ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -107,7 +88,6 @@ class Humano {
         w.document.close();
     }
 
-    /** HTML de una tabla Nombre / Peso / Edad / Categoría (también usado por el listado externo). */
     static #html(titulo, lista, textoBoton, cabecera = "") {
         const filas = lista.map(h => `
             <tr><td>${Humano.#esc(h.nombre)}</td><td>${h.peso}</td><td>${h.edad}</td><td>${Humano.#esc(h.categoria())}</td></tr>`).join("");

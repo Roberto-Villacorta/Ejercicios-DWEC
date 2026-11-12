@@ -1,6 +1,5 @@
 "use strict";
 
-// ---------- Array de humanos por defecto ----------
 const humanos = [
     new Humano("Pepe", 67, 30),
     new Humano("Juan", 59, 23),
@@ -9,16 +8,14 @@ const humanos = [
 ];
 
 let indice = 0;
-let modo = "navegar"; // navegar | alta | baja | modificacion
-
+let modo = "navegar"; 
 const $ = id => document.getElementById(id);
 const CAMPOS = ["nombre", "peso", "edad"];
 
-// ---------- Mostrar / limpiar ----------
 function mostrar() {
     const h = humanos[indice];
     if (h) {
-        $("nombre").value = h.nombre;   // getters
+        $("nombre").value = h.nombre;  
         $("peso").value = h.peso;
         $("edad").value = h.edad;
     } else {
@@ -31,7 +28,6 @@ function limpiar() {
     CAMPOS.forEach(c => { $(c).value = ""; });
 }
 
-/** Valida los tres campos; al primer error avisa y da el foco al campo. */
 function validarFormulario() {
     const reglas = {
         nombre: Humano.validarNombre,
@@ -49,7 +45,6 @@ function validarFormulario() {
     return true;
 }
 
-// ---------- Estado de los botones según el modo ----------
 function actualizarBotones() {
     const hay = humanos.length > 0;
     const navegando = modo === "navegar";
@@ -83,13 +78,11 @@ function cambiarModo(nuevo) {
     actualizarBotones();
 }
 
-// ---------- Navegador ----------
 function primera()   { indice = 0; mostrar(); }
 function anterior()  { if (indice > 0) { indice--; mostrar(); } }
 function siguiente() { if (indice < humanos.length - 1) { indice++; mostrar(); } }
 function ultima()    { indice = humanos.length - 1; mostrar(); }
 
-// ---------- Comer / Correr ----------
 function comer() {
     try {
         humanos[indice].comer();
@@ -104,7 +97,6 @@ function correr() {
     } catch (e) { alert(e.message); }
 }
 
-// ---------- Alta, Baja, Modificación ----------
 function alta() {
     cambiarModo("alta");
     limpiar();
@@ -153,12 +145,9 @@ function cancelar() {
     mostrar();
 }
 
-// ---------- Listados ----------
 function listado() {
-    Humano.listado(humanos);           // método estático de la clase
+    Humano.listado(humanos);         
 }
-
-/** Listado que NO forma parte de la clase. */
 function otroListado(array) {
     const w = window.open("", "_blank", "width=420,height=420,scrollbars=yes,resizable=yes");
     if (!w) { alert("El navegador ha bloqueado la ventana emergente. Permítela e inténtalo de nuevo."); return; }
@@ -169,10 +158,9 @@ function otroListado(array) {
 }
 
 function muestraUna() {
-    Humano.muestraUnaPersona(humanos[indice]);  // método estático de la clase
+    Humano.muestraUnaPersona(humanos[indice]);
 }
 
-// ---------- Eventos ----------
 $("btnPrimera").onclick = primera;
 $("btnAnterior").onclick = anterior;
 $("btnSiguiente").onclick = siguiente;

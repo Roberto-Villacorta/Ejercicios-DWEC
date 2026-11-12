@@ -1,12 +1,6 @@
 "use strict";
 
-/**
- * Clase Persona.
- * Todas las validaciones se hacen con JavaScript (el HTML no lleva
- * maxlength/minlength ni controles Date/Number).
- */
 class Persona {
-    // Letras permitidas: alfabéticas (con acentos), ñ y ç
     static LETRAS = "A-Za-zÁÉÍÓÚÜáéíóúüÑñÇç";
 
     static REGLAS = {
@@ -15,11 +9,10 @@ class Persona {
         direccion: { min: 3, max: 35, numeros: true,  etiqueta: "Dirección" }
     };
 
-    // ---------- Atributos privados ----------
     #nombre;
     #apellidos;
     #direccion;
-    #fechaNacimiento; // objeto Date
+    #fechaNacimiento; 
     #genero;
     #codigoPostal;
 
@@ -27,12 +20,10 @@ class Persona {
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.direccion = direccion;
-        this.fechaNacimiento = fechaNacimiento; // texto dd/mm/aaaa
+        this.fechaNacimiento = fechaNacimiento;
         this.genero = genero;
         this.codigoPostal = codigoPostal;
     }
-
-    // ---------- Validaciones (estáticas, reutilizadas por la interfaz) ----------
     static validarTexto(campo, valor) {
         const r = Persona.REGLAS[campo];
         if (valor !== valor.trim()) {
@@ -48,7 +39,6 @@ class Persona {
         return "";
     }
 
-    /** Convierte "dd/mm/aaaa" en Date, o devuelve null si no es una fecha real. */
     static parseFecha(texto) {
         const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(texto);
         if (!m) return null;
@@ -77,7 +67,6 @@ class Persona {
             ? "" : "Código Postal: debe tener exactamente 5 caracteres numéricos (0-9).";
     }
 
-    /** Devuelve el mensaje de error del campo ("" si es correcto). */
     static validar(campo, valor) {
         switch (campo) {
             case "nombre":
@@ -95,7 +84,6 @@ class Persona {
         if (error) throw new Error(error);
     }
 
-    // ---------- Getters y Setters ----------
     get nombre() { return this.#nombre; }
     set nombre(v) { Persona.comprobar("nombre", v); this.#nombre = v; }
 
@@ -105,7 +93,6 @@ class Persona {
     get direccion() { return this.#direccion; }
     set direccion(v) { Persona.comprobar("direccion", v); this.#direccion = v; }
 
-    /** Devuelve un Date. El setter recibe texto dd/mm/aaaa. */
     get fechaNacimiento() { return this.#fechaNacimiento; }
     set fechaNacimiento(v) {
         Persona.comprobar("fechaNacimiento", v);
@@ -118,14 +105,12 @@ class Persona {
     get codigoPostal() { return this.#codigoPostal; }
     set codigoPostal(v) { Persona.comprobar("codigoPostal", v); this.#codigoPostal = v; }
 
-    // ---------- Métodos ----------
-    /** Fecha de nacimiento como texto dd/mm/aaaa. */
+
     fechaTexto() {
         const f = this.#fechaNacimiento;
         return `${f.getDate()}/${f.getMonth() + 1}/${f.getFullYear()}`;
     }
 
-    /** Edad en la fecha del sistema. */
     edad() {
         const hoy = new Date();
         const n = this.#fechaNacimiento;
@@ -135,22 +120,18 @@ class Persona {
         return e;
     }
 
-    /** "Sr" o "Sra" según el género. */
     senorOSenora() {
         return this.#genero === "Masculino" ? "Sr" : "Sra";
     }
 
-    /** Muestra esta persona en una ventana emergente, en formato tabla. */
     listarPersona() {
         Persona.#abrirVentana("Listado de una persona", [this]);
     }
 
-    /** Método estático: muestra un array de personas en una ventana emergente. */
     static listarPersonas(array) {
         Persona.#abrirVentana("Listado Array de todas las personas", array);
     }
 
-    // ---------- Auxiliares privados ----------
     static #esc(texto) {
         return String(texto).replace(/[&<>"']/g, c =>
             ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
