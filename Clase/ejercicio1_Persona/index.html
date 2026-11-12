@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Clase Persona</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        table.form { margin: 0 auto; text-align: right; }
+        table.form th { font-family: Times New Roman, serif; padding: 3px 6px; }
+        table.form input[type=text], table.form select { width: 260px; }
+        #posicion { color: #555; margin: 10px 0; }
+        .botones { margin: 10px 0; }
+        button { margin: 0 2px; }
+    </style>
+</head>
+<body>
+    <h2>Persona</h2>
+
+    <!-- Todas son cajas de texto (sin Date ni Number y sin límites en HTML) -->
+    <table class="form">
+        <tr><th>Nombre:</th><td><input type="text" id="nombre"></td></tr>
+        <tr><th>Apellidos:</th><td><input type="text" id="apellidos"></td></tr>
+        <tr><th>Dirección:</th><td><input type="text" id="direccion"></td></tr>
+        <tr><th>Fecha de nacimiento:</th><td><input type="text" id="fechaNacimiento" placeholder="dd/mm/aaaa"></td></tr>
+        <tr><th>Género:</th><td>
+            <select id="genero">
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+            </select></td></tr>
+        <tr><th>Código Postal:</th><td><input type="text" id="codigoPostal"></td></tr>
+    </table>
+
+    <div id="posicion"></div>
+
+    <div class="botones">
+        <button id="btnPrimera">Primera</button>
+        <button id="btnAnterior">&lt;&lt; Anterior</button>
+        <button id="btnSiguiente">&gt;&gt; Siguiente</button>
+        <button id="btnUltima">Última</button>
+    </div>
+
+    <div class="botones">
+        <button id="btnAlta">Alta</button>
+        <button id="btnBaja">Baja</button>
+        <button id="btnModificacion">Modificación</button>
+        <button id="btnListado">Listado</button>
+        <button id="btnListarUna">Listar una persona</button>
+        <button id="btnAceptar" hidden>Aceptar</button>
+        <button id="btnCancelar" hidden>Cancelar</button>
+    </div>
+
+    <script src="Persona.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

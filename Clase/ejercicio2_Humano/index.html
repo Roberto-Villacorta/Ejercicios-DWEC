@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Clase Humano</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        table.form { margin: 0 auto; text-align: right; }
+        table.form th { font-family: Times New Roman, serif; padding: 3px 6px; }
+        table.form input { width: 240px; }
+        .botones { margin: 14px 0; }
+        button { margin: 0 2px; }
+    </style>
+</head>
+<body>
+    <table class="form">
+        <tr><th>Nombre:</th><td><input type="text" id="nombre"></td></tr>
+        <tr><th>Peso:</th><td><input type="text" id="peso"></td></tr>
+        <tr><th>Edad:</th><td><input type="text" id="edad"></td></tr>
+    </table>
+
+    <div class="botones">
+        <button id="btnPrimera">Primera</button>
+        <button id="btnAnterior">&lt;&lt; Anterior</button>
+        <button id="btnSiguiente">&gt;&gt; Siguiente</button>
+        <button id="btnUltima">última</button>
+    </div>
+
+    <div class="botones">
+        <button id="btnComer">Comer</button>
+        <button id="btnCorrer">Correr</button>
+    </div>
+
+    <div class="botones">
+        <button id="btnAlta">Alta</button>
+        <button id="btnBaja">Baja</button>
+        <button id="btnModificacion">Modificacion</button>
+        <button id="btnListado">Listado</button>
+        <button id="btnOtroListado">Otro Listado</button>
+        <button id="btnMuestraUna">Muestra una persona</button>
+        <button id="btnAceptar" hidden>Aceptar</button>
+        <button id="btnCancelar" hidden>Cancelar</button>
+    </div>
+
+    <script src="Humano.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
