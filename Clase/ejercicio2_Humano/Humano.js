@@ -1,7 +1,8 @@
 "use strict";
 
 class Humano {
-    static LETRAS = "A-Za-zÁÉÍÓÚÜáéíóúüÑñÇç";
+    static LETRAS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúüÁÉÍÓÚÜñÑçÇ";
+    static DIGITOS = "0123456789";
 
     #nombre;
     #peso;
@@ -12,24 +13,37 @@ class Humano {
         this.peso = peso;
         this.edad = edad;
     }
+
+    static esDigitos(texto) {
+        if (typeof texto !== "string" || texto.length === 0) return false;
+        for (let i = 0; i < texto.length; i++) {
+            if (!Humano.DIGITOS.includes(texto[i])) return false;
+        }
+        return true;
+    }
+
     static validarNombre(valor) {
         valor = String(valor);
         if (valor.length === 0 || valor.length > 20) {
             return "Nombre: debe tener entre 1 y 20 caracteres.";
         }
-        if (!new RegExp(`^[${Humano.LETRAS}]+$`).test(valor)) {
-            return "Nombre: solo se permiten caracteres alfabéticos (incluidas ñ, ç y vocales acentuadas).";
+        for (let i = 0; i < valor.length; i++) {
+            if (!Humano.LETRAS.includes(valor[i])) {
+                return "Nombre: solo se permiten caracteres alfabéticos (incluidas ñ, ç y vocales acentuadas).";
+            }
         }
         return "";
     }
 
     static validarPeso(valor) {
-        return /^[0-9]{1,3}$/.test(String(valor))
+        const str = String(valor);
+        return (str.length >= 1 && str.length <= 3 && Humano.esDigitos(str))
             ? "" : "Peso: solo caracteres numéricos del 0 al 9 (máximo 3 cifras).";
     }
 
     static validarEdad(valor) {
-        return /^[0-9]{1,3}$/.test(String(valor))
+        const str = String(valor);
+        return (str.length >= 1 && str.length <= 3 && Humano.esDigitos(str))
             ? "" : "Edad: solo caracteres numéricos del 0 al 9 (máximo 3 cifras).";
     }
 
@@ -76,8 +90,12 @@ class Humano {
     }
 
     static #esc(texto) {
-        return String(texto).replace(/[&<>"']/g, c =>
-            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        return String(texto)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
     }
 
     static #abrirVentana(titulo, lista, textoBoton) {

@@ -1,7 +1,8 @@
 "use strict";
 
 class Persona {
-    static LETRAS = "A-Za-zÁÉÍÓÚÜáéíóúüÑñÇç";
+    static LETRAS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúüÁÉÍÓÚÜñÑçÇ";
+    static DIGITOS = "0123456789";
 
     static REGLAS = {
         nombre:    { min: 3, max: 20, numeros: false, etiqueta: "Nombre" },
@@ -24,25 +25,48 @@ class Persona {
         this.genero = genero;
         this.codigoPostal = codigoPostal;
     }
+    static esDigitos(texto) {
+        if (typeof texto !== "string" || texto.length === 0) return false;
+        for (let i = 0; i < texto.length; i++) {
+            if (!Persona.DIGITOS.includes(texto[i])) return false;
+        }
+        return true;
+    }
+
     static validarTexto(campo, valor) {
         const r = Persona.REGLAS[campo];
+        if (typeof valor !== "string") valor = String(valor);
+
         if (valor !== valor.trim()) {
             return `${r.etiqueta}: no puede haber espacios en blanco ni al principio ni al final.`;
         }
         if (valor.length < r.min || valor.length > r.max) {
             return `${r.etiqueta}: debe tener entre ${r.min} y ${r.max} caracteres.`;
         }
-        const re = new RegExp(`^[${Persona.LETRAS}${r.numeros ? "0-9" : ""} \\-]+$`);
-        if (!re.test(valor)) {
-            return `${r.etiqueta}: solo se permiten letras${r.numeros ? ", números" : ""}, espacios, ñ, ç y guion (-).`;
+
+        const permitidos = Persona.LETRAS + (r.numeros ? Persona.DIGITOS : "") + " -";
+        for (let i = 0; i < valor.length; i++) {
+            if (!permitidos.includes(valor[i])) {
+                return `${r.etiqueta}: solo se permiten letras${r.numeros ? ", números" : ""}, espacios, ñ, ç y guion (-).`;
+            }
         }
         return "";
     }
 
     static parseFecha(texto) {
-        const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(texto);
-        if (!m) return null;
-        const d = Number(m[1]), mes = Number(m[2]), a = Number(m[3]);
+        if (typeof texto !== "string") return null;
+        const partes = texto.split("/");
+        if (partes.length !== 3) return null;
+
+        const [diaStr, mesStr, anioStr] = partes;
+        if (diaStr.length < 1 || diaStr.length > 2 || !Persona.esDigitos(diaStr)) return null;
+        if (mesStr.length < 1 || mesStr.length > 2 || !Persona.esDigitos(mesStr)) return null;
+        if (anioStr.length !== 4 || !Persona.esDigitos(anioStr)) return null;
+
+        const d = Number(diaStr);
+        const mes = Number(mesStr);
+        const a = Number(anioStr);
+
         const f = new Date(a, mes - 1, d);
         if (f.getFullYear() !== a || f.getMonth() !== mes - 1 || f.getDate() !== d) return null;
         return f;
@@ -63,7 +87,8 @@ class Persona {
     }
 
     static validarCodigoPostal(valor) {
-        return /^[0-9]{5}$/.test(valor)
+        const str = String(valor);
+        return (str.length === 5 && Persona.esDigitos(str))
             ? "" : "Código Postal: debe tener exactamente 5 caracteres numéricos (0-9).";
     }
 
@@ -133,8 +158,12 @@ class Persona {
     }
 
     static #esc(texto) {
-        return String(texto).replace(/[&<>"']/g, c =>
-            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        return String(texto)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
     }
 
     static #abrirVentana(titulo, personas) {
