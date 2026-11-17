@@ -1,0 +1,450 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Vehículos</title>
+    <script src="Vehiculo.js"></script>
+    <script>
+        var misVehiculos = new Array();
+        misVehiculos.push(new Vehiculo("Seat", "Ibiza", "1234ABC", 50000, new Date(2018, 5, 15), 8500));
+        misVehiculos.push(new Vehiculo("Ford", "Focus", "5678DEF", 80000, new Date(2015, 3, 20), 6500));
+
+        var thisNum = 0;
+        var arrCt = misVehiculos.length - 1;
+        var accionAceptar = 0;
+
+        function fechaTexto(fecha) {
+            var dia = fecha.getDate();
+            var mes = fecha.getMonth() + 1;
+            var anio = fecha.getFullYear();
+            if (dia < 10) dia = "0" + dia;
+            if (mes < 10) mes = "0" + mes;
+            return dia + "/" + mes + "/" + anio;
+        }
+
+        function textoFecha(texto) {
+            var partes = texto.split("/");
+            return new Date(Number(partes[2]), Number(partes[1]) - 1, Number(partes[0]));
+        }
+
+        function muestraVehiculo() {
+            if (misVehiculos.length == 0) {
+                document.getElementById("miMarca").value = "";
+                document.getElementById("miModelo").value = "";
+                document.getElementById("miMatricula").value = "";
+                document.getElementById("miKilometro").value = "";
+                document.getElementById("miFecha").value = "";
+                document.getElementById("miPrecio").value = "";
+            } else {
+                document.getElementById("miMarca").value = misVehiculos[thisNum].marca;
+                document.getElementById("miModelo").value = misVehiculos[thisNum].modelo;
+                document.getElementById("miMatricula").value = misVehiculos[thisNum].matricula;
+                document.getElementById("miKilometro").value = misVehiculos[thisNum].kilometros;
+                document.getElementById("miFecha").value = fechaTexto(misVehiculos[thisNum].fechaMatriculacion);
+                document.getElementById("miPrecio").value = misVehiculos[thisNum].precio;
+            }
+            document.getElementById("miDivErr").innerHTML = "";
+        }
+
+        function navega(direccion) {
+            if (misVehiculos.length == 0) {
+                thisNum = 0;
+                arrCt = -1;
+            } else {
+                if (direccion == 2) thisNum = 0;
+                else if (direccion == 3) thisNum = arrCt;
+                else {
+                    thisNum = thisNum + direccion;
+                    if (thisNum > arrCt) thisNum = 0;
+                    if (thisNum < 0) thisNum = arrCt;
+                }
+            }
+            muestraVehiculo();
+        }
+
+        function alta() {
+            navegador(true);
+            botones(true, "visible");
+            document.getElementById("miMarca").value = "";
+            document.getElementById("miModelo").value = "";
+            document.getElementById("miMatricula").value = "";
+            document.getElementById("miKilometro").value = "";
+            document.getElementById("miFecha").value = "";
+            document.getElementById("miPrecio").value = "";
+            document.getElementById("miMarca").focus();
+            accionAceptar = 1;
+        }
+
+        function baja() {
+            if (misVehiculos.length == 0) alert("No hay vehículos para eliminar");
+            else {
+                botones(true, "visible");
+                accionAceptar = 2;
+            }
+        }
+
+        function modificacion() {
+            if (misVehiculos.length == 0) alert("No hay vehículos para modificar");
+            else {
+                botones(true, "visible");
+                accionAceptar = 3;
+            }
+        }
+
+        function mostrarBotones() {
+            navegador(false);
+            botones(false, "hidden");
+            accionAceptar = 0;
+            navega(2);
+        }
+
+        function botones(valor1, valor2) {
+            document.getElementById("btnBaja").disabled = valor1;
+            document.getElementById("btnMod").disabled = valor1;
+            document.getElementById("btnAlta").disabled = valor1;
+            document.getElementById("btnAcep").style.visibility = valor2;
+            document.getElementById("btnCancel").style.visibility = valor2;
+            document.getElementById("miDivErr").innerHTML = "";
+        }
+
+        function navegador(valor) {
+            document.getElementById("uno").disabled = valor;
+            document.getElementById("dos").disabled = valor;
+            document.getElementById("tres").disabled = valor;
+            document.getElementById("cuatro").disabled = valor;
+        }
+
+        function validaNumero(valor) {
+            if (valor.trim() == "") return false;
+            if (Number.isNaN(Number(valor))) return false;
+            return true;
+        }
+
+        function validaFecha(texto) {
+            var partes = texto.split("/");
+            if (partes.length != 3) return false;
+            if (partes[0].length != 2 || partes[1].length != 2 || partes[2].length != 4) return false;
+            if (!validaNumero(partes[0]) || !validaNumero(partes[1]) || !validaNumero(partes[2])) return false;
+
+            var dia = Number(partes[0]);
+            var mes = Number(partes[1]);
+            var anio = Number(partes[2]);
+            var fecha = new Date(anio, mes - 1, dia);
+
+            if (fecha.getDate() != dia || fecha.getMonth() != mes - 1 || fecha.getFullYear() != anio) return false;
+
+            var hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            if (fecha >= hoy) return false;
+
+            return true;
+        }
+
+        function validaDatos() {
+            var marca = document.getElementById("miMarca").value.trim();
+            var modelo = document.getElementById("miModelo").value.trim();
+            var matricula = document.getElementById("miMatricula").value.trim();
+            var kilometros = document.getElementById("miKilometro").value.trim();
+            var fecha = document.getElementById("miFecha").value.trim();
+            var precio = document.getElementById("miPrecio").value.trim();
+
+            var correcto = true;
+            var errores = "";
+
+            if (marca == "") {
+                errores += "Debe introducir la marca.<br>";
+                correcto = false;
+            } else if (marca.length < 2 || marca.length > 20) {
+                errores += "La marca debe tener entre 2 y 20 caracteres.<br>";
+                correcto = false;
+            }
+
+            if (modelo == "") {
+                errores += "Debe introducir el modelo.<br>";
+                correcto = false;
+            } else if (modelo.length < 2 || modelo.length > 25) {
+                errores += "El modelo debe tener entre 2 y 25 caracteres.<br>";
+                correcto = false;
+            }
+
+            if (matricula == "") {
+                errores += "Debe introducir la matrícula.<br>";
+                correcto = false;
+            } else if (!/^[0-9]{4}[A-Za-z]{3}$/.test(matricula)) {
+                errores += "La matrícula debe tener el formato 1234ABC.<br>";
+                correcto = false;
+            }
+
+            if (kilometros == "") {
+                errores += "Debe introducir los kilómetros.<br>";
+                correcto = false;
+            } else if (!validaNumero(kilometros) || !Number.isInteger(Number(kilometros)) || Number(kilometros) < 0) {
+                errores += "Los kilómetros deben ser un número entero positivo.<br>";
+                correcto = false;
+            }
+
+            if (fecha == "") {
+                errores += "Debe introducir la fecha de matriculación.<br>";
+                correcto = false;
+            } else if (!validaFecha(fecha)) {
+                errores += "La fecha debe ser válida y anterior a hoy (dd/mm/aaaa).<br>";
+                correcto = false;
+            }
+
+            if (precio == "") {
+                errores += "Debe introducir el precio.<br>";
+                correcto = false;
+            } else if (!validaNumero(precio) || Number(precio) <= 0 || Math.round(Number(precio) * 100) != Number(precio) * 100) {
+                errores += "El precio debe ser positivo y tener como máximo dos decimales.<br>";
+                correcto = false;
+            }
+
+            document.getElementById("miDivErr").innerHTML = errores;
+            return correcto;
+        }
+
+        function gestionarAlta() {
+            if (validaDatos()) {
+                var confirma = confirm("¿Quiere guardar el vehículo?");
+                if (confirma) {
+                    try {
+                        var nuevoVehiculo = new Vehiculo(
+                            document.getElementById("miMarca").value.trim(),
+                            document.getElementById("miModelo").value.trim(),
+                            document.getElementById("miMatricula").value.trim().toUpperCase(),
+                            Number(document.getElementById("miKilometro").value),
+                            textoFecha(document.getElementById("miFecha").value),
+                            Number(document.getElementById("miPrecio").value)
+                        );
+                        misVehiculos.push(nuevoVehiculo);
+                        arrCt = misVehiculos.length - 1;
+                        alert("Vehículo añadido correctamente");
+                        mostrarBotones();
+                    } catch (error) {
+                        document.getElementById("miDivErr").innerHTML = "Error: " + error.message;
+                    }
+                }
+            }
+        }
+
+        function gestionarBaja() {
+            if (misVehiculos.length == 0) {
+                alert("El array está vacío");
+            } else {
+                var confirma = confirm("¿Realmente quiere eliminar este vehículo?");
+                if (confirma) {
+                    misVehiculos.splice(thisNum, 1);
+                    arrCt = misVehiculos.length - 1;
+                    if (thisNum > arrCt) thisNum = arrCt;
+                    alert("Vehículo eliminado correctamente");
+                    if (misVehiculos.length == 0) thisNum = 0;
+                    mostrarBotones();
+                } else mostrarBotones();
+            }
+        }
+
+        function gestionarModificacion() {
+            if (validaDatos()) {
+                var confirma = confirm("¿Quiere guardar los cambios?");
+                if (confirma) {
+                    try {
+                        var vehiculoTemporal = new Vehiculo(
+                            document.getElementById("miMarca").value.trim(),
+                            document.getElementById("miModelo").value.trim(),
+                            document.getElementById("miMatricula").value.trim().toUpperCase(),
+                            Number(document.getElementById("miKilometro").value),
+                            textoFecha(document.getElementById("miFecha").value),
+                            Number(document.getElementById("miPrecio").value)
+                        );
+
+                        misVehiculos[thisNum].marca = vehiculoTemporal.marca;
+                        misVehiculos[thisNum].modelo = vehiculoTemporal.modelo;
+                        misVehiculos[thisNum].matricula = vehiculoTemporal.matricula;
+                        misVehiculos[thisNum].kilometros = vehiculoTemporal.kilometros;
+                        misVehiculos[thisNum].fechaMatriculacion = vehiculoTemporal.fechaMatriculacion;
+                        misVehiculos[thisNum].precio = vehiculoTemporal.precio;
+
+                        alert("Vehículo modificado correctamente");
+                        mostrarBotones();
+                    } catch (error) {
+                        document.getElementById("miDivErr").innerHTML = "Error: " + error.message;
+                    }
+                }
+            }
+        }
+
+        function aceptar() {
+            document.getElementById("miDivErr").innerHTML = "";
+            if (accionAceptar == 1) gestionarAlta();
+            if (accionAceptar == 2) gestionarBaja();
+            if (accionAceptar == 3) gestionarModificacion();
+        }
+
+        function listadoVentana() {
+            if (misVehiculos.length == 0) {
+                alert("No hay vehículos para mostrar");
+            } else {
+                var salida = "<table border='2' cellpadding='5'>";
+                salida += "<tr><th>Marca</th><th>Modelo</th><th>Matrícula</th><th>Kilómetros</th><th>Fecha matriculación</th><th>Precio</th></tr>";
+
+                for (var i = 0; i < misVehiculos.length; i++) {
+                    salida += "<tr>";
+                    salida += "<td>" + misVehiculos[i].marca + "</td>";
+                    salida += "<td>" + misVehiculos[i].modelo + "</td>";
+                    salida += "<td>" + misVehiculos[i].matricula + "</td>";
+                    salida += "<td>" + misVehiculos[i].kilometros + "</td>";
+                    salida += "<td>" + fechaTexto(misVehiculos[i].fechaMatriculacion) + "</td>";
+                    salida += "<td>" + misVehiculos[i].precio + " €</td>";
+                    salida += "</tr>";
+                }
+
+                salida += "</table>";
+
+                var miWindow = window.open("", "ventana", "width=850,height=450,top=200,left=200");
+
+                if (miWindow != null) {
+                    miWindow.document.open();
+                    miWindow.document.write("<html><head><title>Listado de vehículos</title></head><body><center>");
+                    miWindow.document.write("<h3>Listado de vehículos</h3>");
+                    miWindow.document.write(salida);
+                    miWindow.document.write("<br><br><input type='button' value='Cerrar ventana' onclick='window.close();'>");
+                    miWindow.document.write("</center></body></html>");
+                    miWindow.document.close();
+                }
+            }
+        }
+
+        function listadoVentana3() {
+            if (misVehiculos.length == 0) {
+                alert("No hay vehículos para mostrar");
+            } else {
+                var v = misVehiculos[thisNum];
+                alert("DATOS DEL VEHÍCULO\n\n" +
+                    "Marca: " + v.marca + "\n" +
+                    "Modelo: " + v.modelo + "\n" +
+                    "Matrícula: " + v.matricula + "\n" +
+                    "Kilómetros: " + v.kilometros + "\n" +
+                    "Fecha matriculación: " + fechaTexto(v.fechaMatriculacion) + "\n" +
+                    "Precio: " + v.precio + " €");
+            }
+        }
+
+        function antiguedad() {
+            if (misVehiculos.length == 0) alert("No hay vehículos");
+            else alert("Antigüedad del vehículo: " + misVehiculos[thisNum].antiguedad() + " años");
+        }
+
+        function actualizarKilometros() {
+            if (misVehiculos.length == 0) {
+                alert("No hay vehículos");
+            } else {
+                var km = prompt("¿Cuántos kilómetros desea añadir?");
+                if (km != null && km.trim() != "") {
+                    try {
+                        if (!Number.isInteger(Number(km)) || Number(km) <= 0) throw new Error("Debe introducir un número entero positivo");
+                        misVehiculos[thisNum].actualizarKilometros(Number(km));
+                        alert("Kilómetros actualizados correctamente");
+                        muestraVehiculo();
+                    } catch (error) {
+                        alert(error.message);
+                    }
+                }
+            }
+        }
+
+        function precioFinal() {
+            if (misVehiculos.length == 0) {
+                alert("No hay vehículos");
+            } else {
+                var descuento = prompt("Introduzca el porcentaje de descuento:");
+                if (descuento != null && descuento.trim() != "") {
+                    if (!validaNumero(descuento) || Number(descuento) < 0 || Number(descuento) > 100) {
+                        alert("El descuento debe estar entre 0 y 100");
+                    } else {
+                        var resultado = misVehiculos[thisNum].calcularPrecioFinal(Number(descuento));
+                        alert("Precio final con descuento: " + resultado + " €");
+                    }
+                }
+            }
+        }
+
+        function comprobarClasico() {
+            if (misVehiculos.length == 0) alert("No hay vehículos");
+            else if (misVehiculos[thisNum].esClasico()) alert("Este vehículo es clásico");
+            else alert("Este vehículo no es clásico");
+        }
+
+        function matriculaMayusculas() {
+            if (misVehiculos.length == 0) alert("No hay vehículos");
+            else alert("Matrícula: " + misVehiculos[thisNum].matriculaMayusculas());
+        }
+
+        function descripcion() {
+            if (misVehiculos.length == 0) alert("No hay vehículos");
+            else alert(misVehiculos[thisNum].descripcion());
+        }
+
+        window.onload = function () {
+            navega(2);
+            botones(false, "hidden");
+        }
+    </script>
+</head>
+
+<body>
+    <h3 align="center">
+        GESTIÓN DE VEHÍCULOS
+        <br><br>
+        Marca:
+        <input type="text" id="miMarca">
+        <br><br>
+        Modelo:
+        <input type="text" id="miModelo">
+        <br><br>
+        Matrícula:
+        <input type="text" id="miMatricula">
+        <br><br>
+        Kilómetros:
+        <input type="text" id="miKilometro">
+        <br><br>
+        Fecha de matriculación (dd/mm/aaaa):
+        <input type="text" id="miFecha">
+        <br><br>
+        Precio:
+        <input type="text" id="miPrecio">
+        <br><br>
+        <div id="divBtn">
+            <input type="button" onclick="navega(2)" value="Primera" id="uno">
+            <input type="button" onclick="navega(-1)" value="<< Anterior" id="dos">
+            <input type="button" onclick="navega(1)" value=">> Siguiente" id="tres">
+            <input type="button" onclick="navega(3)" value="Última" id="cuatro">
+        </div>
+        <br><br>
+        <div id="divBtn3">
+            <input type="button" onclick="antiguedad()" value="Antigüedad">
+            <input type="button" onclick="actualizarKilometros()" value="Actualizar kilómetros">
+            <input type="button" onclick="precioFinal()" value="Precio con descuento">
+            <input type="button" onclick="comprobarClasico()" value="¿Es clásico?">
+            <input type="button" onclick="matriculaMayusculas()" value="Matrícula mayúsculas">
+            <input type="button" onclick="descripcion()" value="Descripción">
+        </div>
+        <br><br>
+        <div id="divBtn2">
+            <input type="button" onclick="alta()" value="Alta" id="btnAlta">
+            <input type="button" onclick="baja()" value="Baja" id="btnBaja">
+            <input type="button" onclick="modificacion()" value="Modificación" id="btnMod">
+            <input type="button" onclick="listadoVentana()" value="Listado">
+            <input type="button" onclick="listadoVentana3()" value="Muestra un vehículo">
+            <input type="button" onclick="aceptar()" value="Aceptar" id="btnAcep">
+            <input type="button" onclick="mostrarBotones()" value="Cancelar" id="btnCancel">
+        </div>
+        <br><br>
+        <div id="miDivErr" style="color:red;"></div>
+    </h3>
+</body>
+
+</html>
+```
