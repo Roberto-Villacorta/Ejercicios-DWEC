@@ -54,9 +54,6 @@ class Alumno{
     notaMinima(){
         return Math.min(...this._notas);
     }
-    aprobar(){
-        return this.notaMedia>=5
-    }
     agregarNota(nota){
         this._notas.push(nota)
     }
@@ -66,19 +63,21 @@ class Alumno{
     nombreCompleto(){
         return `El alumno con ${this.nombre} ${this.apellidos}`
     }
+    aprobar(){
+        return Number(this.notaMedia())>=5;
+    }
     generarCal(){
-        var nota = notaMedia();
+        var nota=Number(this.notaMedia());
         if(nota<5){
-            return 'insuficiente'
-        }else if (nota === 5 ) {
-             return 'Suficiente'
-        }else if(nota === 6){
-            return 'Bien'
-        }
-        else if(nota === 7 || nota === 8){
-             return 'Notable'
+            return 'Insuficiente';
+        }else if(nota===5){
+            return 'Suficiente';
+        }else if(nota===6){
+            return 'Bien';
+        }else if(nota===7 || nota===8){
+            return 'Notable';
         }else{
-             return 'Sobresaliente'
+            return 'Sobresaliente';
         }
     }
 }

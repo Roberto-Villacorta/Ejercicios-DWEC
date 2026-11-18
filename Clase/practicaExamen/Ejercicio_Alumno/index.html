@@ -1,14 +1,491 @@
+```html
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor Alumnos</title>
+    <script src="alumno.js"></script>
+    <script>
+        var misAlumnos = new Array();
+        var thisNum = 0;
+        var arrCt = misAlumnos.length - 1;
+        var accionAceptar = 0;
+
+        function textoFecha(texto) {
+            var partes = texto.split("/");
+            return new Date(Number(partes[2]), Number(partes[1])-1, Number(partes[0]));
+        }
+
+        function fechaTexto(fecha) {
+            var dia = fecha.getDate();
+            var mes = fecha.getMonth()+1;
+            var anio = fecha.getFullYear();
+            if(dia<10) dia="0"+dia;
+            if(mes<10) mes="0"+mes;
+            return dia+"/"+mes+"/"+anio;
+        }
+
+        function validaNumero(valor) {
+            if(valor.trim()=="") return false;
+            if(Number.isNaN(Number(valor))) return false;
+            return true;
+        }
+
+        function validaLetra(texto) {
+            var letras = "abcdefghijklmnñopqrstuvwxyzáéíóúü ";
+            texto = texto.toLowerCase();
+            for(var i=0;i<texto.length;i++) {
+                if(letras.indexOf(texto.charAt(i))==-1) return false;
+            }
+            return true;
+        }
+
+        function nombreVal(nombre) {
+            return nombre.length>=3 && nombre.length<=20 && validaLetra(nombre);
+        }
+
+        function apellidoVal(apellido) {
+            return apellido.length>=3 && apellido.length<=40 && validaLetra(apellido);
+        }
+
+        function dniVal(dni) {
+            dni=dni.toUpperCase();
+            var numeros=dni.substring(0,dni.length-1);
+            var letra=dni.substring(dni.length-1);
+            var letrasDni="TRWAGMYFPDXBNJZSQVHLCKE";
+            if(numeros.length!=8 || letra.length!=1 || !validaNumero(numeros)) return false;
+            if(!Number.isInteger(Number(numeros))) return false;
+            return letrasDni.charAt(Number(numeros)%23)==letra;
+        }
+
+        function fechaVal(fechaTexto) {
+            if(!fechaTexto || fechaTexto.trim()=="") return false;
+            var partes=fechaTexto.split("/");
+            if(partes.length!=3) return false;
+            if(partes[0].length!=2 || partes[1].length!=2 || partes[2].length!=4) return false;
+            if(!validaNumero(partes[0]) || !validaNumero(partes[1]) || !validaNumero(partes[2])) return false;
+            var dia=Number(partes[0]);
+            var mes=Number(partes[1])-1;
+            var anio=Number(partes[2]);
+            var fecha=new Date(anio,mes,dia);
+            if(fecha.getFullYear()!=anio || fecha.getMonth()!=mes || fecha.getDate()!=dia) return false;
+            var hoy=new Date();
+            hoy.setHours(0,0,0,0);
+            return fecha<hoy;
+        }
+
+        function localidadVal(localidad) {
+            return localidad.length>=3 && localidad.length<=30 && validaLetra(localidad);
+        }
+
+        function validaDatos() {
+            var nombre=document.getElementById("miNombre").value.trim();
+            var apellidos=document.getElementById("misApellidos").value.trim();
+            var dni=document.getElementById("miDni").value.trim();
+            var fecha=document.getElementById("miFecha").value.trim();
+            var localidad=document.getElementById("miLocalidad").value.trim();
+            var correcto=true;
+            var errores="";
+
+            if(nombre=="") {
+                errores+="Debe introducir el nombre del alumno.<br>";
+                correcto=false;
+            } else if(!nombreVal(nombre)) {
+                errores+="El nombre debe tener entre 3 y 20 letras.<br>";
+                correcto=false;
+            }
+
+            if(apellidos=="") {
+                errores+="Debe introducir los apellidos del alumno.<br>";
+                correcto=false;
+            } else if(!apellidoVal(apellidos)) {
+                errores+="Debe introducir unos apellidos válidos.<br>";
+                correcto=false;
+            }
+
+            if(dni=="") {
+                errores+="Debe introducir el DNI del alumno.<br>";
+                correcto=false;
+            } else if(!dniVal(dni)) {
+                errores+="Debe introducir un DNI válido.<br>";
+                correcto=false;
+            }
+
+            if(fecha=="") {
+                errores+="Debe introducir la fecha de nacimiento.<br>";
+                correcto=false;
+            } else if(!fechaVal(fecha)) {
+                errores+="La fecha debe ser válida y anterior a hoy (dd/mm/aaaa).<br>";
+                correcto=false;
+            }
+
+            if(localidad=="") {
+                errores+="Debe introducir la localidad.<br>";
+                correcto=false;
+            } else if(!localidadVal(localidad)) {
+                errores+="La localidad debe tener entre 3 y 30 letras.<br>";
+                correcto=false;
+            }
+
+            document.getElementById("miDivErr").innerHTML=errores;
+            return correcto;
+        }
+
+        function muestraAlumno() {
+            if(misAlumnos.length==0) {
+                document.getElementById("miNombre").value="";
+                document.getElementById("misApellidos").value="";
+                document.getElementById("miDni").value="";
+                document.getElementById("miFecha").value="";
+                document.getElementById("miLocalidad").value="";
+            } else {
+                document.getElementById("miNombre").value=misAlumnos[thisNum].nombre;
+                document.getElementById("misApellidos").value=misAlumnos[thisNum].apellidos;
+                document.getElementById("miDni").value=misAlumnos[thisNum].dni;
+                document.getElementById("miFecha").value=fechaTexto(misAlumnos[thisNum].fechaNacimiento);
+                document.getElementById("miLocalidad").value=misAlumnos[thisNum].localidad;
+            }
+            document.getElementById("miDivErr").innerHTML="";
+        }
+
+        function navega(direccion) {
+            if(misAlumnos.length==0) {
+                thisNum=0;
+                arrCt=-1;
+            } else {
+                if(direccion==2) thisNum=0;
+                else if(direccion==3) thisNum=arrCt;
+                else {
+                    thisNum+=direccion;
+                    if(thisNum>arrCt) thisNum=0;
+                    if(thisNum<0) thisNum=arrCt;
+                }
+            }
+            muestraAlumno();
+        }
+
+        function alta() {
+            navegador(true);
+            botones(true,"visible");
+            document.getElementById("miNombre").value="";
+            document.getElementById("misApellidos").value="";
+            document.getElementById("miDni").value="";
+            document.getElementById("miFecha").value="";
+            document.getElementById("miLocalidad").value="";
+            document.getElementById("miNombre").focus();
+            accionAceptar=1;
+        }
+
+        function baja() {
+            if(misAlumnos.length==0) alert("No hay alumnos para eliminar");
+            else {
+                botones(true,"visible");
+                accionAceptar=2;
+            }
+        }
+
+        function modificacion() {
+            if(misAlumnos.length==0) alert("No hay alumnos para modificar");
+            else {
+                botones(true,"visible");
+                accionAceptar=3;
+            }
+        }
+
+        function mostrarBotones() {
+            navegador(false);
+            botones(false,"hidden");
+            accionAceptar=0;
+            navega(2);
+        }
+
+        function botones(valor1,valor2) {
+            document.getElementById("btnBaja").disabled=valor1;
+            document.getElementById("btnMod").disabled=valor1;
+            document.getElementById("btnAlta").disabled=valor1;
+            document.getElementById("btnAcep").style.visibility=valor2;
+            document.getElementById("btnCancel").style.visibility=valor2;
+            document.getElementById("miDivErr").innerHTML="";
+        }
+
+        function navegador(valor) {
+            document.getElementById("uno").disabled=valor;
+            document.getElementById("dos").disabled=valor;
+            document.getElementById("tres").disabled=valor;
+            document.getElementById("cuatro").disabled=valor;
+        }
+
+        function gestionarAlta() {
+            if(validaDatos()) {
+                var confirma=confirm("¿Quiere guardar el alta?");
+                if(confirma) {
+                    try {
+                        var nuevoAlumno=new Alumno(
+                            document.getElementById("miNombre").value.trim(),
+                            document.getElementById("misApellidos").value.trim(),
+                            document.getElementById("miDni").value.trim().toUpperCase(),
+                            textoFecha(document.getElementById("miFecha").value),
+                            new Array(),
+                            document.getElementById("miLocalidad").value.trim()
+                        );
+                        misAlumnos.push(nuevoAlumno);
+                        arrCt=misAlumnos.length-1;
+                        alert("Alumno añadido correctamente");
+                        mostrarBotones();
+                    } catch(error) {
+                        document.getElementById("miDivErr").innerHTML="Error: "+error.message;
+                    }
+                }
+            }
+        }
+
+        function gestionarBaja() {
+            if(misAlumnos.length==0) alert("El array está vacío");
+            else {
+                var confirma=confirm("¿Realmente quiere eliminar este alumno?");
+                if(confirma) {
+                    misAlumnos.splice(thisNum,1);
+                    arrCt=misAlumnos.length-1;
+                    if(thisNum>arrCt) thisNum=arrCt;
+                    alert("Alumno eliminado correctamente");
+                    if(misAlumnos.length==0) thisNum=0;
+                    mostrarBotones();
+                } else mostrarBotones();
+            }
+        }
+
+        function gestionarModificacion() {
+            if(validaDatos()) {
+                var confirma=confirm("¿Quiere guardar los cambios?");
+                if(confirma) {
+                    try {
+                        var alumnoTemporal=new Alumno(
+                            document.getElementById("miNombre").value.trim(),
+                            document.getElementById("misApellidos").value.trim(),
+                            document.getElementById("miDni").value.trim().toUpperCase(),
+                            textoFecha(document.getElementById("miFecha").value),
+                            misAlumnos[thisNum].notas.slice(),
+                            document.getElementById("miLocalidad").value.trim()
+                        );
+                        misAlumnos[thisNum].nombre=alumnoTemporal.nombre;
+                        misAlumnos[thisNum].apellidos=alumnoTemporal.apellidos;
+                        misAlumnos[thisNum].dni=alumnoTemporal.dni;
+                        misAlumnos[thisNum].fechaNacimiento=alumnoTemporal.fechaNacimiento;
+                        misAlumnos[thisNum].notas=alumnoTemporal.notas;
+                        misAlumnos[thisNum].localidad=alumnoTemporal.localidad;
+                        alert("Alumno modificado correctamente");
+                        mostrarBotones();
+                    } catch(error) {
+                        document.getElementById("miDivErr").innerHTML="Error: "+error.message;
+                    }
+                }
+            }
+        }
+
+        function aceptar() {
+            document.getElementById("miDivErr").innerHTML="";
+            if(accionAceptar==1) gestionarAlta();
+            if(accionAceptar==2) gestionarBaja();
+            if(accionAceptar==3) gestionarModificacion();
+        }
+
+        function anadirNota() {
+            if(misAlumnos.length==0) {
+                alert("No hay alumnos");
+            } else {
+                var nota=prompt("Introduce la nota:");
+                if(nota!=null && validaNumero(nota) && Number(nota)>=0 && Number(nota)<=10) {
+                    misAlumnos[thisNum].agregarNota(Number(nota));
+                    alert("Nota añadida correctamente");
+                } else if(nota!=null) {
+                    alert("La nota debe estar entre 0 y 10");
+                }
+            }
+        }
+
+        function eliminarNota() {
+            if(misAlumnos.length==0) {
+                alert("No hay alumnos");
+            } else if(misAlumnos[thisNum].notas.length==0) {
+                alert("El alumno no tiene notas");
+            } else {
+                var notas=misAlumnos[thisNum].notas;
+                var texto="Notas del alumno:\n";
+                for(var i=0;i<notas.length;i++) {
+                    texto+=(i+1)+". "+notas[i]+"\n";
+                }
+                var posicion=prompt(texto+"Introduce el número de la nota que quieres eliminar:");
+                if(posicion!=null && Number.isInteger(Number(posicion)) && Number(posicion)>=1 && Number(posicion)<=notas.length) {
+                    misAlumnos[thisNum].eliminarNota(Number(posicion)-1);
+                    alert("Nota eliminada correctamente");
+                } else if(posicion!=null) {
+                    alert("Número de nota incorrecto");
+                }
+            }
+        }
+
+        function listadoVentana() {
+            if(misAlumnos.length==0) {
+                alert("No hay alumnos para mostrar");
+            } else {
+                var salida="<table border='2' cellpadding='5'>";
+                salida+="<tr><th>Nombre</th><th>Apellidos</th><th>DNI</th><th>Fecha nacimiento</th><th>Edad</th><th>Localidad</th><th>Notas</th><th>Media</th><th>Calificación</th></tr>";
+                for(var i=0;i<misAlumnos.length;i++) {
+                    var alumno=misAlumnos[i];
+                    var media="Sin notas";
+                    var calificacion="Sin calificación";
+                    if(alumno.notas.length>0) {
+                        media=alumno.notaMedia();
+                        calificacion=alumno.generarCal();
+                    }
+                    salida+="<tr>";
+                    salida+="<td>"+alumno.nombre+"</td>";
+                    salida+="<td>"+alumno.apellidos+"</td>";
+                    salida+="<td>"+alumno.dni+"</td>";
+                    salida+="<td>"+fechaTexto(alumno.fechaNacimiento)+"</td>";
+                    salida+="<td>"+alumno.edad()+"</td>";
+                    salida+="<td>"+alumno.localidad+"</td>";
+                    salida+="<td>"+alumno.notas.join(", ")+"</td>";
+                    salida+="<td>"+media+"</td>";
+                    salida+="<td>"+calificacion+"</td>";
+                    salida+="</tr>";
+                }
+                salida+="</table>";
+                abrirListado("Listado completo de alumnos",salida);
+            }
+        }
+
+        function listadoAprobados() {
+            if(misAlumnos.length==0) {
+                alert("No hay alumnos");
+            } else {
+                var salida="<table border='2' cellpadding='5'>";
+                salida+="<tr><th>Nombre</th><th>Apellidos</th><th>DNI</th><th>Nota media</th></tr>";
+                var encontrados=0;
+                for(var i=0;i<misAlumnos.length;i++) {
+                    if(misAlumnos[i].notas.length>0 && misAlumnos[i].aprobar()) {
+                        salida+="<tr>";
+                        salida+="<td>"+misAlumnos[i].nombre+"</td>";
+                        salida+="<td>"+misAlumnos[i].apellidos+"</td>";
+                        salida+="<td>"+misAlumnos[i].dni+"</td>";
+                        salida+="<td>"+misAlumnos[i].notaMedia()+"</td>";
+                        salida+="</tr>";
+                        encontrados++;
+                    }
+                }
+                salida+="</table>";
+                if(encontrados==0) alert("No hay alumnos aprobados");
+                else abrirListado("Alumnos aprobados",salida);
+            }
+        }
+
+        function alumnoMayorMedia() {
+            if(misAlumnos.length==0) {
+                alert("No hay alumnos");
+            } else {
+                var mayor=-1;
+                var alumnoMayor=null;
+                for(var i=0;i<misAlumnos.length;i++) {
+                    if(misAlumnos[i].notas.length>0) {
+                        var media=Number(misAlumnos[i].notaMedia());
+                        if(media>mayor) {
+                            mayor=media;
+                            alumnoMayor=misAlumnos[i];
+                        }
+                    }
+                }
+                if(alumnoMayor==null) {
+                    alert("Ningún alumno tiene notas");
+                } else {
+                    alert(alumnoMayor.nombreCompleto()+"\nDNI: "+alumnoMayor.dni+"\nNota media: "+alumnoMayor.notaMedia()+"\nNota máxima: "+alumnoMayor.notaMaxima()+"\nNota mínima: "+alumnoMayor.notaMinima());
+                }
+            }
+        }
+
+        function abrirListado(titulo,contenido) {
+            var miWindow=window.open("","ventana","width=1000,height=500,top=200,left=200");
+            if(miWindow!=null) {
+                miWindow.document.open();
+                miWindow.document.write("<html><head><title>"+titulo+"</title></head><body><center>");
+                miWindow.document.write("<h3>"+titulo+"</h3>");
+                miWindow.document.write(contenido);
+                miWindow.document.write("<br><br><input type='button' value='Cerrar ventana' onclick='window.close();'>");
+                miWindow.document.write("</center></body></html>");
+                miWindow.document.close();
+            }
+        }
+
+        function listadoVentana3() {
+            if(misAlumnos.length==0) {
+                alert("No hay alumnos para mostrar");
+            } else {
+                var alumno=misAlumnos[thisNum];
+                var media="Sin notas";
+                var maxima="Sin notas";
+                var minima="Sin notas";
+                var calificacion="Sin calificación";
+                if(alumno.notas.length>0) {
+                    media=alumno.notaMedia();
+                    maxima=alumno.notaMaxima();
+                    minima=alumno.notaMinima();
+                    calificacion=alumno.generarCal();
+                }
+                alert(alumno.nombreCompleto()+"\nDNI: "+alumno.dni+"\nFecha de nacimiento: "+fechaTexto(alumno.fechaNacimiento)+"\nEdad: "+alumno.edad()+"\nLocalidad: "+alumno.localidad+"\nNotas: "+alumno.notas.join(", ")+"\nMedia: "+media+"\nNota máxima: "+maxima+"\nNota mínima: "+minima+"\nCalificación: "+calificacion);
+            }
+        }
+
+        window.onload=function() {
+            navega(2);
+            botones(false,"hidden");
+        }
+    </script>
 </head>
-
 <body>
-
+    <h3 align="center">
+        GESTIÓN DE ALUMNOS
+        <br><br>
+        Nombre:
+        <input type="text" id="miNombre">
+        <br><br>
+        Apellidos:
+        <input type="text" id="misApellidos">
+        <br><br>
+        DNI:
+        <input type="text" id="miDni">
+        <br><br>
+        Fecha de Nacimiento (dd/mm/aaaa):
+        <input type="text" id="miFecha">
+        <br><br>
+        Localidad:
+        <input type="text" id="miLocalidad">
+        <br><br>
+        <div id="divBtn">
+            <input type="button" onclick="navega(2)" value="Primera" id="uno">
+            <input type="button" onclick="navega(-1)" value="<< Anterior" id="dos">
+            <input type="button" onclick="navega(1)" value=">> Siguiente" id="tres">
+            <input type="button" onclick="navega(3)" value="Última" id="cuatro">
+        </div>
+        <br><br>
+        <div id="divBtn3">
+            <input type="button" onclick="anadirNota()" value="Añadir nota">
+            <input type="button" onclick="eliminarNota()" value="Eliminar nota">
+            <input type="button" onclick="listadoAprobados()" value="Alumnos aprobados">
+            <input type="button" onclick="alumnoMayorMedia()" value="Mayor nota media">
+        </div>
+        <br><br>
+        <div id="divBtn2">
+            <input type="button" onclick="alta()" value="Alta" id="btnAlta">
+            <input type="button" onclick="baja()" value="Baja" id="btnBaja">
+            <input type="button" onclick="modificacion()" value="Modificación" id="btnMod">
+            <input type="button" onclick="listadoVentana()" value="Listado completo">
+            <input type="button" onclick="listadoVentana3()" value="Muestra un alumno">
+            <input type="button" onclick="aceptar()" value="Aceptar" id="btnAcep">
+            <input type="button" onclick="mostrarBotones()" value="Cancelar" id="btnCancel">
+        </div>
+        <br><br>
+    </h3>
+    <div id="miDivErr" style="color:red;"></div>
 </body>
-
 </html>
+```

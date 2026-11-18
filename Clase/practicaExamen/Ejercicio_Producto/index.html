@@ -1,960 +1,431 @@
 ```html
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Gestión de Productos</title>
-
     <script src="Producto.js"></script>
-
     <script>
-
-        ////////////////////////////////////////////////////
-        // Creamos un array y gestionamos sus elementos   //
-        ////////////////////////////////////////////////////
-
-        var misProductos = new Array();
-
-        misProductos.push(new Producto("manzana", 2.3, 5, new Date(2026, 10, 18), "000001"));
-        misProductos.push(new Producto("lata", 3.3, 10, new Date(2026, 10, 24), "000002"));
-
-
-        ////////////////////////////////////////////////////
-        // Variables de control                           //
-        ////////////////////////////////////////////////////
-
-        var thisNum = 0;
-        var arrCt = misProductos.length - 1;
-
-        var accionAceptar = 0;
-
-        /*
-            accionAceptar = 1 --> Alta
-        accionAceptar = 2 -- > Baja
-        accionAceptar = 3 -- > Modificación
-
-
-
-        ////////////////////////////////////////////////////
-        // Función que convierte una fecha a texto        //
-        ////////////////////////////////////////////////////
-
+        var misProductos=new Array();
+        misProductos.push(new Producto("manzana",2.3,5,new Date(2026,10,18),"000001"));
+        misProductos.push(new Producto("lata",3.3,10,new Date(2026,10,24),"000002"));
+        var thisNum=0;
+        var arrCt=misProductos.length-1;
+        var accionAceptar=0;
         function fechaTexto(fecha) {
-
-            var dia = fecha.getDate();
-            var mes = fecha.getMonth() + 1;
-            var anio = fecha.getFullYear();
-
-            if (dia < 10) dia = "0" + dia;
-            if (mes < 10) mes = "0" + mes;
-
-            return dia + "/" + mes + "/" + anio;
+            var dia=fecha.getDate();
+            var mes=fecha.getMonth()+1;
+            var anio=fecha.getFullYear();
+            if(dia<10) dia="0"+dia;
+            if(mes<10) mes="0"+mes;
+            return dia+"/"+mes+"/"+anio;
         }
-
-
-        ////////////////////////////////////////////////////
-        // Función que convierte texto a fecha            //
-        ////////////////////////////////////////////////////
-
         function textoFecha(texto) {
-
-            var partes = texto.split("/");
-
-            return new Date(
-                Number(partes[2]),
-                Number(partes[1]) - 1,
-                Number(partes[0])
-            );
+            var partes=texto.split("/");
+            return new Date(Number(partes[2]),Number(partes[1])-1,Number(partes[0]));
         }
-
-
-        ////////////////////////////////////////////////////
-        // Función que muestra un producto                 //
-        ////////////////////////////////////////////////////
-
         function muestraProducto() {
-
-            if (misProductos.length == 0) {
-
-                document.getElementById("miNombre").value = "";
-                document.getElementById("miPrecio").value = "";
-                document.getElementById("miUnidades").value = "";
-                document.getElementById("miFecha").value = "";
-                document.getElementById("miCodigo").value = "";
-
+            if(misProductos.length==0) {
+                document.getElementById("miNombre").value="";
+                document.getElementById("miPrecio").value="";
+                document.getElementById("miUnidades").value="";
+                document.getElementById("miFecha").value="";
+                document.getElementById("miCodigo").value="";
+            } else {
+                document.getElementById("miNombre").value=misProductos[thisNum].nombre;
+                document.getElementById("miPrecio").value=misProductos[thisNum].precio;
+                document.getElementById("miUnidades").value=misProductos[thisNum].unidades;
+                document.getElementById("miFecha").value=fechaTexto(misProductos[thisNum].fechaCaducidad);
+                document.getElementById("miCodigo").value=misProductos[thisNum].codigo;
             }
-            else {
-
-                document.getElementById("miNombre").value = misProductos[thisNum].nombre;
-                document.getElementById("miPrecio").value = misProductos[thisNum].precio;
-                document.getElementById("miUnidades").value = misProductos[thisNum].unidades;
-                document.getElementById("miFecha").value = fechaTexto(misProductos[thisNum].fechaCaducidad);
-                document.getElementById("miCodigo").value = misProductos[thisNum].codigo;
-
-            }
-
-            document.getElementById("miDivErr").innerHTML = "";
-
+            document.getElementById("miDivErr").innerHTML="";
         }
-
-
-        ////////////////////////////////////////////////////
-        // Función que controla la navegación              //
-        ////////////////////////////////////////////////////
-
         function navega(direccion) {
-
-            /*
-                direccion 2  --> Primer elemento
-                direccion 3  --> Último elemento
-                direccion 1  --> Siguiente elemento
-                direccion -1 --> Anterior elemento
-            */
-
-            if (misProductos.length == 0) {
-
-                thisNum = 0;
-                arrCt = -1;
-
-            }
-            else {
-
-                if (direccion == 2) {
-                    thisNum = 0;
-                }
-                else if (direccion == 3) {
-                    thisNum = arrCt;
-                }
+            if(misProductos.length==0) {
+                thisNum=0;
+                arrCt=-1;
+            } else {
+                if(direccion==2) thisNum=0;
+                else if(direccion==3) thisNum=arrCt;
                 else {
-
-                    thisNum = thisNum + direccion;
-
-                    if (thisNum > arrCt) {
-                        thisNum = 0;
-                    }
-
-                    if (thisNum < 0) {
-                        thisNum = arrCt;
-                    }
-
+                    thisNum=thisNum+direccion;
+                    if(thisNum>arrCt) thisNum=0;
+                    if(thisNum<0) thisNum=arrCt;
                 }
-
             }
-
             muestraProducto();
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Prepara el interfaz para dar un alta            //
-        ////////////////////////////////////////////////////
-
         function alta() {
-
             navegador(true);
-            botones(true, "visible");
-
-            document.getElementById("miNombre").value = "";
-            document.getElementById("miPrecio").value = "";
-            document.getElementById("miUnidades").value = "";
-            document.getElementById("miFecha").value = "";
-            document.getElementById("miCodigo").value = "";
-
+            botones(true,"visible");
+            document.getElementById("miNombre").value="";
+            document.getElementById("miPrecio").value="";
+            document.getElementById("miUnidades").value="";
+            document.getElementById("miFecha").value="";
+            document.getElementById("miCodigo").value="";
             document.getElementById("miNombre").focus();
-
-            accionAceptar = 1;
-
+            accionAceptar=1;
         }
-
-
-        ////////////////////////////////////////////////////
-        // Prepara el interfaz para dar una baja           //
-        ////////////////////////////////////////////////////
-
         function baja() {
-
-            if (misProductos.length == 0) {
-                alert("No hay productos para eliminar");
-            }
+            if(misProductos.length==0) alert("No hay productos para eliminar");
             else {
-
-                botones(true, "visible");
-
-                accionAceptar = 2;
-
+                botones(true,"visible");
+                accionAceptar=2;
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Prepara el interfaz para modificar              //
-        ////////////////////////////////////////////////////
-
         function modificacion() {
-
-            if (misProductos.length == 0) {
-                alert("No hay productos para modificar");
-            }
+            if(misProductos.length==0) alert("No hay productos para modificar");
             else {
-
-                botones(true, "visible");
-
-                accionAceptar = 3;
-
+                botones(true,"visible");
+                accionAceptar=3;
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Restaura el interfaz a su estado inicial        //
-        ////////////////////////////////////////////////////
-
         function mostrarBotones() {
-
             navegador(false);
-            botones(false, "hidden");
-
-            accionAceptar = 0;
-
+            botones(false,"hidden");
+            accionAceptar=0;
             navega(2);
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Muestra u oculta botones                        //
-        ////////////////////////////////////////////////////
-
-        function botones(valor1, valor2) {
-
-            document.getElementById("btnBaja").disabled = valor1;
-            document.getElementById("btnMod").disabled = valor1;
-            document.getElementById("btnAlta").disabled = valor1;
-
-            document.getElementById("btnAcep").style.visibility = valor2;
-            document.getElementById("btnCancel").style.visibility = valor2;
-
-            document.getElementById("miDivErr").innerHTML = "";
-
+        function botones(valor1,valor2) {
+            document.getElementById("btnBaja").disabled=valor1;
+            document.getElementById("btnMod").disabled=valor1;
+            document.getElementById("btnAlta").disabled=valor1;
+            document.getElementById("btnAcep").style.visibility=valor2;
+            document.getElementById("btnCancel").style.visibility=valor2;
+            document.getElementById("miDivErr").innerHTML="";
         }
-
-
-        ////////////////////////////////////////////////////
-        // Activa o desactiva la navegación                //
-        ////////////////////////////////////////////////////
-
         function navegador(valor) {
-
-            document.getElementById("uno").disabled = valor;
-            document.getElementById("dos").disabled = valor;
-            document.getElementById("tres").disabled = valor;
-            document.getElementById("cuatro").disabled = valor;
-
+            document.getElementById("uno").disabled=valor;
+            document.getElementById("dos").disabled=valor;
+            document.getElementById("tres").disabled=valor;
+            document.getElementById("cuatro").disabled=valor;
         }
-
-
-        ////////////////////////////////////////////////////
-        // Comprueba que un número sea válido              //
-        ////////////////////////////////////////////////////
-
         function validaNumero(valor) {
-
-            if (valor.trim() == "") {
-                return false;
-            }
-
-            if (Number.isNaN(Number(valor))) {
-                return false;
-            }
-
+            if(valor.trim()=="") return false;
+            if(Number.isNaN(Number(valor))) return false;
             return true;
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Comprueba que un texto solo tenga letras        //
-        ////////////////////////////////////////////////////
-
-        function validaLetra(texto) {
-
-            var letras = "abcdefghijklmnñopqrstuvwxyzáéíóúü ";
-
-            texto = texto.toLowerCase();
-
-            if (texto.length < 3 || texto.length > 25) {
-                return false;
+        function validaNombre(nombre) {
+            var letras="abcdefghijklmnñopqrstuvwxyzáéíóúü ";
+            nombre=nombre.toLowerCase();
+            if(nombre.length<3 || nombre.length>25) return false;
+            for(var i=0;i<nombre.length;i++) {
+                if(letras.indexOf(nombre.charAt(i))==-1) return false;
             }
-
-            for (var i = 0; i < texto.length; i++) {
-
-                if (letras.indexOf(texto.charAt(i)) == -1) {
-                    return false;
-                }
-
-            }
-
             return true;
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Comprueba que una fecha sea válida              //
-        ////////////////////////////////////////////////////
-
+        function validaPrecio(precio) {
+            if(!validaNumero(precio)) return false;
+            if(Number(precio)<=0) return false;
+            if(Math.round(Number(precio)*100)!=Number(precio)*100) return false;
+            return true;
+        }
+        function validaUnidades(unidades) {
+            if(!validaNumero(unidades)) return false;
+            if(!Number.isInteger(Number(unidades))) return false;
+            if(Number(unidades)<0 || Number(unidades)>999) return false;
+            return true;
+        }
         function validaFecha(texto) {
-
-            var partes = texto.split("/");
-
-            if (partes.length != 3) {
-                return false;
-            }
-
-            if (partes[0].length != 2 ||
-                partes[1].length != 2 ||
-                partes[2].length != 4) {
-
-                return false;
-
-            }
-
-            if (!validaNumero(partes[0]) ||
-                !validaNumero(partes[1]) ||
-                !validaNumero(partes[2])) {
-
-                return false;
-
-            }
-
-            var dia = Number(partes[0]);
-            var mes = Number(partes[1]);
-            var anio = Number(partes[2]);
-
-            var fecha = new Date(anio, mes - 1, dia);
-
-            if (fecha.getDate() != dia ||
-                fecha.getMonth() != mes - 1 ||
-                fecha.getFullYear() != anio) {
-
-                return false;
-
-            }
-
-            var hoy = new Date();
-
-            hoy.setHours(0, 0, 0, 0);
-
-            if (fecha <= hoy) {
-                return false;
-            }
-
+            if(texto=="") return false;
+            var partes=texto.split("/");
+            if(partes.length!=3) return false;
+            if(partes[0].length!=2 || partes[1].length!=2 || partes[2].length!=4) return false;
+            if(!validaNumero(partes[0]) || !validaNumero(partes[1]) || !validaNumero(partes[2])) return false;
+            var dia=Number(partes[0]);
+            var mes=Number(partes[1]);
+            var anio=Number(partes[2]);
+            var fecha=new Date(anio,mes-1,dia);
+            if(fecha.getDate()!=dia || fecha.getMonth()!=mes-1 || fecha.getFullYear()!=anio) return false;
+            var hoy=new Date();
+            hoy.setHours(0,0,0,0);
+            if(fecha<=hoy) return false;
             return true;
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Comprueba los datos introducidos                //
-        ////////////////////////////////////////////////////
-
+        function validaCodigo(codigo) {
+            if(codigo.length!=6) return false;
+            for(var i=0;i<codigo.length;i++) {
+                if(codigo.charAt(i)<"0" || codigo.charAt(i)>"9") return false;
+            }
+            return true;
+        }
         function validaDatos() {
-
-            var nombre = document.getElementById("miNombre").value.trim();
-            var precio = document.getElementById("miPrecio").value.trim();
-            var unidades = document.getElementById("miUnidades").value.trim();
-            var fecha = document.getElementById("miFecha").value.trim();
-            var codigo = document.getElementById("miCodigo").value.trim();
-
-            var correcto = true;
-            var errores = "";
-
-            if (nombre == "") {
-                errores += "Debe introducir el nombre del producto.<br>";
-                correcto = false;
+            var nombre=document.getElementById("miNombre").value.trim();
+            var precio=document.getElementById("miPrecio").value.trim();
+            var unidades=document.getElementById("miUnidades").value.trim();
+            var fecha=document.getElementById("miFecha").value.trim();
+            var codigo=document.getElementById("miCodigo").value.trim();
+            var correcto=true;
+            var errores="";
+            if(nombre=="") {
+                errores+="Debe introducir el nombre del producto.<br>";
+                correcto=false;
+            } else if(!validaNombre(nombre)) {
+                errores+="El nombre debe tener entre 3 y 25 letras.<br>";
+                correcto=false;
             }
-            else if (!validaLetra(nombre)) {
-                errores += "El nombre debe tener entre 3 y 25 letras.<br>";
-                correcto = false;
+            if(precio=="") {
+                errores+="Debe introducir el precio.<br>";
+                correcto=false;
+            } else if(!validaPrecio(precio)) {
+                errores+="El precio debe ser positivo y tener como máximo dos decimales.<br>";
+                correcto=false;
             }
-
-            if (precio == "") {
-                errores += "Debe introducir el precio.<br>";
-                correcto = false;
+            if(unidades=="") {
+                errores+="Debe introducir las unidades.<br>";
+                correcto=false;
+            } else if(!validaUnidades(unidades)) {
+                errores+="Las unidades deben ser un entero entre 0 y 999.<br>";
+                correcto=false;
             }
-            else if (!validaNumero(precio) ||
-                Number(precio) <= 0 ||
-                Math.round(Number(precio) * 100) != Number(precio) * 100) {
-
-                errores += "El precio debe ser positivo y tener como máximo dos decimales.<br>";
-                correcto = false;
-
+            if(fecha=="") {
+                errores+="Debe introducir la fecha de caducidad.<br>";
+                correcto=false;
+            } else if(!validaFecha(fecha)) {
+                errores+="La fecha debe ser válida y posterior a hoy (dd/mm/aaaa).<br>";
+                correcto=false;
             }
-
-            if (unidades == "") {
-                errores += "Debe introducir las unidades.<br>";
-                correcto = false;
+            if(codigo=="") {
+                errores+="Debe introducir el código.<br>";
+                correcto=false;
+            } else if(!validaCodigo(codigo)) {
+                errores+="El código debe tener exactamente 6 números.<br>";
+                correcto=false;
             }
-            else if (!Number.isInteger(Number(unidades)) ||
-                Number(unidades) < 0 ||
-                Number(unidades) > 999) {
-
-                errores += "Las unidades deben ser un entero entre 0 y 999.<br>";
-                correcto = false;
-
-            }
-
-            if (fecha == "") {
-                errores += "Debe introducir la fecha de caducidad.<br>";
-                correcto = false;
-            }
-            else if (!validaFecha(fecha)) {
-                errores += "La fecha debe ser válida y posterior a hoy (dd/mm/aaaa).<br>";
-                correcto = false;
-            }
-
-            if (codigo == "") {
-                errores += "Debe introducir el código.<br>";
-                correcto = false;
-            }
-            else if (!/^[0-9]{6}$/.test(codigo)) {
-                errores += "El código debe tener exactamente 6 números.<br>";
-                correcto = false;
-            }
-
-            document.getElementById("miDivErr").innerHTML = errores;
-
+            document.getElementById("miDivErr").innerHTML=errores;
             return correcto;
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Gestiona el alta de un producto                 //
-        ////////////////////////////////////////////////////
-
         function gestionarAlta() {
-
-            if (validaDatos()) {
-
-                var confirma = confirm("¿Quiere guardar el producto?");
-
-                if (confirma) {
-
+            if(validaDatos()) {
+                var confirma=confirm("¿Quiere guardar el producto?");
+                if(confirma) {
                     try {
-
-                        var nuevoProducto = new Producto(
+                        var nuevoProducto=new Producto(
                             document.getElementById("miNombre").value.trim(),
                             Number(document.getElementById("miPrecio").value),
                             Number(document.getElementById("miUnidades").value),
                             textoFecha(document.getElementById("miFecha").value),
                             document.getElementById("miCodigo").value.trim()
                         );
-
                         misProductos.push(nuevoProducto);
-
-                        arrCt = misProductos.length - 1;
-
+                        arrCt=misProductos.length-1;
                         alert("Producto añadido correctamente");
-
                         mostrarBotones();
-
+                    } catch(error) {
+                        document.getElementById("miDivErr").innerHTML="Error: "+error.message;
                     }
-                    catch (error) {
-
-                        document.getElementById("miDivErr").innerHTML =
-                            "Error: " + error.message;
-
-                    }
-
                 }
-
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Gestiona la baja de un producto                 //
-        ////////////////////////////////////////////////////
-
         function gestionarBaja() {
-
-            if (misProductos.length == 0) {
-
-                alert("El array está vacío");
-
-            }
+            if(misProductos.length==0) alert("El array está vacío");
             else {
-
-                var confirma = confirm("¿Realmente quiere eliminar este producto?");
-
-                if (confirma) {
-
-                    misProductos.splice(thisNum, 1);
-
-                    arrCt = misProductos.length - 1;
-
-                    if (thisNum > arrCt) {
-                        thisNum = arrCt;
-                    }
-
+                var confirma=confirm("¿Realmente quiere eliminar este producto?");
+                if(confirma) {
+                    misProductos.splice(thisNum,1);
+                    arrCt=misProductos.length-1;
+                    if(thisNum>arrCt) thisNum=arrCt;
                     alert("Producto eliminado correctamente");
-
-                    if (misProductos.length == 0) {
-                        thisNum = 0;
-                    }
-
+                    if(misProductos.length==0) thisNum=0;
                     mostrarBotones();
-
-                }
-                else {
-
-                    mostrarBotones();
-
-                }
-
+                } else mostrarBotones();
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Gestiona la modificación de un producto         //
-        ////////////////////////////////////////////////////
-
         function gestionarModificacion() {
-
-            if (validaDatos()) {
-
-                var confirma = confirm("¿Quiere guardar los cambios?");
-
-                if (confirma) {
-
+            if(validaDatos()) {
+                var confirma=confirm("¿Quiere guardar los cambios?");
+                if(confirma) {
                     try {
-
-                        var productoTemporal = new Producto(
+                        var productoTemporal=new Producto(
                             document.getElementById("miNombre").value.trim(),
                             Number(document.getElementById("miPrecio").value),
                             Number(document.getElementById("miUnidades").value),
                             textoFecha(document.getElementById("miFecha").value),
                             document.getElementById("miCodigo").value.trim()
                         );
-
-                        misProductos[thisNum].nombre = productoTemporal.nombre;
-                        misProductos[thisNum].precio = productoTemporal.precio;
-                        misProductos[thisNum].unidades = productoTemporal.unidades;
-                        misProductos[thisNum].fechaCaducidad = productoTemporal.fechaCaducidad;
-                        misProductos[thisNum].codigo = productoTemporal.codigo;
-
+                        misProductos[thisNum].nombre=productoTemporal.nombre;
+                        misProductos[thisNum].precio=productoTemporal.precio;
+                        misProductos[thisNum].unidades=productoTemporal.unidades;
+                        misProductos[thisNum].fechaCaducidad=productoTemporal.fechaCaducidad;
+                        misProductos[thisNum].codigo=productoTemporal.codigo;
                         alert("Producto modificado correctamente");
-
                         mostrarBotones();
-
+                    } catch(error) {
+                        document.getElementById("miDivErr").innerHTML="Error: "+error.message;
                     }
-                    catch (error) {
-
-                        document.getElementById("miDivErr").innerHTML =
-                            "Error: " + error.message;
-
-                    }
-
                 }
-
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Función que controla el botón Aceptar            //
-        ////////////////////////////////////////////////////
-
         function aceptar() {
-
-            document.getElementById("miDivErr").innerHTML = "";
-
-            if (accionAceptar == 1) {
-                gestionarAlta();
-            }
-
-            if (accionAceptar == 2) {
-                gestionarBaja();
-            }
-
-            if (accionAceptar == 3) {
-                gestionarModificacion();
-            }
-
+            document.getElementById("miDivErr").innerHTML="";
+            if(accionAceptar==1) gestionarAlta();
+            if(accionAceptar==2) gestionarBaja();
+            if(accionAceptar==3) gestionarModificacion();
         }
-
-
-        ////////////////////////////////////////////////////
-        // Listado de todos los productos                  //
-        ////////////////////////////////////////////////////
-
         function listadoVentana() {
-
-            if (misProductos.length == 0) {
-
+            if(misProductos.length==0) {
                 alert("No hay productos para mostrar");
-
-            }
-            else {
-
-                var salida = "";
-
-                salida = "<table border='2' cellpadding='5'>";
-                salida += "<tr>";
-                salida += "<th>Nombre</th>";
-                salida += "<th>Precio</th>";
-                salida += "<th>Unidades</th>";
-                salida += "<th>Caducidad</th>";
-                salida += "<th>Código</th>";
-                salida += "</tr>";
-
-                for (var i = 0; i < misProductos.length; i++) {
-
-                    salida += "<tr>";
-
-                    salida += "<td>" + misProductos[i].nombre + "</td>";
-                    salida += "<td>" + misProductos[i].precio + "</td>";
-                    salida += "<td>" + misProductos[i].unidades + "</td>";
-                    salida += "<td>" + fechaTexto(misProductos[i].fechaCaducidad) + "</td>";
-                    salida += "<td>" + misProductos[i].codigo + "</td>";
-
-                    salida += "</tr>";
-
+            } else {
+                var salida="<table border='2' cellpadding='5'>";
+                salida+="<tr><th>Nombre</th><th>Precio</th><th>Unidades</th><th>Caducidad</th><th>Código</th></tr>";
+                for(var i=0;i<misProductos.length;i++) {
+                    salida+="<tr>";
+                    salida+="<td>"+misProductos[i].nombre+"</td>";
+                    salida+="<td>"+misProductos[i].precio+"</td>";
+                    salida+="<td>"+misProductos[i].unidades+"</td>";
+                    salida+="<td>"+fechaTexto(misProductos[i].fechaCaducidad)+"</td>";
+                    salida+="<td>"+misProductos[i].codigo+"</td>";
+                    salida+="</tr>";
                 }
-
-                salida += "</table>";
-
-                var miWindow = window.open("", "ventana", "width=650,height=400,top=200,left=200");
-
-                if (miWindow != null) {
-
+                salida+="</table>";
+                var miWindow=window.open("","ventana","width=650,height=400,top=200,left=200");
+                if(miWindow!=null) {
                     miWindow.document.open();
-
-                    miWindow.document.write("<html>");
-                    miWindow.document.write("<head><title>Listado de productos</title></head>");
-                    miWindow.document.write("<body>");
-                    miWindow.document.write("<center>");
+                    miWindow.document.write("<html><head><title>Listado de productos</title></head><body><center>");
                     miWindow.document.write("<h3>Listado de productos</h3>");
                     miWindow.document.write(salida);
-                    miWindow.document.write("<br><br>");
-                    miWindow.document.write("<input type='button' value='Cerrar ventana' onclick='window.close();'>");
-                    miWindow.document.write("</center>");
-                    miWindow.document.write("</body>");
-                    miWindow.document.write("</html>");
-
+                    miWindow.document.write("<br><br><input type='button' value='Cerrar ventana' onclick='window.close();'>");
+                    miWindow.document.write("</center></body></html>");
                     miWindow.document.close();
-
                 }
-
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Listado de un único producto                    //
-        ////////////////////////////////////////////////////
-
         function listadoVentana3() {
-
-            if (misProductos.length == 0) {
-
+            if(misProductos.length==0) {
                 alert("No hay productos para mostrar");
-
+            } else {
+                var p=misProductos[thisNum];
+                alert("DATOS DEL PRODUCTO\n\nNombre: "+p.nombre+"\nPrecio: "+p.precio+"\nUnidades: "+p.unidades+"\nCaducidad: "+fechaTexto(p.fechaCaducidad)+"\nCódigo: "+p.codigo);
             }
-            else {
-
-                var p = misProductos[thisNum];
-
-                alert(
-                    "DATOS DEL PRODUCTO\n\n" +
-                    "Nombre: " + p.nombre + "\n" +
-                    "Precio: " + p.precio + "\n" +
-                    "Unidades: " + p.unidades + "\n" +
-                    "Caducidad: " + fechaTexto(p.fechaCaducidad) + "\n" +
-                    "Código: " + p.codigo
-                );
-
-            }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Función para vender productos                    //
-        ////////////////////////////////////////////////////
-
+        function validaCantidad(cantidad) {
+            if(!validaNumero(cantidad)) return false;
+            if(!Number.isInteger(Number(cantidad))) return false;
+            if(Number(cantidad)<=0) return false;
+            return true;
+        }
         function vender() {
-
-            if (misProductos.length == 0) {
+            if(misProductos.length==0) {
                 alert("No hay productos");
-            }
-            else {
-
-                var cantidad = prompt("¿Cuántas unidades desea vender?");
-
-                if (cantidad != null && cantidad.trim() != "") {
-
-                    try {
-
-                        if (!Number.isInteger(Number(cantidad)) ||
-                            Number(cantidad) <= 0) {
-
-                            throw new Error("Debe introducir un número entero positivo");
-
+            } else {
+                var cantidad=prompt("¿Cuántas unidades desea vender?");
+                if(cantidad!=null && cantidad.trim()!="") {
+                    if(!validaCantidad(cantidad)) {
+                        alert("Debe introducir un número entero positivo");
+                    } else {
+                        try {
+                            misProductos[thisNum].vender(Number(cantidad));
+                            alert("Venta realizada correctamente");
+                            muestraProducto();
+                        } catch(error) {
+                            alert(error.message);
                         }
-
-                        misProductos[thisNum].vender(Number(cantidad));
-
-                        alert("Venta realizada correctamente");
-
-                        muestraProducto();
-
                     }
-                    catch (error) {
-
-                        alert(error.message);
-
-                    }
-
                 }
-
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Función para reponer productos                   //
-        ////////////////////////////////////////////////////
-
         function reponer() {
-
-            if (misProductos.length == 0) {
+            if(misProductos.length==0) {
                 alert("No hay productos");
-            }
-            else {
-
-                var cantidad = prompt("¿Cuántas unidades desea reponer?");
-
-                if (cantidad != null && cantidad.trim() != "") {
-
-                    try {
-
-                        if (!Number.isInteger(Number(cantidad)) ||
-                            Number(cantidad) <= 0) {
-
-                            throw new Error("Debe introducir un número entero positivo");
-
+            } else {
+                var cantidad=prompt("¿Cuántas unidades desea reponer?");
+                if(cantidad!=null && cantidad.trim()!="") {
+                    if(!validaCantidad(cantidad)) {
+                        alert("Debe introducir un número entero positivo");
+                    } else {
+                        try {
+                            misProductos[thisNum].reponer(Number(cantidad));
+                            alert("Reposición realizada correctamente");
+                            muestraProducto();
+                        } catch(error) {
+                            alert(error.message);
                         }
-
-                        misProductos[thisNum].reponer(Number(cantidad));
-
-                        alert("Reposición realizada correctamente");
-
-                        muestraProducto();
-
                     }
-                    catch (error) {
-
-                        alert(error.message);
-
-                    }
-
                 }
-
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Precio con descuento                             //
-        ////////////////////////////////////////////////////
-
         function descuento() {
-
-            if (misProductos.length == 0) {
+            if(misProductos.length==0) {
                 alert("No hay productos");
-            }
-            else {
-
-                var porcentaje = prompt("Introduzca el porcentaje de descuento:");
-
-                if (porcentaje != null && porcentaje.trim() != "") {
-
-                    if (!validaNumero(porcentaje) ||
-                        Number(porcentaje) < 0 ||
-                        Number(porcentaje) > 100) {
-
+            } else {
+                var porcentaje=prompt("Introduzca el porcentaje de descuento:");
+                if(porcentaje!=null && porcentaje.trim()!="") {
+                    if(!validaNumero(porcentaje) || Number(porcentaje)<0 || Number(porcentaje)>100) {
                         alert("El descuento debe estar entre 0 y 100");
-
+                    } else {
+                        var resultado=misProductos[thisNum].precioConDescuento(Number(porcentaje));
+                        alert("Precio con descuento: "+resultado+" €");
                     }
-                    else {
-
-                        var resultado =
-                            misProductos[thisNum].precioConDescuento(Number(porcentaje));
-
-                        alert("Precio con descuento: " + resultado + " €");
-
-                    }
-
                 }
-
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Consulta de caducidad                            //
-        ////////////////////////////////////////////////////
-
         function comprobarCaducidad() {
-
-            if (misProductos.length == 0) {
+            if(misProductos.length==0) {
                 alert("No hay productos");
-            }
-            else {
-
-                var p = misProductos[thisNum];
-
-                var mensaje = "";
-
-                if (p.estaCaducado()) {
-                    mensaje = "El producto está caducado.";
+            } else {
+                var p=misProductos[thisNum];
+                var mensaje="";
+                if(p.estaCaducado()) {
+                    mensaje="El producto está caducado.";
+                } else {
+                    mensaje="El producto todavía no está caducado.\n";
+                    mensaje+="Días para caducar: "+p.diasParaCaducar();
                 }
-                else {
-                    mensaje = "El producto todavía no está caducado.\n";
-                    mensaje += "Días para caducar: " + p.diasParaCaducar();
-                }
-
                 alert(mensaje);
-
             }
-
         }
-
-
-        ////////////////////////////////////////////////////
-        // Inicialización del interfaz                     //
-        ////////////////////////////////////////////////////
-
-        window.onload = function () {
-
+        window.onload=function() {
             navega(2);
-
-            botones(false, "hidden");
-
+            botones(false,"hidden");
         }
-
     </script>
-
 </head>
-
-
 <body>
-
-    <h3 display="center">
+    <h3 align="center">
         GESTIÓN DE PRODUCTOS
-
         <br><br>
-
         Nombre:
         <input type="text" id="miNombre">
         <br><br>
-
         Precio:
         <input type="text" id="miPrecio">
         <br><br>
-
         Unidades:
         <input type="text" id="miUnidades">
         <br><br>
-
         Fecha de caducidad (dd/mm/aaaa):
         <input type="text" id="miFecha">
         <br><br>
-
         Código:
         <input type="text" id="miCodigo">
         <br><br>
-
-
-        <!-- BOTONES DE NAVEGACIÓN -->
-
         <div id="divBtn">
-
             <input type="button" onclick="navega(2)" value="Primera" id="uno">
-
             <input type="button" onclick="navega(-1)" value="<< Anterior" id="dos">
-
             <input type="button" onclick="navega(1)" value=">> Siguiente" id="tres">
-
             <input type="button" onclick="navega(3)" value="Última" id="cuatro">
-
         </div>
-
         <br><br>
-
-
-        <!-- BOTONES DE MÉTODOS DEL PRODUCTO -->
-
         <div id="divBtn3">
-
             <input type="button" onclick="vender()" value="Vender">
-
             <input type="button" onclick="reponer()" value="Reponer">
-
             <input type="button" onclick="descuento()" value="Precio con descuento">
-
             <input type="button" onclick="comprobarCaducidad()" value="Comprobar caducidad">
-
         </div>
-
         <br><br>
-
-
-        <!-- BOTONES DE GESTIÓN -->
-
         <div id="divBtn2">
-
             <input type="button" onclick="alta()" value="Alta" id="btnAlta">
-
             <input type="button" onclick="baja()" value="Baja" id="btnBaja">
-
             <input type="button" onclick="modificacion()" value="Modificación" id="btnMod">
-
             <input type="button" onclick="listadoVentana()" value="Listado">
-
             <input type="button" onclick="listadoVentana3()" value="Muestra un producto">
-
             <input type="button" onclick="aceptar()" value="Aceptar" id="btnAcep">
-
             <input type="button" onclick="mostrarBotones()" value="Cancelar" id="btnCancel">
-
         </div>
-
         <br><br>
-
-        <!-- MENSAJES DE ERROR -->
-
-        <div id="miDivErr" style="color:red;"></div>
-
     </h3>
-
+    <div id="miDivErr" style="color:red;"></div>
 </body>
-
 </html>
 ```
