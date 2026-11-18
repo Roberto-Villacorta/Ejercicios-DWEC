@@ -20,6 +20,27 @@
         "description": "Valida que el texto no esté vacío, cumpla rango de longitud y solo contenga letras (incluye tildes, ñ y espacios)."
     },
 
+    "DWEC: Validar Número Entero sin Regex (0-9)": {
+        "scope": "javascript,html",
+        "prefix": "val-enteros",
+        "body": [
+            "function validaNumero(${1:valor}) {",
+            "\tif (${1:valor} === null || ${1:valor} === undefined) return false;",
+            "\tvar str = ${1:valor}.toString().trim();",
+            "\tif (str === \"\") return false;",
+            "",
+            "\tvar nums = \"0123456789\";",
+            "\tfor (var i = 0; i < str.length; i++) {",
+            "\t\tif (nums.indexOf(str.charAt(i)) === -1) {",
+            "\t\t\treturn false;",
+            "\t\t}",
+            "\t}",
+            "\treturn true;",
+            "}"
+        ],
+        "description": "Valida que el valor contenga solo caracteres numéricos del 0 al 9 usando indexOf (estilo examen sin regex)."
+    },
+
     "DWEC: Validar Número": {
         "scope": "javascript,html",
         "prefix": "val-numero",
@@ -111,6 +132,132 @@
         "description": "Valida un DNI español (8 dígitos + letra de control oficial)."
     },
 
+    "DWEC: Función Validadora Centralizada (Agrupa Errores)": {
+        "scope": "javascript,html",
+        "prefix": "dwec-val-objeto",
+        "body": [
+            "function validacion(${1:obj}) {",
+            "\tvar textoError = \"\";",
+            "\tif (!validaTexto(${1:obj}.${2:titulo})) {",
+            "\t\ttextoError += \"${3:Título inválido}<br>\";",
+            "\t}",
+            "\tif (!validaNumero(${1:obj}.${4:visitas})) {",
+            "\t\ttextoError += \"${5:Las visitas deben ser un número}<br>\";",
+            "\t}",
+            "\tif (!validaFechaSinObjeto(${1:obj}.${6:fechaCreacion})) {",
+            "\t\ttextoError += \"${7:La fecha debe ser correcta (dd/mm/aaaa)}<br>\";",
+            "\t}",
+            "\treturn textoError;",
+            "}"
+        ],
+        "description": "Función que agrupa las validaciones de los campos y acumula los mensajes de error en formato HTML."
+    },
+
+    "DWEC: Clase ES6 (Constructor, Getters y Setters)": {
+        "scope": "javascript",
+        "prefix": "dwec-clase",
+        "body": [
+            "class ${1:Web} {",
+            "\tconstructor(${2:titulo}, ${3:fechaCreacion}, ${4:visitas}) {",
+            "\t\tthis._${2:titulo} = ${2:titulo};",
+            "\t\tthis._${3:fechaCreacion} = ${3:fechaCreacion};",
+            "\t\tthis._${4:visitas} = ${4:visitas};",
+            "\t}",
+            "",
+            "\tget ${2:titulo}() { return this._${2:titulo}; }",
+            "\tset ${2:titulo}(v) { this._${2:titulo} = v; }",
+            "",
+            "\tget ${3:fechaCreacion}() { return this._${3:fechaCreacion}; }",
+            "\tset ${3:fechaCreacion}(v) { this._${3:fechaCreacion} = v; }",
+            "",
+            "\tget ${4:visitas}() { return this._${4:visitas}; }",
+            "\tset ${4:visitas}(v) { this._${4:visitas} = v; }",
+            "",
+            "\t${5:// métodos propios}",
+            "}"
+        ],
+        "description": "Plantilla de clase ES6 con constructor, propiedades privadas por convención (_prop) y sus getters/setters."
+    },
+
+    "DWEC: Calcular Días de Antigüedad / Diferencia (dd/mm/aaaa)": {
+        "scope": "javascript",
+        "prefix": "dwec-dias",
+        "body": [
+            "${1:diasEnLaWeb}() {",
+            "\tconst hoy = new Date();",
+            "\tconst arrF = this.${2:fechaCreacion}.split(\"/\");",
+            "\tconst fechaInicio = new Date(arrF[2], arrF[1] - 1, arrF[0]); // año, mes-1, día",
+            "\tconst diferenciaMs = hoy.getTime() - fechaInicio.getTime();",
+            "\treturn Math.floor(diferenciaMs / (1000 * 60 * 60 * 24)); // ms a días",
+            "}"
+        ],
+        "description": "Calcula la diferencia exacta en días entre una fecha 'dd/mm/aaaa' y la fecha actual."
+    },
+
+    "DWEC: Mostrar Un Objeto en Ventana (Método Instancia)": {
+        "scope": "javascript",
+        "prefix": "dwec-mostrar-uno",
+        "body": [
+            "${1:mostrarWeb}() {",
+            "\tlet tabla = \"<table border='1'><tr><th>${2:Título}</th><th>${3:Fecha de creación}</th><th>${4:Visitas}</th></tr>\";",
+            "\ttabla += `<tr><td>\\${this.${5:titulo}}</td><td>\\${this.${6:fechaCreacion}}</td><td>\\${this.${7:visitas}}</td></tr>`;",
+            "\ttabla += \"</table>\";",
+            "",
+            "\tconst miVentana = window.open(\"\", \"_blank\", \"width=500,height=400\");",
+            "\tif (!miVentana) { alert(\"Permite las ventanas emergentes\"); return; }",
+            "\tmiVentana.document.write(",
+            "\t\t\"<!DOCTYPE html>\",",
+            "\t\t\"<html lang='es'>\",",
+            "\t\t\"<head>\",",
+            "\t\t'<meta charset=\"UTF-8\">',",
+            "\t\t'<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">',",
+            "\t\t\"<title>${8:Document}</title>\",",
+            "\t\t\"</head>\",",
+            "\t\t\"<body>\",",
+            "\t\ttabla,",
+            "\t\t\"<button onclick='window.close()'>Volver a la página anterior</button>\",",
+            "\t\t\"</body>\",",
+            "\t\t\"</html>\"",
+            "\t);",
+            "\tmiVentana.document.close();",
+            "}"
+        ],
+        "description": "Método de instancia que muestra un objeto en una ventana emergente mediante document.write con botón de cierre."
+    },
+
+    "DWEC: Mostrar Todos en Ventana (Método Estático)": {
+        "scope": "javascript",
+        "prefix": "dwec-mostrar-todos",
+        "body": [
+            "static ${1:mostrarWebs}(${2:webs}) {",
+            "\tlet tabla = \"<table border='1'><tr><th>${3:Título}</th><th>${4:Fecha de creación}</th><th>${5:Visitas}</th></tr>\";",
+            "\tfor (const item of ${2:webs}) {",
+            "\t\ttabla += `<tr><td>\\${item.${6:titulo}}</td><td>\\${item.${7:fechaCreacion}}</td><td>\\${item.${8:visitas}}</td></tr>`;",
+            "\t}",
+            "\ttabla += \"</table>\";",
+            "",
+            "\tconst miVentana = window.open(\"\", \"_blank\", \"width=500,height=400\");",
+            "\tif (!miVentana) { alert(\"Permite las ventanas emergentes\"); return; }",
+            "\tmiVentana.document.write(",
+            "\t\t\"<!DOCTYPE html>\",",
+            "\t\t\"<html lang='es'>\",",
+            "\t\t\"<head>\",",
+            "\t\t'<meta charset=\"UTF-8\">',",
+            "\t\t'<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">',",
+            "\t\t\"<title>${9:Listado Completo}</title>\",",
+            "\t\t\"</head>\",",
+            "\t\t\"<body>\",",
+            "\t\ttabla,",
+            "\t\t\"<button onclick='window.close()'>Volver a la página anterior</button>\",",
+            "\t\t\"</body>\",",
+            "\t\t\"</html>\"",
+            "\t);",
+            "\tmiVentana.document.close();",
+            "}"
+        ],
+        "description": "Método estático de clase que muestra toda la colección en una ventana emergente con tabla y botón de volver."
+    },
+
     "DWEC: Navegación Unificada navega(direccion)": {
         "scope": "javascript,html",
         "prefix": "nav-navega",
@@ -183,6 +330,34 @@
         "description": "Funciones independientes: primera(), anterior(), siguiente() y ultima()."
     },
 
+    "DWEC: Muestra Registro en Formulario": {
+        "scope": "javascript,html",
+        "prefix": "dwec-muestra-registro",
+        "body": [
+            "function muestraRegistro() {",
+            "\tif (${1:webs}.length === 0) return;",
+            "\tdocument.getElementById(\"${2:miTitulo}\").value = ${1:webs}[${3:indice}].${4:titulo};",
+            "\tdocument.getElementById(\"${5:miFecha}\").value = ${1:webs}[${3:indice}].${6:fechaCreacion};",
+            "\tdocument.getElementById(\"${7:miVisitas}\").value = ${1:webs}[${3:indice}].${8:visitas};",
+            "}"
+        ],
+        "description": "Carga los valores del objeto actual del array en los inputs correspondientes del formulario."
+    },
+
+    "DWEC: Bloquear Navegación por ID": {
+        "scope": "javascript,html",
+        "prefix": "dwec-bloquear-nav",
+        "body": [
+            "function bloquearNavegacion(deshabilitar) {",
+            "\tdocument.getElementById(\"btnPrimera\").disabled = deshabilitar;",
+            "\tdocument.getElementById(\"btnAnterior\").disabled = deshabilitar;",
+            "\tdocument.getElementById(\"btnSiguiente\").disabled = deshabilitar;",
+            "\tdocument.getElementById(\"btnUltima\").disabled = deshabilitar;",
+            "}"
+        ],
+        "description": "Habilita o deshabilita los 4 botones de navegación por su ID."
+    },
+
     "DWEC: Control de Botones de Navegación": {
         "scope": "javascript,html",
         "prefix": "nav-botones",
@@ -211,7 +386,7 @@
         "description": "Habilitar/deshabilitar botones de navegación según la posición o estado del formulario."
     },
 
-    "DWEC: Estructura CRUD Examen (Alta, Baja, Modificación, Aceptar, Cancelar)": {
+    "DWEC: Estructura CRUD Examen (Botones, Alta, Baja, Modificación, Cancelar)": {
         "scope": "javascript,html",
         "prefix": "dwec-crud",
         "body": [
@@ -228,7 +403,9 @@
             "}",
             "",
             "function limpiarFormulario() {",
-            "\t${1:// document.getElementById(\"miNombre\").value = \"\";}",
+            "\tdocument.getElementById(\"${1:miTitulo}\").value = \"\";",
+            "\tdocument.getElementById(\"${2:miFecha}\").value = \"\";",
+            "\tdocument.getElementById(\"${3:miVisitas}\").value = \"\";",
             "}",
             "",
             "function alta() {",
@@ -239,7 +416,7 @@
             "}",
             "",
             "function baja() {",
-            "\tif (${2:coleccion}.length === 0) {",
+            "\tif (${4:webs}.length === 0) {",
             "\t\talert(\"No hay registros para eliminar\");",
             "\t\treturn;",
             "\t}",
@@ -248,7 +425,7 @@
             "}",
             "",
             "function modificacion() {",
-            "\tif (${2:coleccion}.length === 0) {",
+            "\tif (${4:webs}.length === 0) {",
             "\t\talert(\"No hay registros para modificar\");",
             "\t\treturn;",
             "\t}",
@@ -260,28 +437,57 @@
             "\tbloquearNavegacion(false);",
             "\tbotones(false, \"hidden\");",
             "\taccionAceptar = 0;",
-            "\tnavega(2);",
-            "}",
-            "",
+            "\t${5:muestraRegistro}();",
+            "}"
+        ],
+        "description": "Estructura de gestión de estados y botones para Alta, Baja, Modificación y Cancelar."
+    },
+
+    "DWEC: Función Aceptar con Switch y Validación Completa": {
+        "scope": "javascript,html",
+        "prefix": "dwec-aceptar",
+        "body": [
             "function aceptar() {",
             "\tswitch (accionAceptar) {",
-            "\t\tcase 1: // Alta",
-            "\t\t\t${3:// validar y añadir}",
+            "\t\tcase 1: // ALTA",
+            "\t\t\tvar nuevo = new ${1:Web}(",
+            "\t\t\t\tdocument.getElementById(\"${2:miTitulo}\").value,",
+            "\t\t\t\tdocument.getElementById(\"${3:miFecha}\").value,",
+            "\t\t\t\tparseInt(document.getElementById(\"${4:miVisitas}\").value, 10)",
+            "\t\t\t);",
+            "\t\t\tif (validacion(nuevo) === \"\") {",
+            "\t\t\t\t${5:webs}.push(nuevo);",
+            "\t\t\t\tcancelar();",
+            "\t\t\t} else {",
+            "\t\t\t\tdocument.getElementById(\"miDivErr\").innerHTML = validacion(nuevo);",
+            "\t\t\t}",
             "\t\t\tbreak;",
-            "\t\tcase 2: // Baja",
+            "",
+            "\t\tcase 2: // BAJA",
             "\t\t\tif (confirm(\"¿Seguro que desea eliminar este registro?\")) {",
-            "\t\t\t\t${2:coleccion}.splice(${4:thisNum}, 1);",
-            "\t\t\t\tif (${4:thisNum} >= ${2:coleccion}.length) ${4:thisNum} = ${2:coleccion}.length - 1;",
+            "\t\t\t\t${5:webs}.splice(${6:indice}, 1);",
+            "\t\t\t\tif (${6:indice} >= ${5:webs}.length) ${6:indice} = ${5:webs}.length - 1;",
             "\t\t\t\tcancelar();",
             "\t\t\t}",
             "\t\t\tbreak;",
-            "\t\tcase 3: // Modificación",
-            "\t\t\t${5:// validar y actualizar}",
+            "",
+            "\t\tcase 3: // MODIFICACIÓN",
+            "\t\t\tvar modificado = new ${1:Web}(",
+            "\t\t\t\tdocument.getElementById(\"${2:miTitulo}\").value,",
+            "\t\t\t\tdocument.getElementById(\"${3:miFecha}\").value,",
+            "\t\t\t\tparseInt(document.getElementById(\"${4:miVisitas}\").value, 10)",
+            "\t\t\t);",
+            "\t\t\tif (validacion(modificado) === \"\") {",
+            "\t\t\t\t${5:webs}[${6:indice}] = modificado;",
+            "\t\t\t\tcancelar();",
+            "\t\t\t} else {",
+            "\t\t\t\tdocument.getElementById(\"miDivErr\").innerHTML = validacion(modificado);",
+            "\t\t\t}",
             "\t\t\tbreak;",
             "\t}",
             "}"
         ],
-        "description": "Estructura estándar de botones y acciones CRUD para exámenes de DWEC."
+        "description": "Función aceptar() completa para Alta, Baja y Modificación con creación de objeto y comprobación de errores."
     },
 
     "DWEC: Listado en Ventana Emergente": {
@@ -318,5 +524,56 @@
             "}"
         ],
         "description": "Genera un listado tabulado en una nueva ventana emergente (window.open)."
+    },
+
+    "DWEC: Plantilla HTML Examen Completa": {
+        "scope": "html",
+        "prefix": "dwec-html",
+        "body": [
+            "<!DOCTYPE html>",
+            "<html lang=\"es\">",
+            "<head>",
+            "\t<meta charset=\"UTF-8\">",
+            "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+            "\t<title>${1:Gestión de Registros}</title>",
+            "\t<script src=\"${2:Web}.js\"></script>",
+            "\t<script src=\"${3:Nav}.js\"></script>",
+            "</head>",
+            "<body>",
+            "\t<h3 align=\"center\">",
+            "\t\t${4:GESTIÓN}",
+            "\t\t<br><br>",
+            "\t\t${5:Título}:",
+            "\t\t<input type=\"text\" id=\"mi${5:Titulo}\">",
+            "\t\t<br><br>",
+            "\t\t${6:Visitas}:",
+            "\t\t<input type=\"text\" id=\"mi${6:Visitas}\">",
+            "\t\t<br><br>",
+            "\t\tFecha de creación (dd/mm/aaaa):",
+            "\t\t<input type=\"text\" id=\"miFecha\">",
+            "\t\t<br><br>",
+            "\t\t<div id=\"divNav\">",
+            "\t\t\t<input type=\"button\" onclick=\"primera()\" value=\"Primera\" id=\"btnPrimera\">",
+            "\t\t\t<input type=\"button\" onclick=\"anterior()\" value=\"<< Anterior\" id=\"btnAnterior\">",
+            "\t\t\t<input type=\"button\" onclick=\"siguiente()\" value=\">> Siguiente\" id=\"btnSiguiente\">",
+            "\t\t\t<input type=\"button\" onclick=\"ultima()\" value=\"Última\" id=\"btnUltima\">",
+            "\t\t</div>",
+            "\t\t<br><br>",
+            "\t\t<div id=\"divAcciones\">",
+            "\t\t\t<input type=\"button\" onclick=\"alta()\" value=\"Alta\" id=\"btnAlta\">",
+            "\t\t\t<input type=\"button\" onclick=\"baja()\" value=\"Baja\" id=\"btnBaja\">",
+            "\t\t\t<input type=\"button\" onclick=\"modificacion()\" value=\"Modificación\" id=\"btnMod\">",
+            "\t\t\t<input type=\"button\" onclick=\"listadoVentana()\" value=\"Listado\" id=\"btnListado\">",
+            "\t\t\t<input type=\"button\" onclick=\"listadoVentana3()\" value=\"Muestra uno\" id=\"btnMuestraUno\">",
+            "\t\t\t<input type=\"button\" onclick=\"aceptar()\" value=\"Aceptar\" id=\"btnAcep\" style=\"visibility:hidden;\">",
+            "\t\t\t<input type=\"button\" onclick=\"cancelar()\" value=\"Cancelar\" id=\"btnCancel\" style=\"visibility:hidden;\">",
+            "\t\t</div>",
+            "\t\t<br><br>",
+            "\t\t<div id=\"miDivErr\" style=\"color:red;\"></div>",
+            "\t</h3>",
+            "</body>",
+            "</html>"
+        ],
+        "description": "Estructura HTML típica del examen con campos, barra de navegación, botones CRUD y div de errores."
     }
 }

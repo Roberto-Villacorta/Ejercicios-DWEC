@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="Web.js"></script>
+    <script src="Nav.js"></script>
+</head>
+
+<body>
+    <h3 align="center">
+        GESTIÓN DE VEHÍCULOS
+        <br><br>
+        Titulo:
+        <input type="text" id="miTitulo">
+        <br><br>
+        visitas:
+        <input type="text" id="miVisitas">
+        <br><br>
+        Fecha de creación (dd/mm/aaaa):
+        <input type="text" id="miFecha">
+        <br><br>
+        <div id="divBtn">
+            <input type="button" onclick="navega(2)" value="Primera" id="uno">
+            <input type="button" onclick="navega(-1)" value="<< Anterior" id="dos">
+            <input type="button" onclick="navega(1)" value=">> Siguiente" id="tres">
+            <input type="button" onclick="navega(3)" value="Última" id="cuatro">
+        </div>
+        <br><br>
+        <div id="divBtn3">
+            <input type="button" onclick="diasEnLaWeb()" value="Antigüedad">
+        </div>
+        <br><br>
+        <div id="divBtn2">
+            <input type="button" onclick="alta()" value="Alta" id="btnAlta">
+            <input type="button" onclick="baja()" value="Baja" id="btnBaja">
+            <input type="button" onclick="modificacion()" value="Modificación" id="btnMod">
+            <input type="button" onclick="listadoVentana()" value="Listado">
+            <input type="button" onclick="listadoVentana3()" value="Muestra un vehículo">
+            <input type="button" onclick="aceptar()" value="Aceptar" id="btnAcep">
+            <input type="button" onclick="mostrarBotones()" value="Cancelar" id="btnCancel">
+        </div>
+        <br><br>
+        <div id="miDivErr" style="color:red;"></div>
+    </h3>
+</body>
+
+</html>
