@@ -87,7 +87,6 @@
             var localidad=document.getElementById("miLocalidad").value.trim();
             var correcto=true;
             var errores="";
-
             if(nombre=="") {
                 errores+="Debe introducir el nombre del alumno.<br>";
                 correcto=false;
@@ -95,7 +94,6 @@
                 errores+="El nombre debe tener entre 3 y 20 letras.<br>";
                 correcto=false;
             }
-
             if(apellidos=="") {
                 errores+="Debe introducir los apellidos del alumno.<br>";
                 correcto=false;
@@ -103,7 +101,6 @@
                 errores+="Debe introducir unos apellidos válidos.<br>";
                 correcto=false;
             }
-
             if(dni=="") {
                 errores+="Debe introducir el DNI del alumno.<br>";
                 correcto=false;
@@ -111,7 +108,6 @@
                 errores+="Debe introducir un DNI válido.<br>";
                 correcto=false;
             }
-
             if(fecha=="") {
                 errores+="Debe introducir la fecha de nacimiento.<br>";
                 correcto=false;
@@ -119,7 +115,6 @@
                 errores+="La fecha debe ser válida y anterior a hoy (dd/mm/aaaa).<br>";
                 correcto=false;
             }
-
             if(localidad=="") {
                 errores+="Debe introducir la localidad.<br>";
                 correcto=false;
@@ -127,7 +122,6 @@
                 errores+="La localidad debe tener entre 3 y 30 letras.<br>";
                 correcto=false;
             }
-
             document.getElementById("miDivErr").innerHTML=errores;
             return correcto;
         }
